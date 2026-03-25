@@ -4,6 +4,9 @@ secrets.json
 *.p12
 *.jks
 
+# FVM Version Cache
+.fvm/
+
 # Cloud Functions (Node.js)
 **/node_modules/
 functions/npm-debug.log
