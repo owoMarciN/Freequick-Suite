@@ -219,14 +219,6 @@ riders/{uid}
 dispatch_jobs/{jobID}
 ```
 
-### Security Rules
-Firestore rules are in `firestore.rules`. Key principles:
-- Restaurant owners can only write to their own documents
-- Menus and items can only be written when restaurant `status == 'Active'`
-- Admins approve restaurants by setting `status: 'Active'` only
-- Riders can only update their own dispatch jobs, status field only
-- Order status can be updated by the customer, restaurant, and assigned rider
-
 ---
 
 ## Files Never Committed
