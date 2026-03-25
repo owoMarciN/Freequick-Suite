@@ -7,11 +7,79 @@ import Stripe from "stripe";
 admin.initializeApp();
 const db = admin.firestore();
 
-// Secret Manager dla Stripe
+// Secret Manager for Stripe
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 
+// Secret manager for Google Maps Key
+const GOOGLE_MAPS_KEY = defineSecret("GOOGLE_MAPS_KEY");
+
+/* ---------------------------------------------- */
+/* ---------- Used by the Merchant App ----------
+/* ----------------------------------------------*/
+
+// Shared configuration 
+const sharedOptions: https.HttpsOptions = {
+  region: "europe-west1",
+  secrets: [GOOGLE_MAPS_KEY],
+  cors: true,
+};
+
+/** 
+ * Function for autocompletion of the address hints (Web)
+ */
+export const googleMapsAutocomplete = https.onRequest(sharedOptions, async (req, res) => {
+  const input = req.query.input as string;
+
+  if (!input) {
+    res.status(400).json({ error: "Missing input parameter" });
+    return;
+  }
+
+  try {
+    const apiKey = GOOGLE_MAPS_KEY.value();
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Autocomplete Error:", error);
+    res.status(500).json({ error: "Failed to fetch autocomplete data" });
+  }
+});
+
 /**
- * 1. Tworzy Payment Intent dla Stripe
+ * Function for getting the (lat/lng) of a given place chosen by the user (Web)
+ */
+export const googleMapsDetails = https.onRequest(sharedOptions, async (req, res) => {
+  const placeId = req.query.placeId as string;
+
+  if (!placeId) {
+    res.status(400).json({ error: "Missing placeId parameter" });
+    return;
+  }
+
+  try {
+    const apiKey = GOOGLE_MAPS_KEY.value();
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Details Error:", error);
+    res.status(500).json({ error: "Failed to fetch place details" });
+  }
+});
+
+/* ---------------------------------------------- */
+/* ---------- Used by the Customer App ----------
+/* ----------------------------------------------*/
+
+/**
+ * Creates Payment Intent for Stripe transactions
  */
 export const createPaymentIntent = https.onCall(
   { 
@@ -41,7 +109,7 @@ export const createPaymentIntent = https.onCall(
 );
 
 /**
- * 2. Pobiera typ metody płatności (karta/blik) po sukcesie
+ * Gets Paymnet Methods (credit card/blik) after successfull transaction in Stripe
  */
 export const getPaymentMethodType = https.onCall(
   { 
@@ -68,7 +136,7 @@ export const getPaymentMethodType = https.onCall(
 );
 
 /**
- * 3. Zapisuje zamówienie w Firestore
+ * Zapisuje zamówienie w Firestore
  */
 export const placeOrder = https.onCall(
   { 
@@ -104,6 +172,10 @@ export const placeOrder = https.onCall(
     return { success: true, orderID };
   }
 );
+
+/* ---------------------------------------------- */
+/* ------------ Used by the Rider App -----------
+/* ----------------------------------------------*/
 
 /**
  * Trigger: Gdy kurier zaakceptuje zadanie

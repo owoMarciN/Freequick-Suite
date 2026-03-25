@@ -1,0 +1,9 @@
+{
+  "dart.flutterSdkPath": ".fvm/versions/3.38.9",
+  "dart.sdkPath": ".fvm/flutter_sdk/bin/cache/dart-sdk",
+  "extractStringsToArb.arbFolderPath": "lib/l10n", 
+  "dart.analysisExcludedFolders": [
+    "**/.fvm"
+  ],
+  "dart.updatePackagesOnPubspecChanges": true,
+}

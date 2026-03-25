@@ -62,21 +62,19 @@ flutter:
   generate: true
 
   assets:
-    - assets/images/
-    - assets/images/slider/
-    # - assets/translations/
+    - ../shared_assets/images/
 
   fonts:
     - family: Acme
       fonts:
-        - asset: assets/fonts/Acme-Regular.ttf
+        - asset: ../shared_assets/fonts/Acme-Regular.ttf
     - family: Kiwi
       fonts:
-        - asset: assets/fonts/KiwiMaru-Medium.ttf
+        - asset: ../shared_assets/fonts/KiwiMaru-Medium.ttf
     - family: Signatra
       fonts:
-        - asset: assets/fonts/Signatra.ttf
+        - asset: ../shared_assets/fonts/Signatra.ttf
     - family: Train
       fonts:
-        - asset: assets/fonts/TrainOne-Regular.ttf
+        - asset: ../shared_assets/fonts/TrainOne-Regular.ttf
 

@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // --- MERCHANT APP ---
+    {
+      "name": "Merchant: Debug",
+      "request": "launch",
+      "type": "dart",
+      "program": "merchant_app/lib/main.dart",
+      "args": [
+        "-d", "web-server",
+        "--web-port", "8080",
+        "--web-hostname", "localhost",
+        "--dart-define-from-file", "${workspaceFolder}/secrets.json" // ZMIENNA VS CODE
+      ]
+    },
+
+    // --- RIDER APP ---
+    {
+      "name": "Rider: Debug",
+      "request": "launch",
+      "type": "dart",
+      "program": "rider_app/lib/main.dart",
+      "args": [
+        "--dart-define-from-file", "${workspaceFolder}/secrets.json"
+      ]
+    },
+
+    // --- CUSTOMER APP ---
+    {
+      "name": "Customer: Debug",
+      "request": "launch",
+      "type": "dart",
+      "program": "customer_app/lib/main.dart",
+      "args": [
+        "--dart-define-from-file", "${workspaceFolder}/secrets.json"
+      ]
+    }
+  ]
+}
