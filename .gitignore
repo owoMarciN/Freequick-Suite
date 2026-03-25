@@ -1,0 +1,10 @@
+# Secrets and Keys
+secrets.json
+.env
+*.p12
+*.jks
+
+# Cloud Functions (Node.js)
+**/node_modules/
+**/lib/
+functions/npm-debug.log
