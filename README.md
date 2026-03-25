@@ -9,7 +9,7 @@ A full-stack food delivery platform built with Flutter and Firebase. The suite c
 ```
 freequick-suite/
 ├── customer_app/          # Mobile app for customers placing orders
-├── merchant_app/          # Web dashboard for restaurant owners
+├── merchant_app/          # Web dashboard for restaurant owners also a specialy integrated Admin side for managing users
 ├── rider_app/             # Mobile app for delivery riders
 ├── cloud_functions/       # Firebase Cloud Functions (TypeScript backend)
 ├── shared_assets/         # Shared fonts, images, and brand assets
@@ -24,7 +24,7 @@ freequick-suite/
 | App | Platform | Description |
 |---|---|---|
 | Customer App | iOS / Android | Browse restaurants, place orders, track delivery in real time |
-| Merchant App | Web (Flutter Web) | Manage menus, handle incoming orders, view analytics |
+| Merchant App | Web (Flutter Web) | Manage menus, handle incoming orders, view analytics, Admin can manage the customer app content |
 | Rider App | iOS / Android | Receive dispatch jobs, navigate to restaurant and customer |
 | Cloud Functions | Node.js (Firebase) | Payment processing, order dispatch, push notifications |
 
