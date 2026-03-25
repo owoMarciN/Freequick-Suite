@@ -66,7 +66,7 @@ lib/
 
 | Provider | Responsibility |
 |---|---|
-| `TotalAmount` | Cart subtotal, delivery fee, savings |
+| `TotalAmount` | Cart subtotal, delivery fee, savings from discounts |
 | `AddressChanger` | Selected delivery address index |
 | `LocaleProvider` | Language selection and theme mode |
 | `ThemeProvider` | Dark/light mode with SharedPreferences persistence |

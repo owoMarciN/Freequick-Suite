@@ -1,6 +1,6 @@
 # Freequick — Rider App
 
-Flutter mobile app for delivery riders. Receive dispatch jobs, navigate to restaurants and customers, and manage delivery status in real time.
+Flutter mobile app for delivery riders. Receive dispatch jobs, manage delivery status in real time.
 
 ---
 
@@ -57,7 +57,7 @@ lib/
 ├── providers/             # RiderProvider, RiderStatsProvider
 ├── screens/               # Home, active delivery, profile, setup
 ├── services/              # AuthService, RiderService
-├── utils/                 # AppTheme, AppConstants, rider_global.dart
+├── utils/                 # AppTheme, AppConstants,
 └── widgets/               # JobRequestSheet
 ```
 

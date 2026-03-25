@@ -8,7 +8,7 @@ A full-stack food delivery platform built with Flutter and Firebase. The suite c
 
 ```
 freequick-suite/
-├── .fvm/                  # FVM Flutter version pin (3.29.0)
+├── .fvm/                  # FVM Flutter version pin (3.38.9)
 ├── .vscode/               # VS Code launch configurations
 ├── customer_app/          # Mobile app for customers placing orders
 ├── merchant_app/          # Web dashboard for restaurant owners
@@ -37,7 +37,7 @@ freequick-suite/
 ## Tech Stack
 
 ### Frontend
-- **Flutter 3.29.0** (pinned via FVM) — all three client apps
+- **Flutter 3.38.9** (pinned via FVM) — all three client apps
 - **Provider** — state management across all apps
 - **Firebase Auth** — phone number OTP authentication
 - **Google Maps Flutter** — live delivery tracking and navigation
@@ -60,7 +60,7 @@ freequick-suite/
 
 ### 1. Install FVM
 
-All three Flutter apps are pinned to **Flutter 3.29.0** via FVM. Install FVM first:
+All three Flutter apps are pinned to **Flutter 3.38.9** via FVM. Install FVM first:
 
 ```bash
 # Install FVM globally
@@ -207,7 +207,7 @@ firebase deploy --only firestore:rules
 
 Single Firebase project shared across all three apps.
 
-### Firestore Collections
+### Some of the Firestore Collections
 
 ```
 orders/{orderID}
@@ -217,7 +217,6 @@ restaurants/{id}/menus/{menuId}/items/{itemId}
 restaurants/{id}/promotions/{id}
 riders/{uid}
 dispatch_jobs/{jobID}
-quotes/{quoteId}
 ```
 
 ### Security Rules
@@ -246,4 +245,4 @@ secrets.json
 
 ## Status
 
-Active development. Core order flow (place → dispatch → deliver) is functional end-to-end across all three apps.
+Active development. Core order flow (place → dispatch → deliver) needs more development to be actaully functional end-to-end across all three apps.
