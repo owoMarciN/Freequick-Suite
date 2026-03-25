@@ -6,5 +6,4 @@ secrets.json
 
 # Cloud Functions (Node.js)
 **/node_modules/
-**/lib/
 functions/npm-debug.log

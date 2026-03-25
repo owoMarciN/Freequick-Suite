@@ -1,0 +1,6 @@
+{
+    "@@locale": "uk",
+    "time_just_now": "Щойно",
+    "time_minutes": "{n}хв тому",
+    "time_hours": "{n}год тому"
+}
