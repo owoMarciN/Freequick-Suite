@@ -1,24 +1,28 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firestorage;
+
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 
+import 'package:user_app/global/global.dart';
+
 import 'package:user_app/services/image_picker_service.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firestorage;
-import 'package:user_app/widgets/auth_button.dart';
+import 'package:user_app/screens/home_screen.dart';
 
+import 'package:phone_form_field/phone_form_field.dart';
+
+import 'package:user_app/widgets/auth_button.dart';
 import 'package:user_app/widgets/custom_text_field.dart';
 import 'package:user_app/widgets/error_dialog.dart';
 import 'package:user_app/widgets/loading_dialog.dart';
-import 'package:user_app/screens/home_screen.dart';
-import 'package:phone_form_field/phone_form_field.dart';
 import 'package:user_app/widgets/custom_phone_field.dart';
 import 'package:user_app/widgets/custom_password_field.dart';
 
-import 'package:user_app/global/global.dart';
 import 'package:user_app/extensions/context_translate_ext.dart';
 
 class RegisterScreen extends StatefulWidget {

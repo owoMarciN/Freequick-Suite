@@ -18,17 +18,17 @@ List<HomePageItem> getHomePageItems(int index) {
 
 List<List<HomePageItem>> homePageItems = [
   [
-    HomePageItem('Jalebi', 'assets/images/jalebi.webp'),
-    HomePageItem('Kaju Barfi', 'assets/images/kajubarfi.jpeg'),
-    HomePageItem('Gulab Jamun', 'assets/images/gulabjamun.jpeg'),
-    HomePageItem('Soft Drinks', 'assets/images/softdrink.png'),
-    HomePageItem('Laddoo', 'assets/images/laddoo.jpeg'),
+    HomePageItem('Jalebi', 'images/jalebi.webp'),
+    HomePageItem('Kaju Barfi', 'images/kajubarfi.jpeg'),
+    HomePageItem('Gulab Jamun', 'images/gulabjamun.jpeg'),
+    HomePageItem('Soft Drinks', 'images/softdrink.png'),
+    HomePageItem('Laddoo', 'images/laddoo.jpeg'),
   ],
   [
-    HomePageItem('Shake', 'assets/images/shake.jpeg'),
-    HomePageItem('Pastries', 'assets/images/pastries.jpeg'),
-    HomePageItem('Momos', 'assets/images/momos.jpeg'),
-    HomePageItem('Chocolate', 'assets/images/chokolate.jpeg'),
-    HomePageItem('Pizza', 'assets/images/pizza1.jpeg'),
+    HomePageItem('Shake', 'images/shake.jpeg'),
+    HomePageItem('Pastries', 'images/pastries.jpeg'),
+    HomePageItem('Momos', 'images/momos.jpeg'),
+    HomePageItem('Chocolate', 'images/chokolate.jpeg'),
+    HomePageItem('Pizza', 'images/pizza1.jpeg'),
   ],
 ];

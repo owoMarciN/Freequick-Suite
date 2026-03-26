@@ -44,7 +44,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
-                'assets/images/1000021479.jpg',
+                'images/1000021479.jpg', package: 'shared_assets',
                 width: 300,
               ),
             ),
@@ -55,7 +55,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 20,
-                fontFamily: "Train",
+                fontFamily: "Train", package: 'shared_assets',
                 letterSpacing: 3,
               ),
             ),
@@ -65,7 +65,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
-                fontFamily: "Signatra",
+                fontFamily: "Signatra", package: 'shared_assets',
                 letterSpacing: 3,
               ),
             ),

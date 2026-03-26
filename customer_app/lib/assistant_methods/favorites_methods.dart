@@ -1,6 +1,9 @@
 import "package:flutter/material.dart";
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:user_app/global/global.dart';
+
 import 'package:user_app/widgets/unified_snackbar.dart';
 
 Future<void> toggleFavorite(

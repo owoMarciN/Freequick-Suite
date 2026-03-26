@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:provider/provider.dart';
+import 'package:user_app/providers/cart_provider.dart';
 
 import 'package:user_app/authentication/auth_screen.dart';
-import 'package:user_app/providers/cart_provider.dart';
+
 import 'package:user_app/screens/home_screen.dart';
 
 import 'package:user_app/global/global.dart';
-import 'package:user_app/widgets/auth_button.dart';
 
+import 'package:user_app/widgets/auth_button.dart';
 import 'package:user_app/widgets/error_dialog.dart';
 import 'package:user_app/widgets/loading_dialog.dart';
 import 'package:user_app/widgets/custom_text_field.dart';
@@ -166,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.bottomCenter,
                     padding: const EdgeInsets.all(15),
                     child: Image.asset(
-                      'assets/images/login.png',
+                      'images/login.png', package: 'shared_assets',
                       height: 270,
                     ),
                   ),

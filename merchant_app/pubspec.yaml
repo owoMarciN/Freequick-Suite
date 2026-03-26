@@ -1,5 +1,5 @@
 name: merchant_app
-description: A new Flutter project.
+description: Merchant APP. Part of the Freequick-Suite.
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -10,6 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # --- Shared Assets Package ---
+  shared_assets:
+    path: ../shared_assets
 
   flutter_localizations:
     sdk: flutter
@@ -64,20 +68,4 @@ flutter:
   uses-material-design: true
   generate: true
 
-  assets:
-    - ../shared_assets/images/
-
-  fonts:
-    - family: Acme
-      fonts:
-        - asset: ../shared_assets/fonts/Acme-Regular.ttf
-    - family: Kiwi
-      fonts:
-        - asset: ../shared_assets/fonts/KiwiMaru-Medium.ttf
-    - family: Signatra
-      fonts:
-        - asset: ../shared_assets/fonts/Signatra.ttf
-    - family: Train
-      fonts:
-        - asset: ../shared_assets/fonts/TrainOne-Regular.ttf
 

@@ -1,6 +1,9 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cloud_functions/cloud_functions.dart';
+
 import 'package:flutter_stripe/flutter_stripe.dart';
+
 import 'package:user_app/widgets/unified_snackbar.dart';
 
 Future<String?> processStripePayment(double amount) async {

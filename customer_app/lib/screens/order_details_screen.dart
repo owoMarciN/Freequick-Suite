@@ -651,8 +651,9 @@ class _StatusImage extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Image.asset(
         delivered
-            ? 'assets/images/delivered.jpg'
-            : 'assets/images/state.jpg',
+            ? 'images/delivered.jpg'
+            : '/images/state.jpg',
+        package: 'shared_assets',
         width: double.infinity,
         fit: BoxFit.cover,
       ),

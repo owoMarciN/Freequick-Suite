@@ -27,7 +27,7 @@ class HomeLargeItems extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     image: const DecorationImage(
-                        image: AssetImage('assets/images/discovervibe3.gif'),
+                        image: AssetImage('images/discovervibe3.gif', package: 'shared_assets',),
                         fit: BoxFit.cover)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -63,7 +63,7 @@ class HomeLargeItems extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: const DecorationImage(
-                      image: AssetImage('assets/images/discovervibe2.gif'),
+                      image: AssetImage('images/discovervibe2.gif', package: 'shared_assets',),
                       fit: BoxFit.cover),
                 ),
                 child: Column(

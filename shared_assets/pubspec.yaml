@@ -1,0 +1,29 @@
+name: shared_assets
+description: Common assets shared across apps.
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  assets:
+    - images/
+    - images/slider
+    
+  fonts:
+    - family: Acme
+      fonts:
+        - asset: fonts/Acme-Regular.ttf
+    - family: Kiwi
+      fonts:
+        - asset: fonts/KiwiMaru-Medium.ttf
+    - family: Signatra
+      fonts:
+        - asset: fonts/Signatra.ttf
+    - family: Train
+      fonts:
+        - asset: fonts/TrainOne-Regular.ttf

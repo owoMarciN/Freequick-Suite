@@ -33,7 +33,7 @@ class HomeMediumItems extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Expanded(
-                            child: Image.asset('assets/images/offers.gif')),
+                            child: Image.asset('images/offers.gif', package: 'shared_assets',)),
                         const Text(
                           'Offers',
                           style: TextStyle(
@@ -69,7 +69,7 @@ class HomeMediumItems extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Expanded(child: Image.asset('assets/images/cake.jpeg')),
+                        Expanded(child: Image.asset('images/cake.jpeg', package: 'shared_assets',)),
                         const Text(
                           'Offers',
                           style: TextStyle(
@@ -106,7 +106,7 @@ class HomeMediumItems extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Expanded(
-                            child: Image.asset('assets/images/fruits.gif')),
+                            child: Image.asset('images/fruits.gif', package: 'shared_assets',)),
                         const Text(
                           'Offers',
                           style: TextStyle(

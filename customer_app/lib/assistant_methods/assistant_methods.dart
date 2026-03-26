@@ -1,10 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
+
 import 'package:user_app/global/global.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:user_app/widgets/unified_snackbar.dart';
 
 List<String> separateItemIDs(List<dynamic> userCart) {
