@@ -484,10 +484,15 @@ export const placeOrder = https.onCall(
 
     const orderID = await createOrderAndDispatch({
       quoteId,
-      userId:         req.auth.uid,
-      restaurantID:   quote.restaurantID,
-      paymentMethod:  "cash",
+      userId: req.auth.uid,
+      restaurantID: quote.restaurantID,
+      paymentMethod: "cash",
       paymentDetails: "cash",
+    });
+
+    await db.collection("quotes").doc(quoteId).update({
+      orderID,
+      status: "USED",
     });
  
     return { success: true, orderID };
@@ -535,12 +540,17 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     return;
   }
  
-  await createOrderAndDispatch({
+  const orderID = await createOrderAndDispatch({
     quoteId,
     userId,
     restaurantID,
-    paymentMethod:  "stripe",
+    paymentMethod: "stripe",
     paymentDetails: paymentIntent.id,
+  });
+
+  await db.collection("quotes").doc(quoteId).update({
+    orderID,
+    status: "USED",
   });
 }
 

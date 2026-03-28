@@ -189,7 +189,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Order placement
-
   Future<void> _placeOrder() async {
     if (!_validate()) return;
     setState(() => _isProcessing = true);
@@ -246,10 +245,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Cash flow
-
   Future<void> _placeCashOrder(String quoteId) async {
     final result = await _functions
-        .httpsCallable('placeCashOrder')
+        .httpsCallable('placeOrder')
         .call({'quoteId': quoteId});
 
     final orderID = result.data['orderID']?.toString() ?? '';
@@ -258,7 +256,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Stripe flow
-
   Future<void> _placeStripeOrder(String quoteId, double total) async {
     try {
       final intentResult = await _functions
@@ -313,7 +310,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     });
 
     return completer.future.timeout(
-      const Duration(seconds: 15),
+      const Duration(seconds: 30),
       onTimeout: () {
         sub.cancel();
         return null;
@@ -336,7 +333,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Build
-
   @override
   Widget build(BuildContext context) {
     final amountProvider = Provider.of<AmountProvider>(context);

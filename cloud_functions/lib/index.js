@@ -379,6 +379,10 @@ exports.placeOrder = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }
         paymentMethod: "cash",
         paymentDetails: "cash",
     });
+    await db.collection("quotes").doc(quoteId).update({
+        orderID,
+        status: "USED",
+    });
     return { success: true, orderID };
 });
 exports.stripeWebhook = https.onRequest({ region: REGION, secrets: [stripeSecretKey, stripeWebhookSecret] }, async (req, res) => {
@@ -410,12 +414,16 @@ async function handlePaymentSuccess(paymentIntent) {
         console.log("Order already created for PI:", paymentIntent.id);
         return;
     }
-    await createOrderAndDispatch({
+    const orderID = await createOrderAndDispatch({
         quoteId,
         userId,
         restaurantID,
         paymentMethod: "stripe",
         paymentDetails: paymentIntent.id,
+    });
+    await db.collection("quotes").doc(quoteId).update({
+        orderID,
+        status: "USED",
     });
 }
 /* ---------------------------------------------- */
