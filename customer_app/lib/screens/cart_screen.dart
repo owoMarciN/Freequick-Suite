@@ -6,7 +6,7 @@ import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/place_order_screen.dart';
 
 import 'package:user_app/providers/amount_provider.dart';
-import 'package:user_app/assistant_methods/assistant_methods.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/providers/cart_provider.dart';
 
 import 'package:user_app/widgets/cart_item_design.dart';

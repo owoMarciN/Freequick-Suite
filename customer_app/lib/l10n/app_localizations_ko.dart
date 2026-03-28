@@ -2234,4 +2234,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String welcomeNotifBody(String name) {
     return '$name님, 저희 앱에 가입해주셔서 감사합니다!';
   }
+
+  @override
+  String get time_just_now => '방금';
+
+  @override
+  String time_minutes(int n) {
+    return '${n}m 전';
+  }
+
+  @override
+  String time_hours(int n) {
+    return '$n시간 전';
+  }
 }

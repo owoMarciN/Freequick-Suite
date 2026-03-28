@@ -2306,4 +2306,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String welcomeNotifBody(String name) {
     return 'Dziękujemy za dołączenie do naszej aplikacji, $name!';
   }
+
+  @override
+  String get time_just_now => 'Właśnie';
+
+  @override
+  String time_minutes(int n) {
+    return '${n}m temu';
+  }
+
+  @override
+  String time_hours(int n) {
+    return '${n}godz. temu';
+  }
 }

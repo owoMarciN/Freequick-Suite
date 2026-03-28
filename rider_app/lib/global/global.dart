@@ -17,7 +17,7 @@ final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 // UID always comes from FirebaseAuth — never stored locally
 String? get currentRiderUID => firebaseAuth.currentUser?.uid;
 
-// ── Per-rider prefixed prefs ──────────────────────────────────────────────────
+//  Per-rider prefixed prefs
 // Keys are prefixed with the rider's UID so multiple riders on the same
 // device don't overwrite each other's preferences.
 
@@ -44,7 +44,7 @@ T? getRiderPref<T>(String key) {
   return riderPrefs!.get(prefixedKey) as T?;
 }
 
-// ── Session clear ─────────────────────────────────────────────────────────────
+//  Session clear
 // Call on sign-out. Does NOT clear all prefs — only removes session-level keys.
 // Per-rider prefixed keys survive so preferences are restored on next login.
 
@@ -54,20 +54,20 @@ Future<void> clearRiderSession() async {
   // This is a hook for any future session keys that need clearing.
 }
 
-// ── Pref key constants ────────────────────────────────────────────────────────
+//  Pref key constants
 // Centralised so nothing is ever mistyped across the app.
 
 class RiderPrefKeys {
   // Set during profile setup, read in home screen stats section
-  static const String vehicleType      = 'vehicleType';
+  static const String vehicleType = 'vehicleType';
 
   // Set in profile/settings screen
-  static const String notifNewJob      = 'notif_new_job';
+  static const String notifNewJob = 'notif_new_job';
   static const String notifOrderUpdate = 'notif_order_update';
 
   // Dark mode — wired to ThemeProvider same as customer app
-  static const String darkMode         = 'dark_mode';
+  static const String darkMode = 'dark_mode';
 
   // Onboarding
-  static const String onboardingDone   = 'onboarding_done';
+  static const String onboardingDone = 'onboarding_done';
 }

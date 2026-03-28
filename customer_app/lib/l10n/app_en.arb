@@ -1391,5 +1391,23 @@
   "hintPhone": "Phone Number",
   "welcomeNotifTitle": "Welcome!",
   "welcomeNotifBody": "Thanks for joining our app, {name}!",
-  "@welcomeNotifBody": { "placeholders": { "name": { "type": "String" } } }
+  "@welcomeNotifBody": { "placeholders": { "name": { "type": "String" } } },
+
+  "time_just_now": "Just now",
+  "time_minutes": "{n}m ago",
+  "@time_minutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "time_hours": "{n}h ago",
+  "@time_hours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

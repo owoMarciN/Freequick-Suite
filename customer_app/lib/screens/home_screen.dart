@@ -37,10 +37,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ── Bottom nav ─────────────────────────────────────────────────────────────
+  //  Bottom nav
   int _currentPageIndex = 0;
 
-  // ── Home content state ─────────────────────────────────────────────────────
+  //  Home content state
   final PageController _promoPageController =
       PageController(viewportFraction: 0.92);
   int _selectedTabIndex = 0;
@@ -83,8 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     final tabs = getHomeTabs(context);
@@ -108,8 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: UnifiedAppBar(
             leading: Builder(
               builder: (context) => IconButton(
-                icon: const Icon(Icons.menu_open,
-                    color: Colors.white, size: 28),
+                icon:
+                    const Icon(Icons.menu_open, color: Colors.white, size: 28),
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
@@ -129,19 +127,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Header ─────────────────────────────────────
+                    //  Header
                     _buildHeader(context),
 
-                    // ── Tab bar ────────────────────────────────────
+                    //  Tab bar
                     _buildTabBar(context, tabs),
 
-                    // ── Category grid ──────────────────────────────
+                    //  Category grid
                     _buildCategoryGrid(
                         context, displayedCategories, hasMore, selectedTab),
 
                     const SizedBox(height: 4),
 
-                    // ── Live promotions ────────────────────────────
+                    //  Live promotions
                     _PromotionsBanner(
                       pageController: _promoPageController,
                       currentPage: _currentPromoPage,
@@ -149,11 +147,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           setState(() => _currentPromoPage = i),
                     ),
 
-                    // ── Order again ────────────────────────────────
+                    //  Order again
                     // Order again — only shown if user has past orders
                     const _OrderAgainSection(),
 
-                    // ── Top restaurants ────────────────────────────
+                    //  Top restaurants
                     _buildSectionHeader(
                       context,
                       'Top Restaurants',
@@ -166,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: _TopRatedRestaurants(),
                     ),
 
-                    // ── What's on your mind ────────────────────────
+                    //  What's on your mind
                     _buildSectionHeader(
                       context,
                       "What's on your mind?",
@@ -184,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 8),
 
-                    // ── Spotlight section header ────────────────────
+                    //  Spotlight section header
                     _buildSectionHeader(
                       context,
                       'In the Spotlight',
@@ -196,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              // ── Restaurants sliver grid ────────────────────────────
+              //  Restaurants sliver grid
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("restaurants")
@@ -209,8 +207,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   if (snapshot.hasError) {
                     return const SliverToBoxAdapter(
-                        child: Center(
-                            child: Text("Error loading restaurants")));
+                        child:
+                            Center(child: Text("Error loading restaurants")));
                   }
                   if (snapshot.data!.docs.isEmpty) {
                     return SliverToBoxAdapter(
@@ -236,8 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   height: 280,
                                   child: RestaurantCard(
                                     restaurantID: doc.id,
-                                    restaurantName:
-                                        rModel.name ?? 'Unknown',
+                                    restaurantName: rModel.name ?? 'Unknown',
                                   ),
                                 ),
                               ),
@@ -259,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Header (flat red, no gradient) ────────────────────────────────────────
+  //  Header (flat red, no gradient)
 
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -276,15 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 pageBuilder: (_, __, ___) =>
                     const SearchScreen(initialText: ''),
                 transitionDuration: const Duration(milliseconds: 400),
-                reverseTransitionDuration:
-                    const Duration(milliseconds: 300),
+                reverseTransitionDuration: const Duration(milliseconds: 300),
                 transitionsBuilder: (_, animation, __, child) =>
                     ScaleTransition(
                   scale: CurvedAnimation(
                       parent: animation, curve: Curves.easeOutQuart),
                   alignment: Alignment.topCenter,
-                  child:
-                      FadeTransition(opacity: animation, child: child),
+                  child: FadeTransition(opacity: animation, child: child),
                 ),
               ));
               if (!mounted) return;
@@ -325,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Tab bar ────────────────────────────────────────────────────────────────
+  //  Tab bar
 
   Widget _buildTabBar(BuildContext context, List tabs) {
     return Container(
@@ -344,8 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
         tabAlignment: TabAlignment.start,
         labelPadding: const EdgeInsets.symmetric(horizontal: 16),
         labelColor: Colors.redAccent,
-        labelStyle:
-            const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         unselectedLabelColor: Colors.grey[500],
         unselectedLabelStyle:
             const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
@@ -363,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Category grid ──────────────────────────────────────────────────────────
+  //  Category grid
 
   Widget _buildCategoryGrid(BuildContext context, List displayedCategories,
       bool hasMore, selectedTab) {
@@ -376,8 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
               childAspectRatio: 0.72,
               crossAxisSpacing: 8,
@@ -391,8 +384,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             Divider(height: 1, color: Colors.grey[100]),
             InkWell(
-              onTap: () => setState(
-                  () => _showAllCategories = !_showAllCategories),
+              onTap: () =>
+                  setState(() => _showAllCategories = !_showAllCategories),
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -426,8 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryItem(
-      BuildContext context, HomeCategoryItem category) {
+  Widget _buildCategoryItem(BuildContext context, HomeCategoryItem category) {
     return InkWell(
       onTap: () => Navigator.push(
         context,
@@ -451,8 +443,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
-              child: Icon(category.icon,
-                  size: 26, color: Colors.redAccent),
+              child: Icon(category.icon, size: 26, color: Colors.redAccent),
             ),
           ),
           const SizedBox(height: 6),
@@ -477,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Section header ─────────────────────────────────────────────────────────
+  //  Section header
 
   Widget _buildSectionHeader(
     BuildContext context,
@@ -512,9 +503,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         letterSpacing: 0.1)),
                 if (subtitle != null)
                   Text(subtitle,
-                      style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade500)),
+                      style:
+                          TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               ],
             ),
           ),
@@ -524,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ── Promotions banner carousel ────────────────────────────────────────────────
+//  Promotions banner carousel
 
 class _PromotionsBanner extends StatelessWidget {
   final PageController pageController;
@@ -555,15 +545,13 @@ class _PromotionsBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collectionGroup('promotions')
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance.collectionGroup('promotions').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox(height: 8);
 
         final liveDocs = snapshot.data!.docs
-            .where((doc) =>
-                _isLive(doc.data() as Map<String, dynamic>))
+            .where((doc) => _isLive(doc.data() as Map<String, dynamic>))
             .toList();
 
         if (liveDocs.isEmpty) {
@@ -595,8 +583,8 @@ class _PromotionsBanner extends StatelessWidget {
                           color: Colors.black87)),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: Colors.redAccent,
                       borderRadius: BorderRadius.circular(20),
@@ -608,8 +596,7 @@ class _PromotionsBanner extends StatelessWidget {
                             width: 5,
                             height: 5,
                             decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle)),
+                                color: Colors.white, shape: BoxShape.circle)),
                         const SizedBox(width: 4),
                         const Text("Live",
                             style: TextStyle(
@@ -629,14 +616,12 @@ class _PromotionsBanner extends StatelessWidget {
                 itemCount: liveDocs.length,
                 onPageChanged: onPageChanged,
                 itemBuilder: (context, index) {
-                  final data =
-                      liveDocs[index].data() as Map<String, dynamic>;
+                  final data = liveDocs[index].data() as Map<String, dynamic>;
                   final String? bannerUrl =
                       (data['bannerUrl'] as String?)?.isNotEmpty == true
                           ? data['bannerUrl'] as String
                           : null;
-                  final String title =
-                      data['title']?.toString() ?? '';
+                  final String title = data['title']?.toString() ?? '';
                   final String description =
                       data['description']?.toString() ?? '';
                   final String restaurantID =
@@ -662,8 +647,7 @@ class _PromotionsBanner extends StatelessWidget {
                       );
                     },
                     child: Container(
-                      margin:
-                          const EdgeInsets.symmetric(horizontal: 6),
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         color: Colors.grey.shade100,
@@ -675,8 +659,7 @@ class _PromotionsBanner extends StatelessWidget {
                           if (bannerUrl != null)
                             Image.network(bannerUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    _placeholder())
+                                errorBuilder: (_, __, ___) => _placeholder())
                           else
                             _placeholder(),
                           Container(
@@ -684,8 +667,7 @@ class _PromotionsBanner extends StatelessWidget {
                               gradient: LinearGradient(
                                 colors: [
                                   Colors.transparent,
-                                  Colors.black
-                                      .withValues(alpha: 0.6),
+                                  Colors.black.withValues(alpha: 0.6),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
@@ -697,19 +679,16 @@ class _PromotionsBanner extends StatelessWidget {
                             left: 14,
                             right: 14,
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (title.isNotEmpty)
                                   Text(title,
                                       style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 15,
-                                          fontWeight:
-                                              FontWeight.w800),
+                                          fontWeight: FontWeight.w800),
                                       maxLines: 1,
-                                      overflow:
-                                          TextOverflow.ellipsis),
+                                      overflow: TextOverflow.ellipsis),
                                 if (description.isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(description,
@@ -718,8 +697,7 @@ class _PromotionsBanner extends StatelessWidget {
                                               .withValues(alpha: 0.85),
                                           fontSize: 11),
                                       maxLines: 1,
-                                      overflow:
-                                          TextOverflow.ellipsis),
+                                      overflow: TextOverflow.ellipsis),
                                 ],
                               ],
                             ),
@@ -739,14 +717,11 @@ class _PromotionsBanner extends StatelessWidget {
                   final bool active = i == currentPage;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 3),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
                     width: active ? 16 : 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: active
-                          ? Colors.redAccent
-                          : Colors.grey.shade300,
+                      color: active ? Colors.redAccent : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );
@@ -762,13 +737,13 @@ class _PromotionsBanner extends StatelessWidget {
   Widget _placeholder() => Container(
         color: Colors.grey.shade100,
         child: const Center(
-          child: Icon(Icons.campaign_rounded,
-              size: 48, color: Color(0xFFDDDDDD)),
+          child:
+              Icon(Icons.campaign_rounded, size: 48, color: Color(0xFFDDDDDD)),
         ),
       );
 }
 
-// ── Order again — recent items row ────────────────────────────────────────────
+//  Order again — recent items row
 
 class _RecentItemsRow extends StatelessWidget {
   const _RecentItemsRow();
@@ -791,8 +766,7 @@ class _RecentItemsRow extends StatelessWidget {
         final List<String> rawItemIDs = [];
         for (final doc in snapshot.data!.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          rawItemIDs.addAll(
-              List<String>.from(data['itemIDs'] ?? []));
+          rawItemIDs.addAll(List<String>.from(data['itemIDs'] ?? []));
           if (rawItemIDs.length >= 8) break;
         }
 
@@ -806,8 +780,7 @@ class _RecentItemsRow extends StatelessWidget {
             }
             return ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: snap.data!.length,
               itemBuilder: (context, index) =>
                   _RecentItemCard(data: snap.data![index]),
@@ -818,8 +791,7 @@ class _RecentItemsRow extends StatelessWidget {
     );
   }
 
-  Future<List<Map<String, dynamic>>> _fetchItems(
-      List<String> rawIDs) async {
+  Future<List<Map<String, dynamic>>> _fetchItems(List<String> rawIDs) async {
     final List<Map<String, dynamic>> results = [];
     final Set<String> seen = {};
 
@@ -838,8 +810,7 @@ class _RecentItemsRow extends StatelessWidget {
             .doc(parts[2])
             .get();
         if (snap.exists) {
-          results
-              .add({...snap.data()!, '_restaurantID': parts[0]});
+          results.add({...snap.data()!, '_restaurantID': parts[0]});
         }
       } catch (_) {}
     }
@@ -855,17 +826,14 @@ class _RecentItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = (data['imageUrl'] ?? '') as String;
     final title = (data['title'] ?? '') as String;
-    final price =
-        (data['price'] as num?)?.toStringAsFixed(2) ?? '';
+    final price = (data['price'] as num?)?.toStringAsFixed(2) ?? '';
 
     return GestureDetector(
       onTap: () {
         final item = Items.fromJson(data);
         item.itemID = data['itemID'] ?? '';
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => ItemDetailsScreen(model: item)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => ItemDetailsScreen(model: item)));
       },
       child: Container(
         width: 120,
@@ -879,8 +847,8 @@ class _RecentItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(14)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
               child: SizedBox(
                 height: 80,
                 width: double.infinity,
@@ -889,8 +857,7 @@ class _RecentItemCard extends StatelessWidget {
                     : Container(
                         color: Colors.grey.shade100,
                         child: Icon(Icons.fastfood_rounded,
-                            color: Colors.grey.shade300,
-                            size: 32)),
+                            color: Colors.grey.shade300, size: 32)),
               ),
             ),
             Padding(
@@ -900,8 +867,7 @@ class _RecentItemCard extends StatelessWidget {
                 children: [
                   Text(title,
                       style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600),
+                          fontSize: 12, fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
@@ -944,8 +910,8 @@ class _SkeletonRow extends StatelessWidget {
               height: 80,
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(14)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(14)),
               ),
             ),
             Padding(
@@ -953,15 +919,9 @@ class _SkeletonRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                      height: 10,
-                      width: 80,
-                      color: Colors.grey.shade200),
+                  Container(height: 10, width: 80, color: Colors.grey.shade200),
                   const SizedBox(height: 4),
-                  Container(
-                      height: 8,
-                      width: 50,
-                      color: Colors.grey.shade200),
+                  Container(height: 8, width: 50, color: Colors.grey.shade200),
                 ],
               ),
             ),
@@ -972,7 +932,7 @@ class _SkeletonRow extends StatelessWidget {
   }
 }
 
-// ── Order Again section — only rendered if user has past orders ───────────────
+//  Order Again section — only rendered if user has past orders
 
 class _OrderAgainSection extends StatelessWidget {
   const _OrderAgainSection();
@@ -1024,8 +984,7 @@ class _OrderAgainSection extends StatelessWidget {
                               letterSpacing: 0.1)),
                       Text("Your recent favourites",
                           style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade500)),
+                              fontSize: 11, color: Colors.grey.shade500)),
                     ],
                   ),
                 ],
@@ -1039,7 +998,7 @@ class _OrderAgainSection extends StatelessWidget {
   }
 }
 
-// ── Promotions empty placeholder ──────────────────────────────────────────────
+//  Promotions empty placeholder
 
 Widget _buildEmptyBanner() {
   return Column(
@@ -1094,8 +1053,7 @@ Widget _buildEmptyBanner() {
                       color: Colors.grey.shade400)),
               const SizedBox(height: 4),
               Text("No active promotions right now",
-                  style: TextStyle(
-                      fontSize: 11, color: Colors.grey.shade400)),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
             ],
           ),
         ),
@@ -1104,7 +1062,7 @@ Widget _buildEmptyBanner() {
   );
 }
 
-// ── Restaurant empty placeholder ──────────────────────────────────────────────
+//  Restaurant empty placeholder
 
 class _RestaurantPlaceholder extends StatelessWidget {
   @override
@@ -1132,8 +1090,7 @@ class _RestaurantPlaceholder extends StatelessWidget {
                     color: Colors.grey.shade400)),
             const SizedBox(height: 4),
             Text("No restaurants are open right now",
-                style: TextStyle(
-                    fontSize: 12, color: Colors.grey.shade400)),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade400)),
           ],
         ),
       ),
@@ -1141,7 +1098,7 @@ class _RestaurantPlaceholder extends StatelessWidget {
   }
 }
 
-// ── Top Rated Restaurants horizontal scroll ───────────────────────────────────
+//  Top Rated Restaurants horizontal scroll
 
 class _TopRatedRestaurants extends StatelessWidget {
   const _TopRatedRestaurants();
@@ -1151,7 +1108,7 @@ class _TopRatedRestaurants extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('restaurants')
-          .where('status', isEqualTo: 'active')
+          .where('status', isEqualTo: 'Active')
           .where('avgRating', isGreaterThan: 0)
           .orderBy('avgRating', descending: true)
           .limit(10)
@@ -1180,8 +1137,7 @@ class _TopRatedRestaurants extends StatelessWidget {
             final String logoUrl = (data['logoUrl'] as String?) ?? '';
             final double avgRating =
                 ((data['avgRating'] as num?) ?? 0).toDouble();
-            final int totalRatings =
-                (data['totalRatings'] as int?) ?? 0;
+            final int totalRatings = (data['totalRatings'] as int?) ?? 0;
 
             return GestureDetector(
               onTap: () => Navigator.push(
@@ -1218,15 +1174,13 @@ class _TopRatedRestaurants extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.grey.shade100,
-                        border: Border.all(
-                            color: const Color(0xFFEEEEEE)),
+                        border: Border.all(color: const Color(0xFFEEEEEE)),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: logoUrl.isNotEmpty
                           ? Image.network(logoUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _logoFallback())
+                              errorBuilder: (_, __, ___) => _logoFallback())
                           : _logoFallback(),
                     ),
 
@@ -1234,8 +1188,7 @@ class _TopRatedRestaurants extends StatelessWidget {
 
                     // Name
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         name,
                         style: const TextStyle(
@@ -1258,20 +1211,16 @@ class _TopRatedRestaurants extends StatelessWidget {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: avgRating >= 4
-                            ? const Color(0xFF00C48C)
-                                .withValues(alpha: 0.1)
+                            ? const Color(0xFF00C48C).withValues(alpha: 0.1)
                             : avgRating >= 3
-                                ? Colors.amber
-                                    .withValues(alpha: 0.1)
+                                ? Colors.amber.withValues(alpha: 0.1)
                                 : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: avgRating >= 4
-                              ? const Color(0xFF00C48C)
-                                  .withValues(alpha: 0.3)
+                              ? const Color(0xFF00C48C).withValues(alpha: 0.3)
                               : avgRating >= 3
-                                  ? Colors.amber
-                                      .withValues(alpha: 0.3)
+                                  ? Colors.amber.withValues(alpha: 0.3)
                                   : Colors.grey.shade200,
                         ),
                       ),
@@ -1304,8 +1253,7 @@ class _TopRatedRestaurants extends StatelessWidget {
                           Text(
                             '($totalRatings)',
                             style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.grey.shade400),
+                                fontSize: 9, color: Colors.grey.shade400),
                           ),
                         ],
                       ),
@@ -1327,7 +1275,7 @@ class _TopRatedRestaurants extends StatelessWidget {
       );
 }
 
-// ── Skeleton / empty state for top rated ─────────────────────────────────────
+//  Skeleton / empty state for top rated
 
 class _TopRatedSkeleton extends StatelessWidget {
   final bool isEmpty;
@@ -1360,15 +1308,9 @@ class _TopRatedSkeleton extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Container(
-                  height: 10,
-                  width: 80,
-                  color: Colors.grey.shade100),
+              Container(height: 10, width: 80, color: Colors.grey.shade100),
               const SizedBox(height: 6),
-              Container(
-                  height: 8,
-                  width: 50,
-                  color: Colors.grey.shade100),
+              Container(height: 8, width: 50, color: Colors.grey.shade100),
             ],
           ),
         ),
@@ -1400,11 +1342,9 @@ class _TopRatedSkeleton extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Container(
-                height: 10, width: 80, color: Colors.grey.shade200),
+            Container(height: 10, width: 80, color: Colors.grey.shade200),
             const SizedBox(height: 6),
-            Container(
-                height: 8, width: 50, color: Colors.grey.shade200),
+            Container(height: 8, width: 50, color: Colors.grey.shade200),
           ],
         ),
       ),

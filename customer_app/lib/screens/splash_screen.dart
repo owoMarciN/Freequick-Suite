@@ -57,7 +57,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Daol pocha',
+                      'Freequick',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
@@ -73,6 +73,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
                         color: Colors.black,
                         fontSize: 24,
                         fontFamily: "Signatra",
+                        package: 'shared_assets',
                         letterSpacing: 3,
                       ),
                     ),

@@ -1,17 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
+import 'package:provider/provider.dart';
 import 'package:user_app/providers/address_provider.dart';
-import 'package:user_app/providers/locale_provider.dart';
 import 'package:user_app/providers/amount_provider.dart';
-import 'package:user_app/assistant_methods/stripe_payment.dart';
-import 'package:user_app/assistant_methods/assistant_methods.dart';
+
+import 'package:user_app/methods/stripe_payment.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 
 import 'package:user_app/global/global.dart';
 
 import 'package:user_app/models/address.dart';
-import 'package:user_app/services/location_service.dart';
 
 import 'package:user_app/screens/address_screen.dart';
 import 'package:user_app/screens/home_screen.dart';
@@ -19,8 +21,6 @@ import 'package:user_app/screens/home_screen.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/address_design.dart';
 import 'package:user_app/widgets/unified_snackbar.dart';
-
-//  Payment method
 
 enum _PaymentMethod { cash, stripe }
 
@@ -32,21 +32,19 @@ class PlaceOrderScreen extends StatefulWidget {
 }
 
 class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
-  final String _orderID =
-      FirebaseFirestore.instance.collection("orders").doc().id;
+  final _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   String _restaurantID = "";
-  String _orderType = "delivery";
+  String _restaurantName = "";
   String? _restaurantAddress;
 
+  String _orderType = "delivery";
   _PaymentMethod? _selectedPayment;
 
   bool _isLoading = true;
   bool _isProcessing = false;
 
   List<Address> _userAddresses = [];
-  String _gpsLabel = "Finding location...";
-  Map<String, dynamic> _gpsData = {};
 
   //  Lifecycle
 
@@ -57,29 +55,10 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Future<void> _init() async {
-    await _fetchGps();
     await Future.wait([
       _loadRestaurantFromCart(),
       _loadUserAddresses(),
     ]);
-  }
-
-  Future<void> _fetchGps() async {
-    try {
-      final lang = Provider.of<LocaleProvider>(context, listen: false)
-          .locale
-          .languageCode;
-      final data =
-          await LocationService.fetchUserCurrentLocation(langCode: lang);
-      if (mounted) {
-        setState(() {
-          _gpsData = data;
-          _gpsLabel = data['fullAddress'] ?? 'Location found';
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _gpsLabel = "Unable to get location");
-    }
   }
 
   Future<void> _loadRestaurantFromCart() async {
@@ -94,14 +73,31 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
       if (snap.docs.isNotEmpty) {
         _restaurantID = snap.docs.first.data()['restaurantID'] ?? '';
-        await _loadRestaurantAddress();
+        await Future.wait([
+          _loadRestaurantAddress(),
+          _loadRestaurantName(),
+        ]);
       }
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
+  Future<void> _loadRestaurantName() async {
+    if (_restaurantID.isEmpty) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection("restaurants")
+          .doc(_restaurantID)
+          .get();
+      if (doc.exists) {
+        setState(() => _restaurantName = doc.data()?['name']?.toString() ?? '');
+      }
+    } catch (_) {}
+  }
+
   Future<void> _loadRestaurantAddress() async {
+    if (_restaurantID.isEmpty) return;
     try {
       final snap = await FirebaseFirestore.instance
           .collection("restaurants")
@@ -128,22 +124,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
           .collection("addresses")
           .get();
 
-      final List<Address> list = [
-        // Index 0 — current GPS location (never saved to Firestore)
-        Address(
-          label: "Current Location",
-          fullAddress: _gpsLabel,
-          lat: _gpsData['lat']?.toString() ?? '0.0',
-          lng: _gpsData['lng']?.toString() ?? '0.0',
-          road: _gpsData['road'] ?? '',
-          houseNumber: _gpsData['houseNumber'] ?? '',
-          postalCode: _gpsData['postalCode'] ?? '',
-          city: _gpsData['city'] ?? '',
-          state: _gpsData['state'] ?? '',
-          country: _gpsData['country'] ?? '',
-        ),
-      ];
-
+      final List<Address> list = [];
       for (final doc in snap.docs) {
         final data = doc.data();
         data['addressID'] = doc.id;
@@ -160,71 +141,44 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     }
   }
 
-  //  Validation & ordering
+  //  Validation
 
   bool _validate() {
     if (_orderType == "delivery") {
       final ap = Provider.of<AddressProvider>(context, listen: false);
       final idx = ap.count;
-      // -1 = GPS selected, 0+ = saved address index
-      if (idx < -1 || (idx >= 0 && idx >= _userAddresses.length - 1)) {
+
+      // No address selected at all
+      if (idx < 0) {
         unifiedSnackBar("Please select a delivery address", error: true);
         return false;
       }
+
+      // Index out of range — no saved addresses exist
+      if (_userAddresses.isEmpty) {
+        unifiedSnackBar("Please add a delivery address before ordering",
+            error: true);
+        return false;
+      }
+
+      // Selected index doesn't map to a valid address
+      if (idx >= _userAddresses.length) {
+        unifiedSnackBar("Please select a valid delivery address", error: true);
+        return false;
+      }
+
+      // Address must have an ID (it's a Firestore doc)
+      if (ap.selectedAddressID == null || ap.selectedAddressID!.isEmpty) {
+        unifiedSnackBar("Please select a saved delivery address", error: true);
+        return false;
+      }
     }
+
     if (_selectedPayment == null) {
       unifiedSnackBar("Please select a payment method", error: true);
       return false;
     }
     return true;
-  }
-
-  /// Builds the address map that is embedded directly on the order document.
-  /// When the user picks GPS (index -1) we embed the live data without
-  /// saving it as a new address document.
-  Map<String, dynamic> _buildEmbeddedAddress() {
-    if (_orderType == "pickup") {
-      return {"type": "pickup", "address": _restaurantAddress ?? ""};
-    }
-
-    final ap = Provider.of<AddressProvider>(context, listen: false);
-    final idx = ap.count;
-
-    if (idx == -1) {
-      // GPS — embed raw, do NOT write to users/{uid}/addresses
-      return {
-        "type": "gps",
-        "label": "Current Location",
-        "fullAddress": _gpsLabel,
-        "road": _gpsData['road'] ?? '',
-        "houseNumber": _gpsData['houseNumber'] ?? '',
-        "flatNumber": _gpsData['flatNumber'] ?? _gpsData['subpremise'] ?? '',
-        "postalCode": _gpsData['postalCode'] ?? '',
-        "city": _gpsData['city'] ?? '',
-        "state": _gpsData['state'] ?? '',
-        "country": _gpsData['country'] ?? '',
-        "lat": _gpsData['lat']?.toString() ?? '0.0',
-        "lng": _gpsData['lng']?.toString() ?? '0.0',
-      };
-    }
-
-    // Saved address — embed a copy (addressID kept for reference)
-    final addr = _userAddresses[idx + 1];
-    return {
-      "type": "saved",
-      "addressID": addr.addressID ?? '',
-      "label": addr.label ?? '',
-      "fullAddress": addr.fullAddress ?? '',
-      "road": addr.road ?? '',
-      "houseNumber": addr.houseNumber ?? '',
-      "flatNumber": addr.flatNumber ?? '',
-      "postalCode": addr.postalCode ?? '',
-      "city": addr.city ?? '',
-      "state": addr.state ?? '',
-      "country": addr.country ?? '',
-      "lat": addr.lat ?? '0.0',
-      "lng": addr.lng ?? '0.0',
-    };
   }
 
   double _deliveryFee(double subtotal) {
@@ -234,6 +188,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     return 14.99;
   }
 
+  //  Order placement
+
   Future<void> _placeOrder() async {
     if (!_validate()) return;
     setState(() => _isProcessing = true);
@@ -241,42 +197,45 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     try {
       final amountProvider =
           Provider.of<AmountProvider>(context, listen: false);
+      final ap = Provider.of<AddressProvider>(context, listen: false);
       final subtotal = amountProvider.totalAmount;
       final fee = _deliveryFee(subtotal);
       final total = subtotal + fee;
 
-      final cartItems = getUserPref<List<String>>("userCart") ?? [];
-      final embeddedAddress = _buildEmbeddedAddress();
-      final paymentLabel =
-          _selectedPayment == _PaymentMethod.cash ? "cash" : "stripe";
+      // Build quote — address is stored as addressID only.
+      // The Cloud Function resolves the full address from
+      // users/{uid}/addresses/{addressID} server-side.
+      final quoteRef = FirebaseFirestore.instance.collection("quotes").doc();
 
-      final Map<String, dynamic> orderBase = {
-        "orderID": _orderID,
-        "userID": currentUid,
+      final Map<String, dynamic> quoteData = {
+        "userId": currentUid,
         "restaurantID": _restaurantID,
-        "itemIDs": cartItems,
-        "riderID": "",
+        "restaurantName": _restaurantName,
+        "itemIDs": getUserPref<List<String>>("userCart") ?? [],
         "orderType": _orderType,
-        "paymentMethod": paymentLabel,
-        "subtotal": subtotal.toStringAsFixed(2),
-        "originalAmount": amountProvider.originalAmount.toStringAsFixed(2),
-        "totalSavings": amountProvider.totalSavings.toStringAsFixed(2),
-        "deliveryFee": fee.toStringAsFixed(2),
-        "totalAmount": total.toStringAsFixed(2),
-        "address": embeddedAddress,
-        "orderTime": Timestamp.now(),
-        "status": "Pending",
-        "isSuccess": false,
+        "itemsTotal": subtotal,
+        "deliveryFee": fee,
+        "finalTotal": total,
+        "status": "PENDING",
+        "expiresAt":
+            Timestamp.fromDate(DateTime.now().add(const Duration(minutes: 10))),
+        "createdAt": FieldValue.serverTimestamp(),
       };
 
-      if (_selectedPayment == _PaymentMethod.cash) {
-        await _finaliseOrder(orderBase, "cash");
+      if (_orderType == "delivery") {
+        // Only store the addressID — Cloud Function reads full address
+        quoteData["addressID"] = ap.selectedAddressID;
       } else {
-        final paymentType = await processStripePayment(total);
-        if (paymentType != null) {
-          await _finaliseOrder(
-              {...orderBase, "paymentMethod": paymentType}, paymentType);
-        }
+        // Pickup — no address needed
+        quoteData["orderType"] = "pickup";
+      }
+
+      await quoteRef.set(quoteData);
+
+      if (_selectedPayment == _PaymentMethod.cash) {
+        await _placeCashOrder(quoteRef.id);
+      } else {
+        await _placeStripeOrder(quoteRef.id, total);
       }
     } catch (e) {
       if (!mounted) return;
@@ -286,33 +245,87 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     }
   }
 
-  Future<void> _finaliseOrder(
-      Map<String, dynamic> data, String paymentDetails) async {
-    final finalData = {
-      ...data,
-      "isSuccess": true,
-      "paymentDetails": paymentDetails,
-    };
+  //  Cash flow
 
-    // Write order to top-level collection + user sub-collection
-    await Future.wait([
-      FirebaseFirestore.instance
-          .collection("orders")
-          .doc(_orderID)
-          .set(finalData),
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(currentUid)
-          .collection("orders")
-          .doc(_orderID)
-          .set(finalData),
-    ]);
+  Future<void> _placeCashOrder(String quoteId) async {
+    final result = await _functions
+        .httpsCallable('placeCashOrder')
+        .call({'quoteId': quoteId});
 
+    final orderID = result.data['orderID']?.toString() ?? '';
+    if (!mounted) return;
+    await _onOrderSuccess(orderID);
+  }
+
+  //  Stripe flow
+
+  Future<void> _placeStripeOrder(String quoteId, double total) async {
+    try {
+      final intentResult = await _functions
+          .httpsCallable('createPaymentIntent')
+          .call({'quoteId': quoteId});
+
+      final clientSecret = 
+          intentResult.data['clientSecret']?.toString() ?? '';
+
+      final paymentIntentId =
+          intentResult.data['paymentIntentId']?.toString() ?? '';
+
+      if (clientSecret.isEmpty || paymentIntentId.isEmpty) {
+        unifiedSnackBar("Payment initialization failed", error: true);
+        return;
+      }
+
+      final paymentType = await processStripePayment(
+        clientSecret: clientSecret,
+        paymentIntentId: paymentIntentId,
+      );
+
+      if (paymentType == null) return;
+
+      // Waiting for order entry to be created
+      final orderID = await _waitForOrderCreation(quoteId);
+
+      if (orderID == null) {
+        unifiedSnackBar("Order creation timeout", error: true);
+        return;
+      }
+      if (!mounted) return;
+      await _onOrderSuccess(orderID);
+
+    } catch (e) {
+      unifiedSnackBar("Payment error: $e", error: true);
+    }
+  }
+
+  Future<String?> _waitForOrderCreation(String quoteId) async {
+    final completer = Completer<String?>();
+
+    final sub = FirebaseFirestore.instance
+        .collection("quotes")
+        .doc(quoteId)
+        .snapshots()
+        .listen((doc) {
+      final data = doc.data();
+      if (data != null && data['orderID'] != null) {
+        completer.complete(data['orderID'] as String);
+      }
+    });
+
+    return completer.future.timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        sub.cancel();
+        return null;
+      },
+    );
+  }
+
+  Future<void> _onOrderSuccess(String? orderID) async {
     if (mounted) {
       await clearCartNow(context);
       Provider.of<AmountProvider>(context, listen: false).reset();
     }
-
     if (!mounted) return;
     unifiedSnackBar("Order placed successfully!");
     Navigator.pushAndRemoveUntil(
@@ -349,7 +362,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //  Order summary card
+                  //  Order summary
                   _SectionLabel(label: "Order Summary"),
                   const SizedBox(height: 10),
                   _SummaryCard(
@@ -371,30 +384,32 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
                   const SizedBox(height: 24),
 
-                  //  Address / pickup
+                  //  Address (delivery only)
                   if (_orderType == "delivery") ...[
                     _SectionLabel(label: "Delivery Address"),
                     const SizedBox(height: 10),
                     if (_userAddresses.isEmpty)
-                      _InfoTile(
-                          icon: Icons.location_searching,
-                          text: "Loading addresses...")
+                      // No addresses — prompt to add one
+                      _NoAddressBanner(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const AddressScreen()),
+                          );
+                          await _loadUserAddresses();
+                        },
+                      )
                     else
+                      // Saved addresses list
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _userAddresses.length,
                         itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return AddressDesign(
-                              model: _userAddresses[0],
-                              value: -1,
-                              isCurrentLocationCard: true,
-                            );
-                          }
                           return AddressDesign(
                             model: _userAddresses[index],
-                            value: index - 1,
+                            value: index,
                             addressID: _userAddresses[index].addressID,
                           );
                         },
@@ -409,6 +424,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     }),
                   ],
 
+                  //  Pickup location
                   if (_orderType == "pickup") ...[
                     _SectionLabel(label: "Pickup Location"),
                     const SizedBox(height: 10),
@@ -421,7 +437,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
                   const SizedBox(height: 24),
 
-                  //  Payment
+                  //  Payment method
                   _SectionLabel(label: "Payment Method"),
                   const SizedBox(height: 10),
                   _PaymentSelector(
@@ -431,7 +447,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
                   const SizedBox(height: 32),
 
-                  //  Place order button
                   _PlaceOrderButton(
                     isProcessing: _isProcessing,
                     selectedPayment: _selectedPayment,
@@ -446,6 +461,55 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 }
 
 //  Sub-widgets
+
+class _NoAddressBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _NoAddressBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.orange.shade200),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline_rounded,
+                color: Colors.orange.shade700, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "No addresses saved",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Colors.orange.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Tap to add a delivery address",
+                    style:
+                        TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Colors.orange.shade700),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -512,9 +576,10 @@ class _SummaryCard extends StatelessWidget {
               Text(
                 "${total.toStringAsFixed(2)} zł",
                 style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.redAccent),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.redAccent,
+                ),
               ),
             ],
           ),
@@ -667,9 +732,7 @@ class _AddAddressButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-              color: Colors.redAccent.withValues(alpha: 0.4),
-              style: BorderStyle.solid),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

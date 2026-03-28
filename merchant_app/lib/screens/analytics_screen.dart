@@ -179,7 +179,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Stat cards ──────────────────────────────────────────────
+          //  Stat cards
           _sectionLabel(context.l10n.analytics_section_glance, brandColors),
           const SizedBox(height: 14),
           LayoutBuilder(builder: (context, constraints) {
@@ -228,7 +228,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
           const SizedBox(height: 32),
 
-          // ── Revenue chart ────────────────────────────────────────────
+          //  Revenue chart
           Row(
             children: [
               Expanded(
@@ -254,7 +254,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
           const SizedBox(height: 32),
 
-          // ── Status breakdown ─────────────────────────────────────────
+          //  Status breakdown
           _sectionLabel(context.l10n.analytics_section_status, brandColors),
           const SizedBox(height: 14),
           _StatusBreakdown(
@@ -266,7 +266,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
           const SizedBox(height: 32),
 
-          // ── Popular items ────────────────────────────────────────────
+          //  Popular items
           _sectionLabel(context.l10n.analytics_section_popular, brandColors),
           const SizedBox(height: 14),
           _PopularItems(
@@ -292,7 +292,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 }
 
-// ─── Range Toggle ─────────────────────────────────────────────────────────────
+//  Range Toggle
 
 class _RangeToggle extends StatelessWidget {
   final int selected;
@@ -342,7 +342,7 @@ class _RangeToggle extends StatelessWidget {
   }
 }
 
-// ─── Revenue Chart ────────────────────────────────────────────────────────────
+//  Revenue Chart
 
 class _RevenueChart extends StatelessWidget {
   final Map<String, double> data;
@@ -444,7 +444,7 @@ class _RevenueChart extends StatelessWidget {
   }
 }
 
-// ─── Status Breakdown ─────────────────────────────────────────────────────────
+//  Status Breakdown
 
 class _StatusBreakdown extends StatelessWidget {
   final Map<String, int> counts;
@@ -556,7 +556,7 @@ class _StatusBreakdown extends StatelessWidget {
   }
 }
 
-// ─── Popular Items ────────────────────────────────────────────────────────────
+//  Popular Items
 
 class _PopularItems extends StatelessWidget {
   final Map<String, int> itemCounts;
@@ -665,7 +665,7 @@ class _PopularItems extends StatelessWidget {
   }
 }
 
-// ─── Stat Card ────────────────────────────────────────────────────────────────
+//  Stat Card
 
 class _StatCard extends StatelessWidget {
   final String label, value;

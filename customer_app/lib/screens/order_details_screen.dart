@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/models/address.dart';
 import 'package:user_app/widgets/progress_bar.dart';
 import 'package:user_app/widgets/shipment_address_design.dart';
@@ -65,8 +65,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             return Center(child: circularProgress());
           }
 
-          final data =
-              snapshot.data!.data()! as Map<String, dynamic>;
+          final data = snapshot.data!.data()! as Map<String, dynamic>;
           final status = data["status"]?.toString() ?? "Pending";
 
           // Check if we should prompt for rating
@@ -77,30 +76,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Status progress ──────────────────────────────────
+                //  Status progress
                 _OrderProgressCard(status: status),
 
                 const SizedBox(height: 20),
 
-                // ── Summary ──────────────────────────────────────────
+                //  Summary
                 _SectionLabel("Order Summary"),
                 const SizedBox(height: 10),
                 _SummaryCard(data: data, orderID: widget.orderID),
 
                 const SizedBox(height: 20),
 
-                // ── Rating badge if already rated ────────────────────
+                //  Rating badge if already rated
                 if (data['rating'] != null)
                   _RatedBadge(
                     foodRating: (data['rating'] as num).toInt(),
-                    driverRating:
-                        (data['driverRating'] as num?)?.toInt() ?? 0,
+                    driverRating: (data['driverRating'] as num?)?.toInt() ?? 0,
                   ),
 
-                if (data['rating'] != null)
-                  const SizedBox(height: 20),
+                if (data['rating'] != null) const SizedBox(height: 20),
 
-                // ── Address / pickup ─────────────────────────────────
+                //  Address / pickup
                 if (data["orderType"] != "pickup") ...[
                   _SectionLabel("Delivery Address"),
                   const SizedBox(height: 10),
@@ -110,11 +107,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   const SizedBox(height: 10),
                   _PickupCard(),
                 ],
-
-                const SizedBox(height: 20),
-
-                // ── Order status image ───────────────────────────────
-                _StatusImage(status: status),
               ],
             ),
           );
@@ -124,7 +116,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 }
 
-// ── Order progress card ────────────────────────────────────────────────────────
+//  Order progress card
 
 class _OrderProgressCard extends StatelessWidget {
   final String status;
@@ -192,8 +184,7 @@ class _OrderProgressCard extends StatelessWidget {
               const SizedBox(width: 10),
               const Text(
                 "Order Status",
-                style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
               const Spacer(),
               _StatusBadge(status: status),
@@ -247,15 +238,14 @@ class _TimelineRow extends StatelessWidget {
     final Color doneColor = const Color(0xFF00C48C);
     final Color pendingColor = Colors.grey.shade200;
 
-    final Color dotColor = isDone
-        ? (isActive ? activeColor : doneColor)
-        : pendingColor;
+    final Color dotColor =
+        isDone ? (isActive ? activeColor : doneColor) : pendingColor;
     final Color lineColor = isDone && !isActive ? doneColor : pendingColor;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Dot + line column ──────────────────────────────────────
+        //  Dot + line column
         SizedBox(
           width: 36,
           child: Column(
@@ -292,11 +282,10 @@ class _TimelineRow extends StatelessWidget {
 
         const SizedBox(width: 14),
 
-        // ── Label ──────────────────────────────────────────────────
+        //  Label
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(
-                top: 6, bottom: isLast ? 0 : 36),
+            padding: EdgeInsets.only(top: 6, bottom: isLast ? 0 : 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -304,9 +293,7 @@ class _TimelineRow extends StatelessWidget {
                   step.label,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: isActive
-                        ? FontWeight.w800
-                        : FontWeight.w600,
+                    fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
                     color: isActive
                         ? Colors.black87
                         : isDone
@@ -319,9 +306,8 @@ class _TimelineRow extends StatelessWidget {
                   step.sublabel,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isActive
-                        ? Colors.grey.shade600
-                        : Colors.grey.shade400,
+                    color:
+                        isActive ? Colors.grey.shade600 : Colors.grey.shade400,
                   ),
                 ),
               ],
@@ -329,7 +315,7 @@ class _TimelineRow extends StatelessWidget {
           ),
         ),
 
-        // ── Check ──────────────────────────────────────────────────
+        //  Check
         if (isDone && !isActive)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -348,18 +334,12 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (Color bg, Color fg) = switch (status) {
-      'Pending' => (
-          const Color(0xFFFEF3C7),
-          const Color(0xFFD97706)
-        ),
+      'Pending' => (const Color(0xFFFEF3C7), const Color(0xFFD97706)),
       'In Progress' => (
           Colors.redAccent.withValues(alpha: 0.1),
           Colors.redAccent
         ),
-      'Ready' => (
-          Colors.blue.shade50,
-          Colors.blue.shade700
-        ),
+      'Ready' => (Colors.blue.shade50, Colors.blue.shade700),
       'Delivered' => (
           const Color(0xFF00C48C).withValues(alpha: 0.1),
           const Color(0xFF00C48C)
@@ -375,14 +355,13 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         status,
-        style: TextStyle(
-            fontSize: 11, fontWeight: FontWeight.w700, color: fg),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg),
       ),
     );
   }
 }
 
-// ── Summary card ──────────────────────────────────────────────────────────────
+//  Summary card
 
 class _SummaryCard extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -406,8 +385,7 @@ class _SummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Total",
-                  style: TextStyle(
-                      fontSize: 13, color: Colors.grey.shade500)),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
               Text(
                 "${data["totalAmount"] ?? '0.00'} zł",
                 style: const TextStyle(
@@ -423,8 +401,8 @@ class _SummaryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Delivery Fee",
-                    style: TextStyle(
-                        fontSize: 12, color: Colors.grey.shade500)),
+                    style:
+                        TextStyle(fontSize: 12, color: Colors.grey.shade500)),
                 Text("${data["deliveryFee"]} zł",
                     style: const TextStyle(fontSize: 12)),
               ],
@@ -451,35 +429,17 @@ class _SummaryCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.schedule_rounded,
             label: "Ordered At",
-            value: _formatTime(data["orderTime"]),
+            value: formatTime(context, data["orderTime"].toDate()),
           ),
           const SizedBox(height: 10),
           _InfoRow(
             icon: Icons.payments_rounded,
             label: "Payment",
-            value: _formatPayment(data["paymentDetails"]),
+            value: formatPayment(data["paymentDetails"]),
           ),
         ],
       ),
     );
-  }
-
-  String _formatTime(dynamic t) {
-    try {
-      final dt = t is Timestamp ? t.toDate() : DateTime.now();
-      return DateFormat("dd MMM yyyy, hh:mm a").format(dt);
-    } catch (_) {
-      return "Unknown";
-    }
-  }
-
-  String _formatPayment(dynamic p) {
-    if (p == null) return "Unknown";
-    final s = p.toString();
-    if (s == "cash") return "Cash on Delivery";
-    if (s.toLowerCase().contains("stripe") ||
-        s.toLowerCase().contains("card")) return "Card (Stripe)";
-    return s;
   }
 }
 
@@ -500,8 +460,7 @@ class _InfoRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style: TextStyle(
-                      fontSize: 11, color: Colors.grey.shade500)),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               const SizedBox(height: 1),
               Text(value,
                   style: const TextStyle(
@@ -514,7 +473,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-// ── Address section ───────────────────────────────────────────────────────────
+//  Address section
 
 class _AddressSection extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -524,8 +483,8 @@ class _AddressSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // New model — address embedded directly on the order
     if (data["address"] is Map) {
-      final addr = Address.fromJson(
-          Map<String, dynamic>.from(data["address"] as Map));
+      final addr =
+          Address.fromJson(Map<String, dynamic>.from(data["address"] as Map));
       return ShipmentAddressDesign(model: addr);
     }
 
@@ -559,8 +518,7 @@ class _AddressSection extends StatelessWidget {
               icon: Icons.location_off_rounded, text: "Address not found");
         }
         return ShipmentAddressDesign(
-          model: Address.fromJson(
-              snap.data!.data()! as Map<String, dynamic>),
+          model: Address.fromJson(snap.data!.data()! as Map<String, dynamic>),
         );
       },
     );
@@ -596,12 +554,11 @@ class _PickupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Pick up from store",
-                    style: TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700)),
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 SizedBox(height: 2),
                 Text("Show this order at the counter",
-                    style: TextStyle(
-                        fontSize: 12, color: Color(0xFFAAAAAA))),
+                    style: TextStyle(fontSize: 12, color: Color(0xFFAAAAAA))),
               ],
             ),
           ),
@@ -630,38 +587,14 @@ class _InfoTile extends StatelessWidget {
           Icon(icon, color: Colors.grey.shade400, size: 18),
           const SizedBox(width: 12),
           Text(text,
-              style: TextStyle(
-                  fontSize: 13, color: Colors.grey.shade600)),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
         ],
       ),
     );
   }
 }
 
-// ── Status image ──────────────────────────────────────────────────────────────
-
-class _StatusImage extends StatelessWidget {
-  final String status;
-  const _StatusImage({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final bool delivered = status == "Delivered";
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Image.asset(
-        delivered
-            ? 'images/delivered.jpg'
-            : '/images/state.jpg',
-        package: 'shared_assets',
-        width: double.infinity,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-}
-
-// ── Section label ─────────────────────────────────────────────────────────────
+//  Section label
 
 class _SectionLabel extends StatelessWidget {
   final String text;
@@ -680,13 +613,12 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-// ── Rated badge — shown when order has already been rated ─────────────────────
+//  Rated badge — shown when order has already been rated
 
 class _RatedBadge extends StatelessWidget {
   final int foodRating;
   final int driverRating;
-  const _RatedBadge(
-      {required this.foodRating, required this.driverRating});
+  const _RatedBadge({required this.foodRating, required this.driverRating});
 
   @override
   Widget build(BuildContext context) {
@@ -696,8 +628,8 @@ class _RatedBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF00C48C).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: const Color(0xFF00C48C).withValues(alpha: 0.2)),
+        border:
+            Border.all(color: const Color(0xFF00C48C).withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -740,13 +672,9 @@ class _MiniStars extends StatelessWidget {
           children: List.generate(
             5,
             (i) => Icon(
-              i < rating
-                  ? Icons.star_rounded
-                  : Icons.star_outline_rounded,
+              i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
               size: 12,
-              color: i < rating
-                  ? Colors.amber.shade600
-                  : Colors.grey.shade300,
+              color: i < rating ? Colors.amber.shade600 : Colors.grey.shade300,
             ),
           ),
         ),

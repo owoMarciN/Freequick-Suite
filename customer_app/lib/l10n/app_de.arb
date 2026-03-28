@@ -697,5 +697,8 @@
     "addr_delete_error": "Fehler: {error}",
     "hintPhone": "Telefonnummer",
     "welcomeNotifTitle": "Willkommen!",
-    "welcomeNotifBody": "Vielen Dank, dass Sie unserer App beigetreten sind, {name}!"
+    "welcomeNotifBody": "Vielen Dank, dass Sie unserer App beigetreten sind, {name}!",
+    "time_just_now": "Soeben",
+    "time_minutes": "{n}m vor",
+    "time_hours": "{n}Stunden zuvor"
 }

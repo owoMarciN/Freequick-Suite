@@ -52,7 +52,7 @@ class CategoryItem extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20), 
                 image: DecorationImage(
-                  image: AssetImage(item.imageUrl),
+                  image: AssetImage(item.imageUrl, package: 'shared_assets'),
                   fit: BoxFit.cover,
                 ),
               ),

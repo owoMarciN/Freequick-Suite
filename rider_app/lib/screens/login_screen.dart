@@ -14,8 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
-  final List<FocusNode> _otpFocus =
-      List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _otpFocus = List.generate(6, (_) => FocusNode());
   final List<TextEditingController> _otpBoxes =
       List.generate(6, (_) => TextEditingController());
 
@@ -38,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // ── OTP send ───────────────────────────────────────────────────────────────
+  //  OTP send
 
   Future<void> _sendOtp() async {
     final phone = _phoneController.text.trim();
@@ -51,8 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    final formatted =
-        phone.startsWith('+') ? phone : '+48$phone';
+    final formatted = phone.startsWith('+') ? phone : '+48$phone';
 
     await _authService.sendOtp(
       phoneNumber: formatted,
@@ -83,12 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  // ── OTP verify ─────────────────────────────────────────────────────────────
+  //  OTP verify
 
   Future<void> _verifyOtp() async {
     if (_verificationId == null) return;
-    final code =
-        _otpBoxes.map((c) => c.text).join();
+    final code = _otpBoxes.map((c) => c.text).join();
     if (code.length < 6) {
       setState(() => _error = 'Enter the 6-digit code');
       return;
@@ -111,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
+  //  Build
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ── Phone step ─────────────────────────────────────────────────────────────
+  //  Phone step
 
   Widget _buildPhoneStep() {
     return Column(
@@ -200,12 +197,11 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               // Country prefix
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 18),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                 decoration: BoxDecoration(
                   border: Border(
-                    right: BorderSide(
-                        color: AppTheme.divider, width: 1),
+                    right: BorderSide(color: AppTheme.divider, width: 1),
                   ),
                 ),
                 child: const Text(
@@ -230,8 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: const InputDecoration(
                     hintText: '555 123 456',
                     border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
                   ),
                   onSubmitted: (_) => _sendOtp(),
                 ),
@@ -259,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ── OTP step ───────────────────────────────────────────────────────────────
+  //  OTP step
 
   Widget _buildOtpStep() {
     return Column(
@@ -277,9 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 maxLength: 1,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 style: const TextStyle(
                   color: AppTheme.textPrimary,
                   fontSize: 22,
@@ -295,8 +288,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppTheme.primary, width: 2),
+                    borderSide:
+                        const BorderSide(color: AppTheme.primary, width: 2),
                   ),
                 ),
                 onChanged: (v) {
@@ -306,8 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     _otpFocus[i - 1].requestFocus();
                   }
                   // Auto-submit when all 6 filled
-                  final full =
-                      _otpBoxes.map((c) => c.text).join();
+                  final full = _otpBoxes.map((c) => c.text).join();
                   if (full.length == 6) _verifyOtp();
                 },
               ),
@@ -345,13 +337,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 _error = null;
               }),
               child: const Text('Change number',
-                  style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13)),
+                  style:
+                      TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
             ),
-            const Text('·',
-                style: TextStyle(
-                    color: AppTheme.textSecondary)),
+            const Text('·', style: TextStyle(color: AppTheme.textSecondary)),
             TextButton(
               onPressed: _resendSeconds > 0 ? null : _sendOtp,
               child: Text(
@@ -372,7 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ── Error banner ───────────────────────────────────────────────────────────
+  //  Error banner
 
   Widget _buildError() {
     return Container(
@@ -380,8 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         color: AppTheme.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-            color: AppTheme.danger.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -390,8 +378,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(_error!,
-                style: const TextStyle(
-                    color: AppTheme.danger, fontSize: 13)),
+                style: const TextStyle(color: AppTheme.danger, fontSize: 13)),
           ),
         ],
       ),

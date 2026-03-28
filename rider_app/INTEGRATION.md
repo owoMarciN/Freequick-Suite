@@ -26,23 +26,23 @@ These fields are read by the user app's order tracking screen.
 
 ```
 deliveries/{id}
-  ├── status          : "ASSIGNING" | "ASSIGNED" | "AT_STORE" | "PICKED_UP" | "DELIVERING" | "DELIVERED"
-  ├── routePhase      : "TO_PICKUP" | "TO_DROPOFF"
-  ├── riderLocation   : { lat, lng, heading, speed, accuracy, updatedAt }
-  ├── eta             : { minMinutes, maxMinutes, updatedAt }
-  ├── pickup          : { lat, lng }
-  ├── dropoff         : { lat, lng }
-  ├── trackingEnabled : bool  (false after delivery complete)
-  ├── riderId         : string
-  ├── customerId      : string
-  └── orderId         : string
+  ├ status          : "ASSIGNING" | "ASSIGNED" | "AT_STORE" | "PICKED_UP" | "DELIVERING" | "DELIVERED"
+  ├ routePhase      : "TO_PICKUP" | "TO_DROPOFF"
+  ├ riderLocation   : { lat, lng, heading, speed, accuracy, updatedAt }
+  ├ eta             : { minMinutes, maxMinutes, updatedAt }
+  ├ pickup          : { lat, lng }
+  ├ dropoff         : { lat, lng }
+  ├ trackingEnabled : bool  (false after delivery complete)
+  ├ riderId         : string
+  ├ customerId      : string
+  └ orderId         : string
 
 orders/{id}
-  ├── status          : "CONFIRMED" | "PREPARING" | "PICKED_UP" | "DELIVERING" | "COMPLETED"
-  ├── deliveryId      : string  (link to deliveries collection)
-  ├── riderNote       : string  (shown to rider, set by user at checkout)
-  ├── storeNote       : string
-  └── cutleryRequested: bool
+  ├ status          : "CONFIRMED" | "PREPARING" | "PICKED_UP" | "DELIVERING" | "COMPLETED"
+  ├ deliveryId      : string  (link to deliveries collection)
+  ├ riderNote       : string  (shown to rider, set by user at checkout)
+  ├ storeNote       : string
+  └ cutleryRequested: bool
 ```
 
 ---
@@ -201,31 +201,31 @@ deliveries/{id}.status = ASSIGNING
 Cloud Function assigns rider
       │
       ▼
-dispatch_jobs/{id} created  ──► Rider app: JobRequestSheet shown (30s timer)
+dispatch_jobs/{id} created  ► Rider app: JobRequestSheet shown (30s timer)
       │
 Rider accepts
       │
       ▼
-deliveries/{id}.status = ASSIGNED        ◄── User app tracking screen: "Rider on the way"
+deliveries/{id}.status = ASSIGNED        ◄ User app tracking screen: "Rider on the way"
 riders/{id}.hasActiveDelivery = true
       │
 Rider taps "I'm Here" at restaurant
       │
       ▼
-deliveries/{id}.status = AT_STORE        ◄── User app: "Rider at restaurant"
+deliveries/{id}.status = AT_STORE        ◄ User app: "Rider at restaurant"
 orders/{id}.status = PREPARING
       │
 Rider taps "Picked Up"
       │
       ▼
-deliveries/{id}.status = PICKED_UP       ◄── User app: "Order picked up"
+deliveries/{id}.status = PICKED_UP       ◄ User app: "Order picked up"
 deliveries/{id}.routePhase = TO_DROPOFF
 orders/{id}.status = PICKED_UP
       │
 Rider arrives at customer, taps "Delivered ✓"
       │
       ▼
-deliveries/{id}.status = DELIVERED       ◄── User app: "Order delivered! 🎉"
+deliveries/{id}.status = DELIVERED       ◄ User app: "Order delivered! 🎉"
 deliveries/{id}.trackingEnabled = false
 orders/{id}.status = COMPLETED
 riders/{id}.totalDeliveries += 1

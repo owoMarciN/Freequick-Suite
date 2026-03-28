@@ -39,6 +39,7 @@ class UnifiedAppBar extends StatelessWidget implements PreferredSizeWidget {
         title,
         style: const TextStyle(
           fontFamily: "Signatra",
+          package: 'shared_assets',
           fontSize: 46,
           color: Colors.white,
         ),

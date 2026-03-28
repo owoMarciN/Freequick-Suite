@@ -6,7 +6,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// ── GPS coordinate pair ───────────────────────────────────────────────────────
+//  GPS coordinate pair
 
 class LatLngData {
   final double lat;
@@ -22,7 +22,7 @@ class LatLngData {
   Map<String, dynamic> toMap() => {'lat': lat, 'lng': lng};
 }
 
-// ── Live rider GPS position ───────────────────────────────────────────────────
+//  Live rider GPS position
 
 class RiderLocation {
   final double lat;
@@ -51,7 +51,7 @@ class RiderLocation {
       };
 }
 
-// ── ETA from Cloud Function ───────────────────────────────────────────────────
+//  ETA from Cloud Function
 
 class EtaData {
   final int minMinutes;
@@ -70,12 +70,11 @@ class EtaData {
         minMinutes: (m['minMinutes'] as num?)?.toInt() ?? 0,
         maxMinutes: (m['maxMinutes'] as num?)?.toInt() ?? 0,
         source: m['source'] as String? ?? 'FALLBACK',
-        updatedAt:
-            (m['updatedAt'] as Timestamp?)?.toDate(),
+        updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
       );
 }
 
-// ── Route polyline from Cloud Function / Google Directions ───────────────────
+//  Route polyline from Cloud Function / Google Directions
 
 class RouteData {
   final String encodedPolyline;
@@ -89,15 +88,13 @@ class RouteData {
   });
 
   factory RouteData.fromMap(Map<String, dynamic> m) => RouteData(
-        encodedPolyline:
-            m['encodedPolyline'] as String? ?? '',
+        encodedPolyline: m['encodedPolyline'] as String? ?? '',
         phase: m['phase'] as String? ?? 'TO_PICKUP',
-        updatedAt:
-            (m['updatedAt'] as Timestamp?)?.toDate(),
+        updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
       );
 }
 
-// ── Delivery document ─────────────────────────────────────────────────────────
+//  Delivery document
 // Future use — kept for when live map tracking is added.
 
 class DeliveryModel {
@@ -148,51 +145,37 @@ class DeliveryModel {
       customerId: d['customerId'] as String? ?? '',
       riderId: d['riderId'] as String?,
       status: d['status'] as String? ?? 'ASSIGNING',
-      routePhase:
-          d['routePhase'] as String? ?? 'TO_PICKUP',
+      routePhase: d['routePhase'] as String? ?? 'TO_PICKUP',
       pickup: LatLngData.fromMap(
-          (d['pickup'] as Map?)
-                  ?.cast<String, dynamic>() ??
-              {}),
+          (d['pickup'] as Map?)?.cast<String, dynamic>() ?? {}),
       dropoff: LatLngData.fromMap(
-          (d['dropoff'] as Map?)
-                  ?.cast<String, dynamic>() ??
-              {}),
-      trackingEnabled:
-          d['trackingEnabled'] as bool? ?? true,
+          (d['dropoff'] as Map?)?.cast<String, dynamic>() ?? {}),
+      trackingEnabled: d['trackingEnabled'] as bool? ?? true,
       storeAddress: d['storeAddress'] as String?,
       customerAddress: d['customerAddress'] as String?,
-      lastUpdateAt:
-          (d['lastUpdateAt'] as Timestamp?)?.toDate(),
+      lastUpdateAt: (d['lastUpdateAt'] as Timestamp?)?.toDate(),
       riderLocation: riderLoc != null
           ? RiderLocation(
               lat: (riderLoc['lat'] ?? 0.0).toDouble(),
               lng: (riderLoc['lng'] ?? 0.0).toDouble(),
-              heading:
-                  (riderLoc['heading'] as num?)?.toDouble(),
-              speed:
-                  (riderLoc['speed'] as num?)?.toDouble(),
-              accuracy:
-                  (riderLoc['accuracy'] as num?)?.toDouble(),
-              updatedAt:
-                  (riderLoc['updatedAt'] as Timestamp?)
-                          ?.toDate() ??
-                      DateTime.now(),
+              heading: (riderLoc['heading'] as num?)?.toDouble(),
+              speed: (riderLoc['speed'] as num?)?.toDouble(),
+              accuracy: (riderLoc['accuracy'] as num?)?.toDouble(),
+              updatedAt: (riderLoc['updatedAt'] as Timestamp?)?.toDate() ??
+                  DateTime.now(),
             )
           : null,
       eta: d['eta'] != null
-          ? EtaData.fromMap(
-              (d['eta'] as Map).cast<String, dynamic>())
+          ? EtaData.fromMap((d['eta'] as Map).cast<String, dynamic>())
           : null,
       route: d['route'] != null
-          ? RouteData.fromMap(
-              (d['route'] as Map).cast<String, dynamic>())
+          ? RouteData.fromMap((d['route'] as Map).cast<String, dynamic>())
           : null,
     );
   }
 }
 
-// ── Order item ────────────────────────────────────────────────────────────────
+//  Order item
 // Matches the user app cart structure — used in OrderModel and DispatchJob.
 
 class OrderItem {
@@ -208,8 +191,7 @@ class OrderItem {
     this.options,
   });
 
-  factory OrderItem.fromMap(Map<String, dynamic> m) =>
-      OrderItem(
+  factory OrderItem.fromMap(Map<String, dynamic> m) => OrderItem(
         name: m['name'] as String? ?? '',
         quantity: (m['quantity'] as num?)?.toInt() ?? 1,
         price: (m['price'] as num?)?.toDouble() ?? 0.0,
@@ -220,7 +202,7 @@ class OrderItem {
       (options != null && options!.isNotEmpty) ? options! : '';
 }
 
-// ── Order model ───────────────────────────────────────────────────────────────
+//  Order model
 // Full order document — rider reads this to know what to pick up.
 
 class OrderModel {
@@ -281,30 +263,21 @@ class OrderModel {
       customerId: d['customerId'] as String? ?? '',
       customerName: d['customerName'] as String? ?? '',
       customerPhone: d['customerPhone'] as String?,
-      deliveryAddress:
-          d['deliveryAddress'] as String? ?? '',
+      deliveryAddress: d['deliveryAddress'] as String? ?? '',
       status: d['status'] as String? ?? '',
       deliveryId: d['deliveryId'] as String?,
       items: (d['items'] as List<dynamic>? ?? [])
-          .map((e) => OrderItem.fromMap(
-              (e as Map).cast<String, dynamic>()))
+          .map((e) => OrderItem.fromMap((e as Map).cast<String, dynamic>()))
           .toList(),
-      totalAmount:
-          (d['totalAmount'] as num?)?.toDouble() ?? 0.0,
-      deliveryFee:
-          (d['deliveryFee'] as num?)?.toDouble() ?? 0.0,
-      finalTotal:
-          (d['finalTotal'] as num?)?.toDouble() ?? 0.0,
-      riderEarnings:
-          (d['riderEarnings'] as num?)?.toDouble(),
+      totalAmount: (d['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      deliveryFee: (d['deliveryFee'] as num?)?.toDouble() ?? 0.0,
+      finalTotal: (d['finalTotal'] as num?)?.toDouble() ?? 0.0,
+      riderEarnings: (d['riderEarnings'] as num?)?.toDouble(),
       riderNote: d['riderNote'] as String?,
       storeNote: d['storeNote'] as String?,
       cutleryRequested: d['cutleryRequested'] as bool?,
-      paymentMethod:
-          d['paymentMethod'] as String? ?? 'CASH',
-      createdAt:
-          (d['createdAt'] as Timestamp?)?.toDate() ??
-              DateTime.now(),
+      paymentMethod: d['paymentMethod'] as String? ?? 'CASH',
+      createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }

@@ -14,8 +14,7 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen>
     with SingleTickerProviderStateMixin {
-
-  // ── Tab controller: Active / Delivered ────────────────────────────────────
+  //  Tab controller: Active / Delivered
   late final TabController _tabs;
 
   static const List<String> _activeStatuses = [
@@ -37,7 +36,7 @@ class _OrdersScreenState extends State<OrdersScreen>
     super.dispose();
   }
 
-  // ── Status update ─────────────────────────────────────────────────────────
+  //  Status update
 
   Future<void> _updateStatus(String orderID, String newStatus) async {
     try {
@@ -82,7 +81,7 @@ class _OrdersScreenState extends State<OrdersScreen>
 
     return Column(
       children: [
-        // ── Tab bar ────────────────────────────────────────────────────────
+        //  Tab bar
         Container(
           color: colorScheme.surface,
           child: TabBar(
@@ -100,7 +99,7 @@ class _OrdersScreenState extends State<OrdersScreen>
           ),
         ),
 
-        // ── Tab views ──────────────────────────────────────────────────────
+        //  Tab views
         Expanded(
           child: TabBarView(
             controller: _tabs,

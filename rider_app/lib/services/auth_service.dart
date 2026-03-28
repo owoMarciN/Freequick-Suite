@@ -10,7 +10,7 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // ── OTP flow ───────────────────────────────────────────────────────────────
+  //  OTP flow
 
   Future<void> sendOtp({
     required String phoneNumber,
@@ -44,7 +44,7 @@ class AuthService {
     return await _auth.signInWithCredential(credential);
   }
 
-  // ── Rider profile ──────────────────────────────────────────────────────────
+  //  Rider profile
   // Field names MUST match RiderModel.fromDoc() in rider_provider.dart.
   // Only creates the doc if it doesn't already exist.
 
@@ -55,10 +55,7 @@ class AuthService {
   }) async {
     final uid = currentUser!.uid;
 
-    await FirebaseFirestore.instance
-        .collection('riders')
-        .doc(uid)
-        .set({
+    await FirebaseFirestore.instance.collection('riders').doc(uid).set({
       'name': name,
       'phone': phone,
       'vehicleType': vehicleType,
@@ -71,7 +68,7 @@ class AuthService {
     });
   }
 
-  // ── Sign out ───────────────────────────────────────────────────────────────
+  //  Sign out
 
   Future<void> signOut() async {
     await _auth.signOut();

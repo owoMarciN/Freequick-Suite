@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/models/items.dart';
-import 'package:user_app/assistant_methods/assistant_methods.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/widgets/unified_snackbar.dart';
 
 class CartItemDesign extends StatefulWidget {

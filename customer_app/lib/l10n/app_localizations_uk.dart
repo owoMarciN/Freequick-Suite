@@ -2310,4 +2310,17 @@ class AppLocalizationsUk extends AppLocalizations {
   String welcomeNotifBody(String name) {
     return 'Дякуємо, що приєдналися до нашого застосунку, $name!';
   }
+
+  @override
+  String get time_just_now => 'Щойно';
+
+  @override
+  String time_minutes(int n) {
+    return '$nхв тому';
+  }
+
+  @override
+  String time_hours(int n) {
+    return '$nгод тому';
+  }
 }

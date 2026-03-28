@@ -33,7 +33,7 @@ class FcmService {
   // Callback set by RiderProvider to show job request sheet
   Function(Map<String, dynamic> data)? onDispatchJob;
 
-  // ── Init (call once from main.dart after Firebase.initializeApp) ──────────
+  //  Init (call once from main.dart after Firebase.initializeApp)
   Future<void> init() async {
     // 1. Request permission
     await _fcm.requestPermission(
@@ -47,8 +47,7 @@ class FcmService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings();
     await _localNotif.initialize(
-      const InitializationSettings(
-          android: androidSettings, iOS: iosSettings),
+      const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: (details) {
         // User tapped local notification
         if (details.payload != null) {
@@ -92,7 +91,7 @@ class FcmService {
     });
   }
 
-  // ── Save token to Firestore + Cloud Function ──────────────────────────────
+  //  Save token to Firestore + Cloud Function
   Future<void> _saveToken() async {
     final token = await _fcm.getToken();
     if (token == null) return;
@@ -117,7 +116,7 @@ class FcmService {
     }
   }
 
-  // ── Foreground message handler ────────────────────────────────────────────
+  //  Foreground message handler
   void _onForegroundMessage(RemoteMessage message) {
     final data = message.data;
     debugPrint('[FCM Foreground] type=${data['type']}');
@@ -131,7 +130,7 @@ class FcmService {
     _showLocalNotification(message);
   }
 
-  // ── Notification tap handler ──────────────────────────────────────────────
+  //  Notification tap handler
   void _onMessageTap(RemoteMessage message) {
     final data = message.data;
     if (data['type'] == 'DISPATCH_JOB') {

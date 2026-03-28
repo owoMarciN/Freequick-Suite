@@ -27,8 +27,7 @@ class ProfileScreen extends StatelessWidget {
           final rider = provider.rider;
           if (rider == null) {
             return const Center(
-              child: CircularProgressIndicator(
-                  color: AppTheme.primary),
+              child: CircularProgressIndicator(color: AppTheme.primary),
             );
           }
 
@@ -56,8 +55,7 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Sign Out',
             style: TextStyle(color: AppTheme.textPrimary)),
         content: const Text(
@@ -68,15 +66,12 @@ class ProfileScreen extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.textSecondary)),
+                style: TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              Provider.of<RiderProvider>(context,
-                      listen: false)
-                  .signOut();
+              Provider.of<RiderProvider>(context, listen: false).signOut();
             },
             style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// ── Profile header ────────────────────────────────────────────────────────────
+//  Profile header
 
 class _ProfileHeader extends StatelessWidget {
   final RiderModel rider;
@@ -119,9 +114,7 @@ class _ProfileHeader extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                rider.name.isNotEmpty
-                    ? rider.name[0].toUpperCase()
-                    : 'R',
+                rider.name.isNotEmpty ? rider.name[0].toUpperCase() : 'R',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -147,8 +140,7 @@ class _ProfileHeader extends StatelessWidget {
                 Text(
                   rider.phone,
                   style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13),
+                      color: AppTheme.textSecondary, fontSize: 13),
                 ),
                 const SizedBox(height: 6),
                 _StatusBadge(isOnline: rider.isOnline),
@@ -168,8 +160,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: (isOnline ? AppTheme.accent : AppTheme.textSecondary)
             .withValues(alpha: 0.15),
@@ -182,9 +173,7 @@ class _StatusBadge extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: isOnline
-                  ? AppTheme.accent
-                  : AppTheme.textSecondary,
+              color: isOnline ? AppTheme.accent : AppTheme.textSecondary,
               shape: BoxShape.circle,
             ),
           ),
@@ -192,9 +181,7 @@ class _StatusBadge extends StatelessWidget {
           Text(
             isOnline ? 'Online' : 'Offline',
             style: TextStyle(
-              color: isOnline
-                  ? AppTheme.accent
-                  : AppTheme.textSecondary,
+              color: isOnline ? AppTheme.accent : AppTheme.textSecondary,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -205,7 +192,7 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// ── Stats grid — live data from RiderStatsProvider ────────────────────────────
+//  Stats grid — live data from RiderStatsProvider
 
 class _StatsGrid extends StatelessWidget {
   final RiderModel rider;
@@ -254,10 +241,10 @@ class _StatsGrid extends StatelessWidget {
 
   String _vehicleLabel(String type) {
     return switch (type) {
-      'BIKE'    => 'Bicycle',
+      'BIKE' => 'Bicycle',
       'SCOOTER' => 'Scooter',
-      'CAR'     => 'Car',
-      _         => type,
+      'CAR' => 'Car',
+      _ => type,
     };
   }
 }
@@ -298,8 +285,7 @@ class _StatTile extends StatelessWidget {
                   )),
               Text(label,
                   style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 11)),
+                      color: AppTheme.textSecondary, fontSize: 11)),
             ],
           ),
         ],
@@ -308,7 +294,7 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-// ── Earnings breakdown ────────────────────────────────────────────────────────
+//  Earnings breakdown
 
 class _EarningsBreakdown extends StatelessWidget {
   final RiderStatsProvider stats;
@@ -352,9 +338,8 @@ class _EarningsBreakdown extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Avg per delivery',
-                    style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 13)),
+                    style:
+                        TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
                 Text(
                   '${stats.avgEarningsPerDelivery.toStringAsFixed(2)} zł',
                   style: const TextStyle(
@@ -386,13 +371,12 @@ class _EarningsRow extends StatelessWidget {
       children: [
         Expanded(
           child: Text(label,
-              style: const TextStyle(
-                  color: AppTheme.textSecondary, fontSize: 13)),
+              style:
+                  const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
         ),
         Text(
           '$deliveries deliveries',
-          style: const TextStyle(
-              color: AppTheme.textSecondary, fontSize: 12),
+          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
         ),
         const SizedBox(width: 12),
         Text(
@@ -408,7 +392,7 @@ class _EarningsRow extends StatelessWidget {
   }
 }
 
-// ── Settings section ──────────────────────────────────────────────────────────
+//  Settings section
 
 class _SettingsSection extends StatelessWidget {
   final RiderProvider provider;
@@ -430,26 +414,19 @@ class _SettingsSection extends StatelessWidget {
             onTap: () {},
           ),
           const Divider(
-              height: 1,
-              color: AppTheme.divider,
-              indent: 16,
-              endIndent: 16),
+              height: 1, color: AppTheme.divider, indent: 16, endIndent: 16),
           _SettingsTile(
             icon: Icons.help_outline_rounded,
             label: 'Support',
             onTap: () {},
           ),
           const Divider(
-              height: 1,
-              color: AppTheme.divider,
-              indent: 16,
-              endIndent: 16),
+              height: 1, color: AppTheme.divider, indent: 16, endIndent: 16),
           const _SettingsTile(
             icon: Icons.info_outline_rounded,
             label: 'App Version',
             trailing: Text('1.0.0',
-                style: TextStyle(
-                    color: AppTheme.textSecondary, fontSize: 13)),
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
             onTap: null,
           ),
         ],
@@ -473,11 +450,9 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading:
-          Icon(icon, color: AppTheme.textSecondary, size: 20),
+      leading: Icon(icon, color: AppTheme.textSecondary, size: 20),
       title: Text(label,
-          style: const TextStyle(
-              color: AppTheme.textPrimary, fontSize: 14)),
+          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14)),
       trailing: trailing ??
           (onTap != null
               ? const Icon(Icons.chevron_right_rounded,

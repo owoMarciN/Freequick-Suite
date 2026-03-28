@@ -24,7 +24,7 @@ class LocationService {
 
   bool get isTracking => _isTracking;
 
-  // ── Permissions ───────────────────────────────────────────────────────────
+  //  Permissions
   Future<bool> requestPermissions() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
@@ -48,7 +48,7 @@ class LocationService {
     }
   }
 
-  // ── Start tracking (call when rider accepts job) ──────────────────────────
+  //  Start tracking (call when rider accepts job)
   Future<void> startTracking(String deliveryId) async {
     if (_isTracking) await stopTracking();
 
@@ -87,7 +87,8 @@ class LocationService {
     try {
       // Write to Firestore → triggers onRiderLocationUpdate Cloud Function
       // which calls Google Directions and writes back eta + route.encodedPolyline
-      await _riderService.updateRiderLocation(_activeDeliveryId!, loc.lat, loc.lng);
+      await _riderService.updateRiderLocation(
+          _activeDeliveryId!, loc.lat, loc.lng);
     } catch (e) {
       _log('Failed to update location: $e');
     }
@@ -101,7 +102,7 @@ class LocationService {
     _log('Tracking stopped');
   }
 
-  // ── Fallback ETA (Haversine) used if Cloud Function hasn't responded yet ──
+  //  Fallback ETA (Haversine) used if Cloud Function hasn't responded yet
   Map<String, int> calculateFallbackEta({
     required double fromLat,
     required double fromLng,

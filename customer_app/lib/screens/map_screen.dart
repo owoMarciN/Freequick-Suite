@@ -119,7 +119,6 @@ class _MapScreenState extends State<MapScreen> {
       widget.initialLng ?? -122.0841,
     );
 
-    // If we have coordinates, reverse geocoding immediately
     if (widget.initialLat != null && widget.initialLng != null) {
       _reverseGeocode(_pickedLocation);
     }
@@ -269,7 +268,7 @@ class _MapScreenState extends State<MapScreen> {
                               borderRadius: BorderRadius.circular(10)),
                           elevation: 2,
                         ),
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.of(context)..pop()..pop(),
                         label: Text(context.l10n.goBack,
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),

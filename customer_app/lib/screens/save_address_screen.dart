@@ -4,14 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/models/address.dart';
 import 'package:user_app/services/location_service.dart';
+import 'package:user_app/screens/map_screen.dart';
 
-import 'package:provider/provider.dart';
-
-import 'package:user_app/widgets/custom_text_field.dart';
-
-import "package:user_app/screens/map_screen.dart";
-import 'package:user_app/widgets/error_dialog.dart';
-import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/unified_snackbar.dart';
 
@@ -23,7 +17,9 @@ class SaveAddressScreen extends StatefulWidget {
 }
 
 class _SaveAddressScreenState extends State<SaveAddressScreen> {
-  final TextEditingController _addressLabel = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  
+  // Controllers
   final TextEditingController _houseNumber = TextEditingController();
   final TextEditingController _flatNumber = TextEditingController();
   final TextEditingController _postCode = TextEditingController();
@@ -32,22 +28,19 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   final TextEditingController _state = TextEditingController();
   final TextEditingController _completeAddress = TextEditingController();
 
-  final formKey = GlobalKey<FormState>();
-
+  String _selectedLabel = "Home"; // Default label
   bool isLoading = false;
-
+  bool _isAddressFetched = false;
   double lat = 0.0;
   double lng = 0.0;
 
   @override
   void initState() {
     super.initState();
-    int totalAddressCount =
-        Provider.of<AddressProvider>(context, listen: false).totalSavedAddresses;
-    _addressLabel.text = "Address ${totalAddressCount + 1}";
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleMapResult();
+    });
   }
-
-  bool _isAddressFetched = false;
 
   void _assignAddressData(Map<String, dynamic> result) {
     setState(() {
@@ -56,33 +49,29 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       _postCode.text = result['postalCode'] ?? '';
       _street.text = result['road'] ?? '';
       _houseNumber.text = result['houseNumber'] ?? '';
-
-      String sub = result['subpremise'] ?? 'flatNumber' ?? '';
+      
+      String sub = result['subpremise'] ?? '';
       _flatNumber.text = sub.isNotEmpty ? "Apt $sub" : "";
-
       _completeAddress.text = result['fullAddress'] ?? '';
 
-      // Latitude and Longitude from the map/GPS
       lat = result['lat'] ?? 0.0;
       lng = result['lng'] ?? 0.0;
-
       _isAddressFetched = true;
     });
   }
 
   void _handleMapResult() async {
-    Map<String, double>? coords =
-        await LocationService.getUserCurrentCoordinates();
-
+    Map<String, double>? coords = await LocationService.getUserCurrentCoordinates();
     if (!mounted) return;
 
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => MapScreen(
-                initialLat: coords?['lat'],
-                initialLng: coords?['lng'],
-              )),
+        builder: (_) => MapScreen(
+          initialLat: coords?['lat'],
+          initialLng: coords?['lng'],
+        ),
+      ),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -90,22 +79,144 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     }
   }
 
-  Future<void> formValidation() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
+  // --- UI Components ---
 
-    if (lat == 0.0 || lng == 0.0 || _completeAddress.text.trim().isEmpty) {
-      showDialog(
-        context: context,
-        builder: (_) => const ErrorDialog(
-            message: "Please select a location on the map first."),
-      );
-      return;
-    }
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+      ),
+    );
+  }
 
+  Widget _buildField({
+    required String label,
+    required TextEditingController controller,
+    TextInputType type = TextInputType.text,
+    IconData? icon,
+    bool required = true,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: type,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      validator: (value) => (required && (value == null || value.isEmpty)) ? "Required" : null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: UnifiedAppBar(
+        title: "Delivery Address", 
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 28,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      bottomNavigationBar: _isAddressFetched ? _buildSaveButton() : null,
+      body: _isAddressFetched ? _buildForm() : const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildForm() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Map Summary / Re-fetch
+            Card(
+              elevation: 0,
+              color: Colors.cyan.withValues(alpha: 0.1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: ListTile(
+                leading: const Icon(Icons.location_on, color: Colors.cyan),
+                title: Text(_completeAddress.text, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)),
+                trailing: TextButton(onPressed: _handleMapResult, child: const Text("Change")),
+              ),
+            ),
+
+            _buildSectionTitle("Address Label"),
+            Row(
+              children: ["Home", "Work", "Other"].map((label) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(label),
+                    selected: _selectedLabel == label,
+                    onSelected: (selected) => setState(() => _selectedLabel = label),
+                    selectedColor: Colors.cyan.withValues(alpha: 0.3),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const Divider(height: 32),
+            _buildSectionTitle("Location Details"),
+            
+            Row(
+              children: [
+                Expanded(child: _buildField(label: "House/Bldg*", controller: _houseNumber, icon: Icons.home)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildField(label: "Floor/Flat", controller: _flatNumber, required: false)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildField(label: "Street / Area", controller: _street, icon: Icons.add_road),
+            const SizedBox(height: 16),
+            
+            Row(
+              children: [
+                Expanded(child: _buildField(label: "City", controller: _city)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildField(label: "Postcode", controller: _postCode, type: TextInputType.number)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildField(label: "State", controller: _state),
+            
+            const SizedBox(height: 100), // Space for FAB
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: ElevatedButton(
+        onPressed: isLoading ? null : _validateAndSave,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyan,
+          minimumSize: const Size(double.infinity, 54),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ),
+        child: isLoading 
+          ? const CircularProgressIndicator(color: Colors.white) 
+          : const Text("Save Address", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Future<void> _validateAndSave() async {
+    if (!formKey.currentState!.validate()) return;
+    
     setState(() => isLoading = true);
-
     try {
       final docRef = FirebaseFirestore.instance
           .collection("users")
@@ -114,8 +225,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
           .doc();
 
       final model = Address(
-        label: _addressLabel.text.trim(),
-        country: _completeAddress.text.trim().split(',').last,
+        label: _selectedLabel, // Using chip selection
+        country: _completeAddress.text.split(',').last.trim(),
         state: _state.text.trim(),
         city: _city.text.trim(),
         road: _street.text.trim(),
@@ -129,173 +240,14 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       ).toJson();
 
       await docRef.set(model);
-
       if (mounted) {
-        unifiedSnackBar("New Address has been saved.");
+        unifiedSnackBar("Address saved successfully!");
         Navigator.pop(context);
       }
-    } catch (error) {
-      unifiedSnackBar("Error: $error", error: true);
+    } catch (e) {
+      unifiedSnackBar("Error: $e", error: true);
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
-  }
-
-  @override
-  void dispose() {
-    _addressLabel.dispose();
-    _houseNumber.dispose();
-    _flatNumber.dispose();
-    _postCode.dispose();
-    _street.dispose();
-    _city.dispose();
-    _state.dispose();
-    _completeAddress.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<CustomTextField> addressFields = [
-      CustomTextField(
-          hintText: "Address Label (Home/Work)",
-          controller: _addressLabel,
-          isObsecure: false),
-      CustomTextField(hintText: "City", controller: _city, isObsecure: false),
-      CustomTextField(hintText: "State", controller: _state, isObsecure: false),
-      CustomTextField(
-          hintText: "Street", controller: _street, isObsecure: false),
-      CustomTextField(
-          hintText: "House/Building Number",
-          controller: _houseNumber,
-          isObsecure: false),
-      CustomTextField(
-          hintText: "Flat / Apartment Number (Optional)",
-          controller: _flatNumber,
-          isObsecure: false),
-      CustomTextField(
-          hintText: "Postal Code", controller: _postCode, isObsecure: false),
-      CustomTextField(
-          hintText: "Complete Address",
-          controller: _completeAddress,
-          isObsecure: false),
-    ];
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: UnifiedAppBar(
-          title: "Add New Address",
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-              size: 28,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        floatingActionButton: _isAddressFetched
-            ? FloatingActionButton.extended(
-                onPressed: isLoading ? null : () => formValidation(),
-                label: const Text("Save Now",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15)),
-                icon: const Icon(Icons.save, color: Colors.white),
-                backgroundColor: Colors.cyan,
-              )
-            : null,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              if (isLoading) const LinearProgressIndicator(color: Colors.cyan),
-              SizedBox(
-                width: double.infinity,
-                // We use constraints to ensure the Column can at least fill the screen
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    // Subtracting AppBar height (approx) and status bar to avoid overflow
-                    minHeight: MediaQuery.of(context).size.height - 120,
-                  ),
-                  child: Column(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center, // Vertically centers children
-                    crossAxisAlignment: CrossAxisAlignment
-                        .center, // Horizontally centers children
-                    children: [
-                      const SizedBox(height: 25),
-                      ElevatedButton.icon(
-                        onPressed: _handleMapResult,
-                        icon: const Icon(Icons.location_on,
-                            color: Colors.redAccent, size: 22),
-                        label: const Text(
-                          "Find your location on Google Maps",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.cyan,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      if (_isAddressFetched) ...[
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40.0),
-                          child: Divider(thickness: 1),
-                        ),
-                        Text(
-                          "Verify & Refine Details",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Form(
-                          key: formKey,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                            child: Column(
-                              children: addressFields
-                                  .map((field) => Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 16.0),
-                                        child: field,
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 100),
-                      ] else ...[
-                        const SizedBox(height: 40),
-                        const Icon(Icons.map_outlined,
-                            size: 120, color: Colors.grey),
-                        const SizedBox(height: 10),
-                        const Text(
-                          "Map selection is required to continue",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -65,7 +65,7 @@ class _AddressHeaderState extends State<AddressHeader> {
     Map<String, dynamic> dataToProcess;
 
     if (addressProvider.count >= 0) {
-      dataToProcess = addressProvider.selectedAddress;
+      dataToProcess = addressProvider.address;
     } else {
       if (mounted) setState(() => _location = context.l10n.findingLocalization);
 

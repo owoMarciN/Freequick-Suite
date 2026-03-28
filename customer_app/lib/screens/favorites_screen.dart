@@ -10,7 +10,7 @@ import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/unified_bottom_bar.dart';
 import 'package:user_app/widgets/my_drower.dart';
 import 'package:user_app/widgets/progress_bar.dart';
-import 'package:user_app/assistant_methods/favorites_methods.dart';
+import 'package:user_app/methods/favorites_methods.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});

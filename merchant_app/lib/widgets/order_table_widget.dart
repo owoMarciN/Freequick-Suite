@@ -70,9 +70,10 @@ class OrderTableWidget extends StatelessWidget {
           ),
           child: Column(
             children: [
-              // ── NAGŁÓWEK TABELI ──────────────────────────────────────────
+              //  NAGŁÓWEK TABELI
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 child: Row(
                   children: [
                     Expanded(flex: 2, child: _TableHeader('ID')),
@@ -91,10 +92,11 @@ class OrderTableWidget extends StatelessWidget {
               ),
               Divider(height: 1, color: colorScheme.outline),
 
-              // ── WIERSZE ZAMÓWIEŃ ─────────────────────────────────────────
+              //  WIERSZE ZAMÓWIEŃ
               ...docs.map((doc) {
                 final d = doc.data() as Map<String, dynamic>;
-                final String currentStatus = d['status']?.toString() ?? 'Pending';
+                final String currentStatus =
+                    d['status']?.toString() ?? 'Pending';
                 final String customer = d['userID']?.toString() ?? '—';
                 final int items = (d['itemIDs'] as List?)?.length ?? 0;
                 final double total =
@@ -108,7 +110,8 @@ class OrderTableWidget extends StatelessWidget {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                       child: Row(
                         children: [
                           // ID i Czas
@@ -146,7 +149,8 @@ class OrderTableWidget extends StatelessWidget {
                             child: Text(
                               items == 1
                                   ? context.l10n.overview_items_count(items)
-                                  : context.l10n.overview_items_count_plural(items),
+                                  : context.l10n
+                                      .overview_items_count_plural(items),
                               style: TextStyle(
                                   fontSize: 13, color: brandColors.muted),
                             ),
@@ -157,7 +161,7 @@ class OrderTableWidget extends StatelessWidget {
                             flex: 3,
                             child: readOnly
                                 ? _StatusChip(
-                                    status: currentStatus, 
+                                    status: currentStatus,
                                     brandColors: brandColors,
                                     showArrow: false,
                                   )
@@ -197,7 +201,7 @@ class OrderTableWidget extends StatelessWidget {
   }
 }
 
-// ── STATUS PICKER ────────────────────────────────────────────────────────────
+//  STATUS PICKER
 
 class _StatusPicker extends StatelessWidget {
   final String currentStatus;
@@ -234,8 +238,8 @@ class _StatusPicker extends StatelessWidget {
               ))
           .toList(),
       child: _StatusChip(
-        status: currentStatus, 
-        brandColors: brandColors, 
+        status: currentStatus,
+        brandColors: brandColors,
         showArrow: true,
       ),
     );
@@ -258,7 +262,7 @@ class _StatusPicker extends StatelessWidget {
   }
 }
 
-// ── STATUS CHIP ──────────────────────────────────────────────────────────────
+//  STATUS CHIP
 
 class _StatusChip extends StatelessWidget {
   final String status;
@@ -266,8 +270,8 @@ class _StatusChip extends StatelessWidget {
   final bool showArrow;
 
   const _StatusChip({
-    required this.status, 
-    required this.brandColors, 
+    required this.status,
+    required this.brandColors,
     this.showArrow = false,
   });
 
@@ -278,7 +282,10 @@ class _StatusChip extends StatelessWidget {
       'Pending' => (const Color(0xFFFEF3C7), const Color(0xFFD97706)),
       'In Progress' => (const Color(0xFFDBEAFE), const Color(0xFF2563EB)),
       'Ready' => (const Color(0xFFDCFCE7), const Color(0xFF16A34A)),
-      'Out for Delivery' => (const Color(0xFFEDE9FE), const Color(0xFF8B5CF6)), // Fioletowy styl
+      'Out for Delivery' => (
+          const Color(0xFFEDE9FE),
+          const Color(0xFF8B5CF6)
+        ), // Fioletowy styl
       'Delivered' => (const Color(0xFFF3F4F6), const Color(0xFF6B7280)),
       _ => (const Color(0xFFF3F4F6), const Color(0xFF6B7280)),
     };
@@ -288,7 +295,7 @@ class _StatusChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: bg, 
+          color: bg,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -297,8 +304,8 @@ class _StatusChip extends StatelessWidget {
             Text(
               status,
               style: TextStyle(
-                fontSize: 11, 
-                fontWeight: FontWeight.w700, 
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
                 color: fg,
               ),
             ),
@@ -313,7 +320,7 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-// ── POMOCNICZE WIDGETY ───────────────────────────────────────────────────────
+//  POMOCNICZE WIDGETY
 
 class _EmptyState extends StatelessWidget {
   final BrandColors brandColors;

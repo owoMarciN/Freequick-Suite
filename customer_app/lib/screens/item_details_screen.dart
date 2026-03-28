@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:user_app/models/items.dart";
-import "package:user_app/assistant_methods/assistant_methods.dart";
+import "package:user_app/methods/assistant_methods.dart";
 import 'package:user_app/screens/cart_screen.dart';
-import 'package:user_app/assistant_methods/favorites_methods.dart';
+import 'package:user_app/methods/favorites_methods.dart';
 
 class ItemDetailsScreen extends StatefulWidget {
   final Items? model;

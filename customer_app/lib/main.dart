@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-      title: 'User App',
+      title: 'Freequick Cunstomer App',
       debugShowCheckedModeBanner: false,
       navigatorKey: snackBarNavigatorKey,
       theme: lightTheme,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:user_app/global/global.dart';
 import 'package:user_app/models/address.dart';
-import 'package:user_app/screens/splash_screen.dart';
 
 class ShipmentAddressDesign extends StatelessWidget {
   final Address? model;
@@ -9,91 +9,96 @@ class ShipmentAddressDesign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text(
-            "Shipping Details: ",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(
-          height: 6,
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 5),
-            child: Table(
-              children: [
-                TableRow(
-                  children: [
-                    const Text(
-                      "Name",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    // Text(model!.name.toString()),
-                  ],
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Icon + Recipient Info
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                TableRow(
-                  children: [
-                    const Text(
-                      "Phone Number",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    // Text(model!.phoneNumber!),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Text(
-            model!.fullAddress!,
-            textAlign: TextAlign.justify,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const MySplashScreen()));
-              },
-              child: Container(
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.pinkAccent, Colors.redAccent],
-                    begin: FractionalOffset(0.0, 0.0),
-                    end: FractionalOffset(1.0, 0.0),
-                    stops: [0.0, 1.0],
-                    tileMode: TileMode.clamp,
-                  ),
-                ),
-                width: MediaQuery.of(context).size.width - 40,
-                height: 50,
-                child: const Center(
-                  child: Text(
-                    "Go Back",
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
-                  ),
+                child: const Icon(
+                  Icons.location_on_rounded,
+                  color: Colors.redAccent,
+                  size: 20,
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      model?.label ?? "Recipient Name",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      getUserPref<String>("phone") ?? "No Phone Number",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: Color(0xFFF0F0F0)),
+          ),
+
+          // Address Details
+          Text(
+            "Delivery Address",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade400,
+              letterSpacing: 0.5,
+              textBaseline: TextBaseline.alphabetic,
             ),
           ),
-        )
-      ],
+          const SizedBox(height: 6),
+          Text(
+            model?.fullAddress ?? "Address not specified",
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          
+          // If your model has city/state, you can add them here
+          if (model?.city != null)
+            Text(
+              "${model?.city}",
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

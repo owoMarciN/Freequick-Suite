@@ -50,8 +50,7 @@ class _RateOrderSheet extends StatefulWidget {
 class _RateOrderSheetState extends State<_RateOrderSheet> {
   int _foodRating = 0;
   int _driverRating = 0;
-  final TextEditingController _commentController =
-      TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
   bool _submitting = false;
 
   @override
@@ -63,8 +62,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
   Future<void> _submit() async {
     if (_foodRating == 0 || _driverRating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please rate both food and driver.')),
+        const SnackBar(content: Text('Please rate both food and driver.')),
       );
       return;
     }
@@ -88,22 +86,18 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
           .collection('restaurants')
           .doc(widget.restaurantID);
 
-      await FirebaseFirestore.instance
-          .runTransaction((tx) async {
+      await FirebaseFirestore.instance.runTransaction((tx) async {
         final snap = await tx.get(restaurantRef);
         final data = snap.data() ?? {};
-        final int currentTotal =
-            (data['totalRatings'] as int?) ?? 0;
-        final double currentAvg =
-            ((data['avgRating'] as num?) ?? 0).toDouble();
+        final int currentTotal = (data['totalRatings'] as int?) ?? 0;
+        final double currentAvg = ((data['avgRating'] as num?) ?? 0).toDouble();
 
         final int newTotal = currentTotal + 1;
         final double newAvg =
             ((currentAvg * currentTotal) + _foodRating) / newTotal;
 
         tx.update(restaurantRef, {
-          'avgRating':
-              double.parse(newAvg.toStringAsFixed(1)),
+          'avgRating': double.parse(newAvg.toStringAsFixed(1)),
           'totalRatings': newTotal,
         });
       });
@@ -124,10 +118,9 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
           ),
           backgroundColor: const Color(0xFF00C48C),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-          margin:
-              const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -143,13 +136,12 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
         child: Column(
@@ -175,8 +167,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color:
-                        Colors.redAccent.withValues(alpha: 0.1),
+                    color: Colors.redAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.star_rounded,
@@ -190,26 +181,22 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                       const Text(
                         'Rate your order',
                         style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800),
+                            fontSize: 17, fontWeight: FontWeight.w800),
                       ),
                       Text(
                         widget.restaurantName,
                         style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500),
+                            fontSize: 12, color: Colors.grey.shade500),
                       ),
                     ],
                   ),
                 ),
                 // Skip button
                 TextButton(
-                  onPressed:
-                      _submitting ? null : () => Navigator.pop(context),
+                  onPressed: _submitting ? null : () => Navigator.pop(context),
                   child: Text('Skip',
-                      style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 13)),
+                      style:
+                          TextStyle(color: Colors.grey.shade400, fontSize: 13)),
                 ),
               ],
             ),
@@ -231,8 +218,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
               icon: Icons.delivery_dining_rounded,
               label: 'Delivery Driver',
               rating: _driverRating,
-              onChanged: (v) =>
-                  setState(() => _driverRating = v),
+              onChanged: (v) => setState(() => _driverRating = v),
             ),
 
             const SizedBox(height: 20),
@@ -243,28 +229,24 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
               maxLines: 3,
               maxLength: 200,
               decoration: InputDecoration(
-                hintText:
-                    'Leave a comment (optional)...',
-                hintStyle: TextStyle(
-                    fontSize: 13, color: Colors.grey.shade400),
+                hintText: 'Leave a comment (optional)...',
+                hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      BorderSide(color: Colors.grey.shade200),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      BorderSide(color: Colors.grey.shade200),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                      color: Colors.redAccent, width: 1.5),
+                  borderSide:
+                      const BorderSide(color: Colors.redAccent, width: 1.5),
                 ),
                 contentPadding: const EdgeInsets.all(14),
-                counterStyle: TextStyle(
-                    fontSize: 10, color: Colors.grey.shade400),
+                counterStyle:
+                    TextStyle(fontSize: 10, color: Colors.grey.shade400),
               ),
             ),
 
@@ -290,14 +272,12 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : const Text(
                         'Submit Rating',
                         style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700),
+                            fontSize: 15, fontWeight: FontWeight.w700),
                       ),
               ),
             ),
@@ -308,7 +288,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
   }
 }
 
-// ── Star selector row ─────────────────────────────────────────────────────────
+//  Star selector row
 
 class _RatingRow extends StatelessWidget {
   final IconData icon;
@@ -335,15 +315,13 @@ class _RatingRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade200),
           ),
-          child:
-              Icon(icon, size: 18, color: Colors.grey.shade500),
+          child: Icon(icon, size: 18, color: Colors.grey.shade500),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
         // 5 tappable stars
@@ -353,19 +331,15 @@ class _RatingRow extends StatelessWidget {
             return GestureDetector(
               onTap: () => onChanged(i + 1),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 2),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
                   child: Icon(
-                    filled
-                        ? Icons.star_rounded
-                        : Icons.star_outline_rounded,
+                    filled ? Icons.star_rounded : Icons.star_outline_rounded,
                     key: ValueKey('$label-$i-$filled'),
                     size: 30,
-                    color: filled
-                        ? Colors.amber.shade600
-                        : Colors.grey.shade300,
+                    color:
+                        filled ? Colors.amber.shade600 : Colors.grey.shade300,
                   ),
                 ),
               ),

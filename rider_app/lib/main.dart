@@ -50,7 +50,7 @@ class RiderApp extends StatelessWidget {
   }
 }
 
-// ── Router ────────────────────────────────────────────────────────────────────
+//  Router
 
 class _AppRouter extends StatelessWidget {
   const _AppRouter();
@@ -82,7 +82,7 @@ class _AppRouter extends StatelessWidget {
   }
 }
 
-// ── Shell — bottom nav + screen switching ─────────────────────────────────────
+//  Shell — bottom nav + screen switching
 
 class _RiderShell extends StatefulWidget {
   const _RiderShell();
@@ -130,7 +130,7 @@ class _RiderShellState extends State<_RiderShell> {
   }
 }
 
-// ── Splash ────────────────────────────────────────────────────────────────────
+//  Splash
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();

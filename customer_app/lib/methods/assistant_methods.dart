@@ -10,6 +10,8 @@ import 'package:user_app/global/global.dart';
 
 import 'package:user_app/widgets/unified_snackbar.dart';
 
+import 'package:user_app/extensions/context_translate_ext.dart';
+
 List<String> separateItemIDs(List<dynamic> userCart) {
   return userCart.map((item) {
     List<String> parts = item.toString().split(':');
@@ -61,8 +63,7 @@ Future<void> addItemToCart(String? itemID, String? menuID, String? restaurantID,
 
     unifiedSnackBar("Item Added Successfully.");
 
-    Provider.of<CartProvider>(context, listen: false)
-        .loadCart();
+    Provider.of<CartProvider>(context, listen: false).loadCart();
   });
 }
 
@@ -184,8 +185,7 @@ Future<void> incrementCartItemQuantity(
     }
 
     if (context.mounted) {
-      Provider.of<CartProvider>(context, listen: false)
-          .loadCart();
+      Provider.of<CartProvider>(context, listen: false).loadCart();
     }
   } catch (e) {
     unifiedSnackBar("Error updating quantity: $e");
@@ -230,10 +230,31 @@ Future<void> decrementCartItemQuantity(
     }
 
     if (context.mounted) {
-      Provider.of<CartProvider>(context, listen: false)
-          .loadCart();
+      Provider.of<CartProvider>(context, listen: false).loadCart();
     }
   } catch (e) {
     unifiedSnackBar("Error updating quantity: $e", error: true);
   }
+}
+
+/// Reformat timestamps to a readable string
+String formatTime(BuildContext context, DateTime dt) {
+  final now = DateTime.now();
+  final diff = now.difference(dt);
+  if (diff.inMinutes < 1) return context.l10n.time_just_now;
+  if (diff.inMinutes < 60) {
+    return context.l10n.time_minutes(diff.inMinutes);
+  }
+  if (diff.inHours < 24) return context.l10n.time_hours(diff.inHours);
+  return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}';
+}
+
+String formatPayment(dynamic p) {
+  if (p == null) return "Unknown";
+  final s = p.toString();
+  if (s == "cash") return "Cash on Delivery";
+  if (s.toLowerCase().contains("stripe") || s.toLowerCase().contains("card")) {
+    return "Card (Stripe)";
+  }
+  return s;
 }

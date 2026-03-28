@@ -4,7 +4,7 @@ import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/item_details_screen.dart';
 import 'package:user_app/screens/menus_screen.dart';
 import 'package:user_app/models/restaurants.dart';
-import 'package:user_app/assistant_methods/favorites_methods.dart';
+import 'package:user_app/methods/favorites_methods.dart';
 import 'package:user_app/widgets/rating_sheet.dart';
 
 class RestaurantCard extends StatelessWidget {
