@@ -321,7 +321,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         trailing: Switch(
                           value: _darkMode,
                           onChanged: _toggleDarkMode,
-                          activeColor: Colors.redAccent,
+                          activeThumbColor: Colors.redAccent,
                         ),
                       ),
                     ),

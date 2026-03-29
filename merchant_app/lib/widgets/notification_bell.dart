@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/brand_color_ext.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 
 class NotificationBell extends StatefulWidget {

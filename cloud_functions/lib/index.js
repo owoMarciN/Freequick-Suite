@@ -4,6 +4,7 @@ exports.saveFcmToken = exports.onRiderLocationUpdate = exports.onOrderStatusChan
 const https = require("firebase-functions/v2/https");
 const fsEvents = require("firebase-functions/v2/firestore");
 const params_1 = require("firebase-functions/params");
+const firestore_1 = require("firebase-admin/firestore");
 const admin = require("firebase-admin");
 const stripe_1 = require("stripe");
 const axios_1 = require("axios");
@@ -20,6 +21,11 @@ const APP_CHECK = false;
 /* -------------- Helper Functions --------------
 /* ----------------------------------------------*/
 const getStripe = () => new stripe_1.default(stripeSecretKey.value(), { apiVersion: "2023-10-16" });
+function roundToTwo(num) {
+    if (num === undefined || num === null)
+        return 0;
+    return Math.round(Number(num) * 100) / 100;
+}
 function haversineKm(lat1, lng1, lat2, lng2) {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -63,7 +69,7 @@ async function writeNotification(uid, title, body, source) {
         body,
         source,
         isRead: false,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: firestore_1.FieldValue.serverTimestamp(),
     });
 }
 // FCM push + in-app notification
@@ -102,13 +108,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
         .doc(userId)
         .collection("orders")
         .doc(orderID);
-    // Status flow:
-    //   Pending     -> restaurant sees new order
-    //   In Progress -> rider assigned, heading to restaurant
-    //   Ready       -> rider picked up, heading to customer
-    //   Delivered   -> complete
-    // Resolve address from users/{uid}/addresses/{addressID}
-    // The client only sends addressID — full address data lives 
+    // Resolve address
     let resolvedAddress = {};
     if (quote.orderType !== "pickup" && quote.addressID) {
         const addrDoc = await db
@@ -124,6 +124,9 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
     else if (quote.orderType === "pickup") {
         resolvedAddress = { type: "pickup" };
     }
+    const subtotal = roundToTwo(quote.itemsTotal);
+    const deliveryFee = roundToTwo(quote.deliveryFee);
+    const totalAmount = roundToTwo(quote.finalTotal);
     const orderData = {
         orderID,
         userID: userId,
@@ -132,19 +135,19 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
         restaurantLat: restaurant.lat ?? null,
         restaurantLng: restaurant.lng ?? null,
         itemIDs: quote.itemIDs ?? [],
-        address: resolvedAddress, // full address resolved server-side
+        address: resolvedAddress,
         addressID: quote.addressID ?? null,
         orderType: quote.orderType ?? "delivery",
         paymentMethod,
         paymentDetails,
-        subtotal: String(quote.itemsTotal ?? "0.00"),
-        deliveryFee: String(quote.deliveryFee ?? "0.00"),
-        totalAmount: String(quote.finalTotal ?? "0.00"),
+        subtotal,
+        deliveryFee,
+        totalAmount,
         status: "Pending",
         isSuccess: true,
         driverUID: "",
-        orderTime: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        orderTime: firestore_1.FieldValue.serverTimestamp(),
+        updatedAt: firestore_1.FieldValue.serverTimestamp(),
     };
     const batch = db.batch();
     batch.set(orderRef, orderData);
@@ -155,7 +158,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
         paymentStatus: paymentMethod === "stripe" ? "PAID" : "PENDING_COD",
     });
     await batch.commit();
-    // Notify restaurant
+    // Notify restaurant & customer
     if (restaurant.fcmToken) {
         try {
             const cashLabel = paymentMethod === "cash" ? " 💵 Cash" : "";
@@ -173,7 +176,6 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
             console.warn("Restaurant FCM failed", e);
         }
     }
-    // In-app notification for customer
     await writeNotification(userId, "Order Placed! 🎉", `Your order from ${restaurant.name ?? "the restaurant"} has been received.`, "order");
     await dispatchToRider(orderID, orderData, restaurant, user);
     return orderID;
@@ -189,17 +191,16 @@ async function dispatchToRider(orderID, order, restaurant, customer) {
         console.warn("No riders available for order:", orderID);
         return;
     }
-    // MVP: first available rider
-    // V2: sort by distance to restaurant using riders/{uid}.location
     const riderDoc = ridersSnap.docs[0];
     const rider = riderDoc.data();
     const pickupLat = restaurant.lat ?? 0;
     const pickupLng = restaurant.lng ?? 0;
-    const dropoffLat = parseFloat(order.address?.lat?.toString() ?? order.address?.latitude?.toString() ?? "0");
-    const dropoffLng = parseFloat(order.address?.lng?.toString() ?? order.address?.longitude?.toString() ?? "0");
-    const distanceKm = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
-    const deliveryFee = parseFloat(order.deliveryFee ?? "0");
-    const riderEarnings = parseFloat(Math.max(3.5, deliveryFee * 0.75).toFixed(2));
+    const dropoffLat = parseFloat(order.address?.lat ?? "0");
+    const dropoffLng = parseFloat(order.address?.lng ?? "0");
+    const distanceKm = roundToTwo(haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng));
+    const deliveryFee = roundToTwo(order.deliveryFee);
+    const riderEarnings = roundToTwo(Math.max(3.5, deliveryFee * 0.75));
+    const finalTotal = roundToTwo(order.totalAmount);
     const isCash = (order.paymentMethod ?? "cash") === "cash";
     await db.collection("dispatch_jobs").doc().set({
         riderId: riderDoc.id,
@@ -209,16 +210,16 @@ async function dispatchToRider(orderID, order, restaurant, customer) {
         customerAddress: order.address?.fullAddress ?? "",
         customerName: customer.name ?? "",
         items: [],
-        finalTotal: parseFloat(order.totalAmount ?? "0"),
+        finalTotal,
         deliveryFee,
         riderEarnings,
-        distanceKm: Math.round(distanceKm * 10) / 10,
+        distanceKm,
         paymentMethod: order.paymentMethod ?? "cash",
         orderType: order.orderType ?? "delivery",
-        collectPayment: isCash, // rider must collect cash from customer
+        collectPayment: isCash,
         status: "pending",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        expiresAt: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 30000)),
+        createdAt: firestore_1.FieldValue.serverTimestamp(),
+        expiresAt: firestore_1.Timestamp.fromDate(new Date(Date.now() + 30000)),
     });
     if (rider.fcmToken) {
         try {
@@ -450,7 +451,7 @@ exports.onDispatchJobAccepted = fsEvents.onDocumentUpdated({ document: "dispatch
     const orderUpdate = {
         status: "In Progress",
         driverUID: riderId,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore_1.FieldValue.serverTimestamp(),
     };
     const batch = db.batch();
     batch.update(db.collection("orders").doc(orderID), orderUpdate);
@@ -459,7 +460,7 @@ exports.onDispatchJobAccepted = fsEvents.onDocumentUpdated({ document: "dispatch
     batch.update(db.collection("riders").doc(riderId), {
         hasActiveOrder: true,
         currentOrderID: orderID,
-        lastSeenAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastSeenAt: firestore_1.FieldValue.serverTimestamp(),
     });
     await batch.commit();
     // Notify customer
@@ -504,7 +505,7 @@ exports.onOrderStatusChanged = fsEvents.onDocumentUpdated({ document: "orders/{o
             await db.collection("riders").doc(driverUID).update({
                 hasActiveOrder: false,
                 currentOrderID: null,
-                lastSeenAt: admin.firestore.FieldValue.serverTimestamp(),
+                lastSeenAt: firestore_1.FieldValue.serverTimestamp(),
             });
         }
     }
@@ -543,7 +544,7 @@ exports.onRiderLocationUpdate = fsEvents.onDocumentUpdated({ document: "riders/{
         eta: {
             minMinutes: Math.max(1, durationMinutes - 1),
             maxMinutes: durationMinutes + bufferMin,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firestore_1.FieldValue.serverTimestamp(),
             source: "GOOGLE_DIRECTIONS",
         },
     });
@@ -558,7 +559,7 @@ exports.saveFcmToken = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK
         throw new https.HttpsError("invalid-argument", "token required");
     }
     const collection = role === "rider" ? "riders" : "users";
-    await db.collection(collection).doc(req.auth.uid).set({ fcmToken: token, fcmUpdatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection(collection).doc(req.auth.uid).set({ fcmToken: token, fcmUpdatedAt: firestore_1.FieldValue.serverTimestamp() }, { merge: true });
     return { success: true };
 });
 //# sourceMappingURL=index.js.map

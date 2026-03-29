@@ -6,8 +6,8 @@ import 'package:user_app/models/restaurants.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/models/home_page_items.dart';
 
-import 'package:user_app/Home/HomePageItems.dart';
-import 'package:user_app/Home/home_tabs.dart';
+import 'package:user_app/home/home_page_items.dart';
+import 'package:user_app/home/home_tabs.dart';
 
 import 'package:user_app/widgets/restaurant_card.dart';
 import 'package:user_app/widgets/address_header.dart';

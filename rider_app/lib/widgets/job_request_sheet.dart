@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/models/delivery_model.dart';
 import '../utils/app_theme.dart';
 
 class JobRequestSheet extends StatefulWidget {

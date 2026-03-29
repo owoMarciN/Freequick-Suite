@@ -55,6 +55,10 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Future<void> _init() async {
+    final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+
+    await addressProvider.loadSavedAddress();
+
     await Future.wait([
       _loadRestaurantFromCart(),
       _loadUserAddresses(),
@@ -183,8 +187,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
   double _deliveryFee(double subtotal) {
     if (_orderType != "delivery") return 0;
-    if (subtotal >= 200) return 0;
-    if (subtotal >= 100) return 9.99;
+    if (subtotal >= 50) return 0;
+    if (subtotal >= 20) return 9.99;
     return 14.99;
   }
 
@@ -246,9 +250,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
   //  Cash flow
   Future<void> _placeCashOrder(String quoteId) async {
-    final result = await _functions
-        .httpsCallable('placeOrder')
-        .call({'quoteId': quoteId});
+    final result =
+        await _functions.httpsCallable('placeOrder').call({'quoteId': quoteId});
 
     final orderID = result.data['orderID']?.toString() ?? '';
     if (!mounted) return;
@@ -262,8 +265,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
           .httpsCallable('createPaymentIntent')
           .call({'quoteId': quoteId});
 
-      final clientSecret = 
-          intentResult.data['clientSecret']?.toString() ?? '';
+      final clientSecret = intentResult.data['clientSecret']?.toString() ?? '';
 
       final paymentIntentId =
           intentResult.data['paymentIntentId']?.toString() ?? '';
@@ -289,7 +291,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       }
       if (!mounted) return;
       await _onOrderSuccess(orderID);
-
     } catch (e) {
       unifiedSnackBar("Payment error: $e", error: true);
     }
@@ -297,22 +298,24 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
   Future<String?> _waitForOrderCreation(String quoteId) async {
     final completer = Completer<String?>();
+    StreamSubscription? sub;
 
-    final sub = FirebaseFirestore.instance
+    sub = FirebaseFirestore.instance
         .collection("quotes")
         .doc(quoteId)
         .snapshots()
         .listen((doc) {
       final data = doc.data();
-      if (data != null && data['orderID'] != null) {
+      if (data != null && data['orderID'] != null && !completer.isCompleted) {
+        sub?.cancel();
         completer.complete(data['orderID'] as String);
       }
     });
 
     return completer.future.timeout(
-      const Duration(seconds: 30),
+      const Duration(seconds: 15),
       onTimeout: () {
-        sub.cancel();
+        sub?.cancel();
         return null;
       },
     );
@@ -336,6 +339,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final amountProvider = Provider.of<AmountProvider>(context);
+    final addressProvider = Provider.of<AddressProvider>(context);
     final subtotal = amountProvider.totalAmount;
     final fee = _deliveryFee(subtotal);
     final total = subtotal + fee;
@@ -398,18 +402,24 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                       )
                     else
                       // Saved addresses list
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _userAddresses.length,
-                        itemBuilder: (context, index) {
-                          return AddressDesign(
-                            model: _userAddresses[index],
-                            value: index,
-                            addressID: _userAddresses[index].addressID,
-                          );
-                        },
-                      ),
+                      if (addressProvider.count >= 0 &&
+                          addressProvider.count < _userAddresses.length &&
+                          addressProvider.selectedAddressID != null)
+                        AddressDesign(
+                          model: _userAddresses[addressProvider.count],
+                          value: addressProvider.count,
+                          addressID: _userAddresses[addressProvider.count].addressID,
+                        )
+                      else
+                        _NoAddressBanner(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const AddressScreen()),
+                            );
+                            await _loadUserAddresses();
+                          },
+                        ),
                     const SizedBox(height: 8),
                     _AddAddressButton(onTap: () async {
                       await Navigator.push(

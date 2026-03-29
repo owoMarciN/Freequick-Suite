@@ -1,6 +1,7 @@
 import * as https from "firebase-functions/v2/https";
 import * as fsEvents from "firebase-functions/v2/firestore";
 import { defineSecret } from "firebase-functions/params";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as admin from "firebase-admin";
 import Stripe from "stripe";
 import axios from "axios";
@@ -22,6 +23,11 @@ const APP_CHECK = false;
 /* ----------------------------------------------*/
 
 const getStripe = () => new Stripe(stripeSecretKey.value(), { apiVersion: "2023-10-16" });
+
+function roundToTwo(num: number | string | undefined): number {
+  if (num === undefined || num === null) return 0;
+  return Math.round(Number(num) * 100) / 100;
+}
 
 function haversineKm(
   lat1: number, lng1: number,
@@ -83,7 +89,7 @@ async function writeNotification(
       body,
       source,
       isRead:    false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 }
 
@@ -120,10 +126,10 @@ async function createOrderAndDispatch({
   paymentMethod,
   paymentDetails,
 }: {
-  quoteId:        string;
-  userId:         string;
-  restaurantID:   string;
-  paymentMethod:  "cash" | "stripe";
+  quoteId: string;
+  userId: string;
+  restaurantID: string;
+  paymentMethod: "cash" | "stripe";
   paymentDetails: string;
 }) {
   const [quoteDoc, userDoc, restaurantDoc] = await Promise.all([
@@ -132,28 +138,21 @@ async function createOrderAndDispatch({
     db.collection("restaurants").doc(restaurantID).get(),
   ]);
   if (!quoteDoc.exists) throw new Error("Quote not found: " + quoteId);
- 
-  const quote      = quoteDoc.data()!;
-  const user       = userDoc.data()!;
+
+  const quote = quoteDoc.data()!;
+  const user = userDoc.data()!;
   const restaurant = restaurantDoc.data()!;
- 
-  const orderID      = db.collection("orders").doc().id;
-  const orderRef     = db.collection("orders").doc(orderID);
+
+  const orderID = db.collection("orders").doc().id;
+  const orderRef = db.collection("orders").doc(orderID);
   const userOrderRef = db
     .collection("users")
     .doc(userId)
     .collection("orders")
     .doc(orderID);
 
-  // Status flow:
-  //   Pending     -> restaurant sees new order
-  //   In Progress -> rider assigned, heading to restaurant
-  //   Ready       -> rider picked up, heading to customer
-  //   Delivered   -> complete
-  // Resolve address from users/{uid}/addresses/{addressID}
-  // The client only sends addressID — full address data lives 
+  // Resolve address
   let resolvedAddress: Record<string, any> = {};
-
   if (quote.orderType !== "pickup" && quote.addressID) {
     const addrDoc = await db
       .collection("users")
@@ -168,50 +167,54 @@ async function createOrderAndDispatch({
     resolvedAddress = { type: "pickup" };
   }
 
+  const subtotal = roundToTwo(quote.itemsTotal);
+  const deliveryFee = roundToTwo(quote.deliveryFee);
+  const totalAmount = roundToTwo(quote.finalTotal);
+
   const orderData: Record<string, any> = {
     orderID,
-    userID:         userId,
+    userID: userId,
     restaurantID,
-    restaurantName: restaurant.name    ?? "",
-    restaurantLat:  restaurant.lat     ?? null,
-    restaurantLng:  restaurant.lng     ?? null,
-    itemIDs:        quote.itemIDs      ?? [],
-    address:        resolvedAddress,   // full address resolved server-side
-    addressID:      quote.addressID    ?? null,
-    orderType:      quote.orderType    ?? "delivery",
+    restaurantName: restaurant.name ?? "",
+    restaurantLat: restaurant.lat ?? null,
+    restaurantLng: restaurant.lng ?? null,
+    itemIDs: quote.itemIDs ?? [],
+    address: resolvedAddress,
+    addressID: quote.addressID ?? null,
+    orderType: quote.orderType ?? "delivery",
     paymentMethod,
     paymentDetails,
-    subtotal:       String(quote.itemsTotal  ?? "0.00"),
-    deliveryFee:    String(quote.deliveryFee ?? "0.00"),
-    totalAmount:    String(quote.finalTotal  ?? "0.00"),
-    status:         "Pending",
-    isSuccess:      true,
-    driverUID:      "",
-    orderTime:      admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt:      admin.firestore.FieldValue.serverTimestamp(),
+    subtotal,
+    deliveryFee,
+    totalAmount,
+    status: "Pending",
+    isSuccess: true,
+    driverUID: "",
+    orderTime: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   };
 
   const batch = db.batch();
   batch.set(orderRef, orderData);
   batch.set(userOrderRef, orderData);
   batch.update(db.collection("quotes").doc(quoteId), {
-    status:        "USED",
+    status: "USED",
     orderID,
     paymentStatus: paymentMethod === "stripe" ? "PAID" : "PENDING_COD",
   });
   await batch.commit();
 
-  // Notify restaurant
+  // Notify restaurant & customer
   if (restaurant.fcmToken) {
     try {
       const cashLabel = paymentMethod === "cash" ? " 💵 Cash" : "";
       await admin.messaging().send({
-        token:        restaurant.fcmToken,
+        token: restaurant.fcmToken,
         notification: {
           title: "🔔 New Order!",
-          body:  `Order #${orderID.slice(0, 8)} received${cashLabel}`,
+          body: `Order #${orderID.slice(0, 8)} received${cashLabel}`,
         },
-        data:    { type: "NEW_ORDER", orderID },
+        data: { type: "NEW_ORDER", orderID },
         android: { priority: "high" },
       });
     } catch (e) {
@@ -219,7 +222,6 @@ async function createOrderAndDispatch({
     }
   }
 
-    // In-app notification for customer
   await writeNotification(
     userId,
     "Order Placed! 🎉",
@@ -228,84 +230,75 @@ async function createOrderAndDispatch({
   );
 
   await dispatchToRider(orderID, orderData, restaurant, user);
- 
+
   return orderID;
 }
 
 async function dispatchToRider(
-  orderID:    string,
-  order:      Record<string, any>,
+  orderID: string,
+  order: Record<string, any>,
   restaurant: Record<string, any>,
-  customer:   Record<string, any>
+  customer: Record<string, any>
 ) {
   const ridersSnap = await db
     .collection("riders")
-    .where("isOnline",       "==", true)
+    .where("isOnline", "==", true)
     .where("hasActiveOrder", "==", false)
     .limit(10)
     .get();
- 
+
   if (ridersSnap.empty) {
     console.warn("No riders available for order:", orderID);
     return;
   }
- 
-  // MVP: first available rider
-  // V2: sort by distance to restaurant using riders/{uid}.location
+
   const riderDoc = ridersSnap.docs[0];
-  const rider    = riderDoc.data();
- 
-  const pickupLat  = restaurant.lat ?? 0;
-  const pickupLng  = restaurant.lng ?? 0;
-  const dropoffLat = parseFloat(
-    order.address?.lat?.toString() ?? order.address?.latitude?.toString() ?? "0"
-  );
-  const dropoffLng = parseFloat(
-    order.address?.lng?.toString() ?? order.address?.longitude?.toString() ?? "0"
-  );
- 
-  const distanceKm    = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
-  const deliveryFee   = parseFloat(order.deliveryFee ?? "0");
-  const riderEarnings = parseFloat(
-    Math.max(3.5, deliveryFee * 0.75).toFixed(2)
-  );
- 
+  const rider = riderDoc.data();
+
+  const pickupLat = restaurant.lat ?? 0;
+  const pickupLng = restaurant.lng ?? 0;
+  const dropoffLat = parseFloat(order.address?.lat ?? "0");
+  const dropoffLng = parseFloat(order.address?.lng ?? "0");
+
+  const distanceKm = roundToTwo(haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng));
+  const deliveryFee = roundToTwo(order.deliveryFee);
+  const riderEarnings = roundToTwo(Math.max(3.5, deliveryFee * 0.75));
+  const finalTotal = roundToTwo(order.totalAmount);
+
   const isCash = (order.paymentMethod ?? "cash") === "cash";
- 
+
   await db.collection("dispatch_jobs").doc().set({
-    riderId:         riderDoc.id,
+    riderId: riderDoc.id,
     orderID,
-    storeName:       restaurant.name    ?? "",
-    storeAddress:    restaurant.address ?? "",
+    storeName: restaurant.name ?? "",
+    storeAddress: restaurant.address ?? "",
     customerAddress: order.address?.fullAddress ?? "",
-    customerName:    customer.name      ?? "",
-    items:           [],
-    finalTotal:      parseFloat(order.totalAmount ?? "0"),
+    customerName: customer.name ?? "",
+    items: [],
+    finalTotal,
     deliveryFee,
     riderEarnings,
-    distanceKm:      Math.round(distanceKm * 10) / 10,
-    paymentMethod:   order.paymentMethod ?? "cash",
-    orderType:       order.orderType    ?? "delivery",
-    collectPayment:  isCash,              // rider must collect cash from customer
-    status:          "pending",
-    createdAt:       admin.firestore.FieldValue.serverTimestamp(),
-    expiresAt:       admin.firestore.Timestamp.fromDate(
-                       new Date(Date.now() + 30_000)
-                     ),
+    distanceKm,
+    paymentMethod: order.paymentMethod ?? "cash",
+    orderType: order.orderType ?? "delivery",
+    collectPayment: isCash,
+    status: "pending",
+    createdAt: FieldValue.serverTimestamp(),
+    expiresAt: Timestamp.fromDate(new Date(Date.now() + 30_000)),
   });
- 
+
   if (rider.fcmToken) {
     try {
       const paymentLabel = isCash ? "💵 Collect cash" : "✅ Card paid";
       await admin.messaging().send({
-        token:        rider.fcmToken,
+        token: rider.fcmToken,
         notification: {
           title: "🛵 New Delivery!",
-          body:  `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
+          body: `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
         },
-        data:    { type: "DISPATCH_JOB", orderID },
+        data: { type: "DISPATCH_JOB", orderID },
         android: { priority: "high" },
-        apns:    { payload: { aps: { sound: "default", badge: 1 } } },
+        apns: { payload: { aps: { sound: "default", badge: 1 } } },
       });
     } catch (e) {
       console.warn("Rider FCM failed", e);
@@ -580,7 +573,7 @@ export const onDispatchJobAccepted = fsEvents.onDocumentUpdated(
     const orderUpdate = {
       status:    "In Progress",
       driverUID: riderId,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
  
     const batch = db.batch();
@@ -593,7 +586,7 @@ export const onDispatchJobAccepted = fsEvents.onDocumentUpdated(
     batch.update(db.collection("riders").doc(riderId), {
       hasActiveOrder:  true,
       currentOrderID:  orderID,
-      lastSeenAt:      admin.firestore.FieldValue.serverTimestamp(),
+      lastSeenAt:      FieldValue.serverTimestamp(),
     });
     await batch.commit();
  
@@ -659,7 +652,7 @@ export const onOrderStatusChanged = fsEvents.onDocumentUpdated(
         await db.collection("riders").doc(driverUID).update({
           hasActiveOrder:  false,
           currentOrderID:  null,
-          lastSeenAt:      admin.firestore.FieldValue.serverTimestamp(),
+          lastSeenAt:      FieldValue.serverTimestamp(),
         });
       }
     }
@@ -707,7 +700,7 @@ export const onRiderLocationUpdate = fsEvents.onDocumentUpdated(
       eta: {
         minMinutes: Math.max(1, durationMinutes - 1),
         maxMinutes: durationMinutes + bufferMin,
-        updatedAt:  admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt:  FieldValue.serverTimestamp(),
         source:     "GOOGLE_DIRECTIONS",
       },
     });
@@ -726,7 +719,7 @@ export const saveFcmToken = https.onCall(
     }
     const collection = role === "rider" ? "riders" : "users";
     await db.collection(collection).doc(req.auth.uid).set(
-      { fcmToken: token, fcmUpdatedAt: admin.firestore.FieldValue.serverTimestamp() },
+      { fcmToken: token, fcmUpdatedAt: FieldValue.serverTimestamp() },
       { merge: true }
     );
     return { success: true };

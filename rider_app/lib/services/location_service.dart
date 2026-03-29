@@ -7,6 +7,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rider_app/models/delivery_model.dart';
 import 'rider_service.dart';
@@ -135,5 +136,5 @@ class LocationService {
     return R * 2 * atan2(sqrt(a), sqrt(1 - a));
   }
 
-  void _log(String msg) => print('[LocationService] $msg');
+  void _log(String msg) => debugPrint('[LocationService] $msg');
 }

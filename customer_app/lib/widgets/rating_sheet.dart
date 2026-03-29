@@ -81,7 +81,9 @@ class _RatingSheetState extends State<RatingSheet> {
       // 7-day buckets
       final now = DateTime.now();
       final Map<int, List<double>> buckets = {};
-      for (int i = 0; i < 7; i++) buckets[i] = [];
+      for (int i = 0; i < 7; i++) {
+        buckets[i] = [];
+      }
 
       for (final doc in orderSnap.docs) {
         final data = doc.data();

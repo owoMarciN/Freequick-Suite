@@ -1,5 +1,3 @@
-// lib/main.dart — Rider app
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,10 +5,13 @@ import 'package:rider_app/utils/app_constants.dart';
 
 import 'firebase_options.dart';
 import 'providers/rider_provider.dart';
-import 'providers/rider_stats_provider.dart';
+import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'utils/app_theme.dart';
+
 import 'global/global.dart';
+
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/active_delivery_screen.dart';

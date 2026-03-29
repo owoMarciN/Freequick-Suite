@@ -6,8 +6,6 @@ import 'package:rider_app/services/auth_service.dart';
 import 'package:rider_app/services/rider_service.dart';
 import 'package:rider_app/models/delivery_model.dart';
 
-// --- MODELE DANYCH ---
-
 class RiderModel {
   final String uid;
   final String name;
@@ -103,10 +101,9 @@ class DispatchJob {
   }
 
   String get storeName => restaurantName;
-  String? get storeAddress => restaurantAddress.isEmpty ? null : restaurantAddress;
+  String? get storeAddress =>
+      restaurantAddress.isEmpty ? null : restaurantAddress;
 }
-
-// --- PROVIDER ---
 
 enum RiderAppState { loading, unauthenticated, needsProfile, idle, onJob }
 
@@ -146,7 +143,6 @@ class RiderProvider extends ChangeNotifier {
     });
   }
 
-  /// Główny stream słuchający zmian w profilu Kuriera
   Future<void> _setupRiderStream(String uid) async {
     _appState = RiderAppState.loading;
     notifyListeners();
@@ -162,22 +158,19 @@ class RiderProvider extends ChangeNotifier {
       _rider = RiderModel.fromDoc(snap);
       _isOnline = _rider!.isOnline;
 
-      // REAKTYWNE PRZEŁĄCZANIE STANÓW
       if (_rider!.hasActiveOrder && _rider!.currentOrderID != null) {
-        // Jeśli kurier ma aktywne zamówienie, a apka jeszcze o tym nie wie
         if (_appState != RiderAppState.onJob) {
           _appState = RiderAppState.onJob;
           _subscribeToOrder(_rider!.currentOrderID!);
-          _jobsSub?.cancel(); // Przestań szukać nowych zleceń
+          _jobsSub?.cancel();
           _pendingJob = null;
         }
       } else {
-        // Jeśli kurier nie ma zamówienia
         if (_appState != RiderAppState.idle) {
           _appState = RiderAppState.idle;
           _activeOrder = null;
           _orderSub?.cancel();
-          _subscribeToJobs(uid); // Zacznij szukać zleceń
+          _subscribeToJobs(uid);
         }
       }
       notifyListeners();
@@ -189,8 +182,29 @@ class RiderProvider extends ChangeNotifier {
 
   void _subscribeToJobs(String riderUID) {
     _jobsSub?.cancel();
-    _jobsSub = _service.streamPendingJobs(riderUID).listen((snap) {
-      _pendingJob = snap.docs.isNotEmpty ? DispatchJob.fromDoc(snap.docs.first) : null;
+
+    _jobsSub = FirebaseFirestore.instance
+        .collection("dispatch_jobs")
+        .where("status", isEqualTo: "pending")
+        .where("riderId", isEqualTo: riderUID)
+        .limit(1)
+        .snapshots()
+        .listen((snap) {
+      if (snap.docs.isEmpty) {
+        _pendingJob = null;
+      } else {
+        final doc = snap.docs.first;
+        final data = doc.data();
+        if (data['riderId'] == null ||
+            data['riderId'] == riderUID) {
+          _pendingJob = DispatchJob.fromDoc(doc);
+        } else {
+          _pendingJob = null;
+        }
+      }
+      notifyListeners();
+    }, onError: (e) {
+      _errorMessage = 'Stream Error: $e';
       notifyListeners();
     });
   }
@@ -205,8 +219,6 @@ class RiderProvider extends ChangeNotifier {
       }
     });
   }
-
-  // --- AKCJE PUBLICZNE ---
 
   Future<void> toggleOnline() async {
     if (_rider == null) return;
@@ -223,11 +235,8 @@ class RiderProvider extends ChangeNotifier {
     if (_rider == null) return;
     _setLoading(true);
     try {
-      // Tylko wysyłamy sygnał do Firestore. 
-      // Cloud Function 'onDispatchAccepted' zrobi resztę.
       await _service.acceptJob(jobID, _rider!.uid);
-      _pendingJob = null; 
-      // Loader wyłączy się automatycznie, gdy streamRider wykryje hasActiveOrder = true
+      _pendingJob = null;
     } catch (e) {
       _errorMessage = 'Failed to accept job: $e';
       _setLoading(false);
@@ -245,13 +254,9 @@ class RiderProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       await _service.updateOrderStatus(orderID, newStatus);
-      
-      // Jeśli to dostarczenie, czyścimy lokalny stan zamówienia
       if (newStatus == 'Delivered') {
         _activeOrder = null;
         _orderSub?.cancel();
-        // Cloud Function 'onOrderUpdated' ustawi hasActiveOrder na false u kuriera,
-        // co sprawi, że streamRider sam przełączy apkę w tryb 'idle'.
       }
     } catch (e) {
       _errorMessage = 'Failed to update order: $e';

@@ -39,14 +39,16 @@ class AddressProvider extends ChangeNotifier {
 
   Future<void> loadSavedAddress() async {    
     _count = getUserPref<int>('address_index') ?? -1;
-    
+
     String? addressJson = getUserPref<String>('address_map');
     if (addressJson != null) {
       _address = json.decode(addressJson);
     } else {
       _address = {}; 
     }
-    
+
+    _selectedAddressID = getUserPref<String>('address_id');
+
     notifyListeners();
   }
 
