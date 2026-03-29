@@ -55,7 +55,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Future<void> _init() async {
-    final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+    final addressProvider =
+        Provider.of<AddressProvider>(context, listen: false);
 
     await addressProvider.loadSavedAddress();
 
@@ -66,11 +67,11 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Future<void> _loadRestaurantFromCart() async {
-    if (currentUid == null) return;
+    if (currentUID == null) return;
     try {
       final snap = await FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .collection("carts")
           .limit(1)
           .get();
@@ -120,11 +121,11 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Future<void> _loadUserAddresses() async {
-    if (currentUid == null) return;
+    if (currentUID == null) return;
     try {
       final snap = await FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .collection("addresses")
           .get();
 
@@ -211,7 +212,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       final quoteRef = FirebaseFirestore.instance.collection("quotes").doc();
 
       final Map<String, dynamic> quoteData = {
-        "userId": currentUid,
+        "userId": currentUID,
         "restaurantID": _restaurantID,
         "restaurantName": _restaurantName,
         "itemIDs": getUserPref<List<String>>("userCart") ?? [],
@@ -401,25 +402,27 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                         },
                       )
                     else
-                      // Saved addresses list
-                      if (addressProvider.count >= 0 &&
-                          addressProvider.count < _userAddresses.length &&
-                          addressProvider.selectedAddressID != null)
-                        AddressDesign(
-                          model: _userAddresses[addressProvider.count],
-                          value: addressProvider.count,
-                          addressID: _userAddresses[addressProvider.count].addressID,
-                        )
-                      else
-                        _NoAddressBanner(
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const AddressScreen()),
-                            );
-                            await _loadUserAddresses();
-                          },
-                        ),
+                    // Saved addresses list
+                    if (addressProvider.count >= 0 &&
+                        addressProvider.count < _userAddresses.length &&
+                        addressProvider.selectedAddressID != null)
+                      AddressDesign(
+                        model: _userAddresses[addressProvider.count],
+                        value: addressProvider.count,
+                        addressID:
+                            _userAddresses[addressProvider.count].addressID,
+                      )
+                    else
+                      _NoAddressBanner(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const AddressScreen()),
+                          );
+                          await _loadUserAddresses();
+                        },
+                      ),
                     const SizedBox(height: 8),
                     _AddAddressButton(onTap: () async {
                       await Navigator.push(

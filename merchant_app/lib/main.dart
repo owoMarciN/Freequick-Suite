@@ -67,9 +67,10 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: localeProvider),
         ChangeNotifierProvider(
-            create: (_) => LocalStatsProvider(restaurantUid ?? '')),
+            create: (_) => LocalStatsProvider(currentRestaurantUID ?? '')),
         ChangeNotifierProvider(create: (_) => GlobalStatsProvider()),
-        ChangeNotifierProvider(create: (_) => MenuProvider(restaurantUid ?? '')),
+        ChangeNotifierProvider(
+            create: (_) => MenuProvider(currentRestaurantUID ?? '')),
       ],
       child: const AdminApp(),
     ),

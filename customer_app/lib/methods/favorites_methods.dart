@@ -8,14 +8,14 @@ import 'package:user_app/widgets/unified_snackbar.dart';
 
 Future<void> toggleFavorite(
     String restaurantID, String menuID, String itemID) async {
-  if (currentUid == null) {
+  if (currentUID == null) {
     unifiedSnackBar("Please login to add favorites");
     return;
   }
 
   DocumentReference favoriteRef = FirebaseFirestore.instance
       .collection("users")
-      .doc(currentUid)
+      .doc(currentUID)
       .collection("favorites")
       .doc(itemID);
 
@@ -65,13 +65,13 @@ Future<void> toggleFavorite(
 }
 
 Stream<bool> isFavoriteStream(String itemID) {
-  if (currentUid == null) {
+  if (currentUID == null) {
     return Stream.value(false);
   }
 
   return FirebaseFirestore.instance
       .collection("users")
-      .doc(currentUid)
+      .doc(currentUID)
       .collection("favorites")
       .doc(itemID)
       .snapshots()

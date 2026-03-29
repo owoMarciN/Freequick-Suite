@@ -32,10 +32,8 @@ class _AddressDesignState extends State<AddressDesign> {
   @override
   void initState() {
     super.initState();
-    final localeProvider =
-        Provider.of<LocaleProvider>(context, listen: false);
-    _translationFuture =
-        TranslationService.formatAndTranslateAddress(
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    _translationFuture = TranslationService.formatAndTranslateAddress(
       widget.model!.toJson(),
       localeProvider.locale.languageCode,
     );
@@ -44,10 +42,10 @@ class _AddressDesignState extends State<AddressDesign> {
   void _selectAddress(AddressProvider addressProvider) {
     addressProvider.displayResult(
       widget.value!,
-      address:   widget.model?.toJson() ?? {},
+      address: widget.model?.toJson() ?? {},
       addressID: widget.addressID,
-      lat:       double.tryParse(widget.model?.lat ?? '0.0') ?? 0.0,
-      lng:       double.tryParse(widget.model?.lng ?? '0.0') ?? 0.0,
+      lat: double.tryParse(widget.model?.lat ?? '0.0') ?? 0.0,
+      lng: double.tryParse(widget.model?.lng ?? '0.0') ?? 0.0,
     );
   }
 
@@ -74,30 +72,31 @@ class _AddressDesignState extends State<AddressDesign> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Column(
-          children: [
-            ListTile(
-              onTap: () => _selectAddress(addressProvider),
-              leading: const Icon(
-                Icons.location_on_rounded,
-                color: Colors.redAccent,
-                size: 30,
+        child: RadioGroup<int>(
+          groupValue: addressProvider.count,
+          onChanged: (value) => _selectAddress(addressProvider),
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                onTap: () => _selectAddress(addressProvider),
+                leading: const Icon(
+                  Icons.location_on_rounded,
+                  color: Colors.redAccent,
+                  size: 30,
+                ),
+                title: Text(
+                  widget.model?.label ?? context.l10n.addr_label_fallback,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: _buildSubtitle(context),
+                trailing: Radio<int>(
+                  value: widget.value!,
+                  activeColor: Colors.redAccent,
+                ),
               ),
-              title: Text(
-                widget.model?.label ??
-                    context.l10n.addr_label_fallback,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: _buildSubtitle(context),
-              trailing: Radio<int>(
-                value:      widget.value!,
-                groupValue: addressProvider.count,
-                activeColor: Colors.redAccent,
-                onChanged:  (_) => _selectAddress(addressProvider),
-              ),
-            ),
-            if (isSelected) _buildActionButtons(context),
-          ],
+              if (isSelected) _buildActionButtons(context),
+            ],
+          ),
         ),
       ),
     );
@@ -118,15 +117,12 @@ class _AddressDesignState extends State<AddressDesign> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if ((widget.model?.houseNumber ?? '').isNotEmpty)
-              Text(context.l10n
-                  .addr_building(widget.model!.houseNumber!)),
+              Text(context.l10n.addr_building(widget.model!.houseNumber!)),
             if ((widget.model?.flatNumber ?? '').isNotEmpty)
-              Text(context.l10n
-                  .addr_flat(widget.model!.flatNumber!)),
+              Text(context.l10n.addr_flat(widget.model!.flatNumber!)),
             Text(
               context.l10n.addr_address(translatedAddress),
-              style: const TextStyle(
-                  fontSize: 14, color: Colors.black87),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ],
         );
@@ -139,8 +135,7 @@ class _AddressDesignState extends State<AddressDesign> {
       children: [
         const Divider(height: 1, indent: 16, endIndent: 16),
         Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -149,12 +144,10 @@ class _AddressDesignState extends State<AddressDesign> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MapScreen(
-                      initialLat: double.tryParse(
-                              widget.model?.lat ?? '0.0') ??
-                          0.0,
-                      initialLng: double.tryParse(
-                              widget.model?.lng ?? '0.0') ??
-                          0.0,
+                      initialLat:
+                          double.tryParse(widget.model?.lat ?? '0.0') ?? 0.0,
+                      initialLng:
+                          double.tryParse(widget.model?.lng ?? '0.0') ?? 0.0,
                       isSightSeeing: true,
                     ),
                   ),
@@ -162,8 +155,7 @@ class _AddressDesignState extends State<AddressDesign> {
                 icon: const Icon(Icons.map_outlined, size: 24),
                 label: Text(
                   context.l10n.addr_see_in_maps,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               _buildDeleteButton(context),
@@ -183,8 +175,7 @@ class _AddressDesignState extends State<AddressDesign> {
       ),
       label: Text(
         context.l10n.addr_delete,
-        style: const TextStyle(
-            color: Colors.red, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
       onPressed: () => _showDeleteConfirmation(context),
     );
@@ -196,8 +187,7 @@ class _AddressDesignState extends State<AddressDesign> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: EdgeInsets.zero,
         elevation: 4,
         content: Column(
@@ -209,7 +199,7 @@ class _AddressDesignState extends State<AddressDesign> {
               decoration: const BoxDecoration(
                 color: Colors.redAccent,
                 borderRadius: BorderRadius.only(
-                  topLeft:  Radius.circular(20),
+                  topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                 ),
               ),
@@ -221,8 +211,8 @@ class _AddressDesignState extends State<AddressDesign> {
                   Text(
                     context.l10n.addr_delete_dialog_title,
                     style: const TextStyle(
-                      color:      Colors.white,
-                      fontSize:   20,
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -231,12 +221,11 @@ class _AddressDesignState extends State<AddressDesign> {
             ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                  vertical: 24, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  bottomLeft:  Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
               ),
@@ -250,9 +239,7 @@ class _AddressDesignState extends State<AddressDesign> {
                               context.l10n.addr_label_fallback),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontSize: 15,
-                          color:    Colors.black87,
-                          height:   1.5),
+                          fontSize: 15, color: Colors.black87, height: 1.5),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -264,18 +251,15 @@ class _AddressDesignState extends State<AddressDesign> {
                           child: OutlinedButton(
                             onPressed: () => Navigator.pop(context),
                             style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14),
-                              side: BorderSide(
-                                  color: Colors.grey.shade400),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(color: Colors.grey.shade400),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
                               context.l10n.addr_delete_cancel,
                               style: TextStyle(
-                                  color:      Colors.grey[800],
+                                  color: Colors.grey[800],
                                   fontWeight: FontWeight.w600),
                             ),
                           ),
@@ -288,34 +272,34 @@ class _AddressDesignState extends State<AddressDesign> {
                               try {
                                 await FirebaseFirestore.instance
                                     .collection("users")
-                                    .doc(currentUid)
+                                    .doc(currentUID)
                                     .collection("addresses")
                                     .doc(widget.addressID)
                                     .delete();
 
-                                addressProvider.displayResult(
-                                    -1, address: {});
+                                addressProvider.displayResult(-1, address: {});
 
                                 if (!mounted) return;
                                 unifiedSnackBar(context.l10n.addr_deleted);
                               } catch (e) {
                                 if (!mounted) return;
-                                unifiedSnackBar(context.l10n.addr_delete_error(e.toString()), error: true);
+                                unifiedSnackBar(
+                                    context.l10n
+                                        .addr_delete_error(e.toString()),
+                                    error: true);
                               }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
                               context.l10n.addr_delete_confirm,
                               style: const TextStyle(
-                                  color:      Colors.white,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),

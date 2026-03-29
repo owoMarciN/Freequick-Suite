@@ -54,7 +54,7 @@ fvm flutter run --dart-define-from-file ../secrets.json
 lib/
 ├── assistant_methods/     # Cart, address, and payment helpers
 ├── extensions/            # BrandColors ThemeExtension, l10n extension
-├── global/                # SharedPreferences helpers, currentUid
+├── global/                # SharedPreferences helpers, currentUID
 ├── l10n/                  # ARB localisation files
 ├── models/                # Address and data models
 ├── providers/             # ChangeNotifier state providers

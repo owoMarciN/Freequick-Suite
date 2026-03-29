@@ -29,8 +29,7 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
 
-    Provider.of<CartProvider>(context, listen: false)
-        .loadCart();
+    Provider.of<CartProvider>(context, listen: false).loadCart();
   }
 
   Future<void> _clearCart() async {
@@ -77,7 +76,7 @@ class _CartScreenState extends State<CartScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("users")
-            .doc(currentUid)
+            .doc(currentUID)
             .collection("carts")
             .snapshots(),
         builder: (context, cartSnapshot) {

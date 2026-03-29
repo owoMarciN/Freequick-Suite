@@ -30,13 +30,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection("restaurants")
-          .doc(restaurantUid)
+          .doc(currentRestaurantUID)
           .snapshots(),
       builder: (context, restaurantSnap) {
         return StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection("users")
-              .doc(restaurantUid)
+              .doc(currentRestaurantUID)
               .snapshots(),
           builder: (context, userSnap) {
             if (userSnap.connectionState == ConnectionState.waiting ||
@@ -76,21 +76,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 16),
                           _LogoCard(
-                            restaurantID: restaurantUid,
+                            restaurantID: currentRestaurantUID,
                             currentUrl: restaurantData["logoUrl"] ?? "",
                             brandColors: brandColors,
                             colorScheme: colorScheme,
                           ),
                           const SizedBox(height: 16),
                           _BannerCard(
-                            restaurantID: restaurantUid,
+                            restaurantID: currentRestaurantUID,
                             currentUrl: restaurantData["bannerUrl"] ?? "",
                             brandColors: brandColors,
                             colorScheme: colorScheme,
                           ),
                           const SizedBox(height: 16),
                           _BusinessInfoCard(
-                            restaurantID: restaurantUid,
+                            restaurantID: currentRestaurantUID,
                             data: restaurantData,
                             brandColors: brandColors,
                             colorScheme: colorScheme,
@@ -104,7 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 16),
                           _UserProfileCard(
-                            restaurantID: restaurantUid,
+                            restaurantID: currentRestaurantUID,
                             data: userData,
                             brandColors: brandColors,
                             colorScheme: colorScheme,
@@ -573,7 +573,7 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
   late final TextEditingController _nameController;
   late final TextEditingController _ibanController;
   late final PhoneController _mobileController;
-  
+
   // Track initials to compare against
   late Map<String, dynamic> _initials;
 
@@ -587,10 +587,10 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
   void initState() {
     super.initState();
     _setInitials();
-    
+
     _nameController = TextEditingController(text: _initials["name"]);
     _ibanController = TextEditingController(text: _initials["iban"]);
-    
+
     // Parse phone to avoid the +48 duplication bug
     try {
       _mobileController = PhoneController(
@@ -641,8 +641,7 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
   }
 
   void _onEdit() {
-    final bool isDirty = 
-        _nameController.text != _initials["name"] ||
+    final bool isDirty = _nameController.text != _initials["name"] ||
         _ibanController.text != _initials["iban"] ||
         _mobileController.value.international != _initials["mobile"] ||
         _address != _initials["address"] ||
@@ -870,9 +869,11 @@ class _UserProfileCardState extends State<_UserProfileCard> {
     _nameController = TextEditingController(text: _initialName);
     // Use the parsing logic from before to avoid the +48 prefix bug
     try {
-      _phoneController = PhoneController(initialValue: PhoneNumber.parse(_initialPhone));
+      _phoneController =
+          PhoneController(initialValue: PhoneNumber.parse(_initialPhone));
     } catch (_) {
-      _phoneController = PhoneController(initialValue: PhoneNumber(isoCode: IsoCode.PL, nsn: ''));
+      _phoneController = PhoneController(
+          initialValue: PhoneNumber(isoCode: IsoCode.PL, nsn: ''));
     }
 
     _nameController.addListener(_onEdit);
@@ -882,7 +883,7 @@ class _UserProfileCardState extends State<_UserProfileCard> {
   @override
   void didUpdateWidget(_UserProfileCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.data != oldWidget.data) {
       _initialName = widget.data["name"] ?? '';
       _initialPhone = widget.data["phone"] ?? '';
@@ -893,7 +894,8 @@ class _UserProfileCardState extends State<_UserProfileCard> {
           _phoneController.value = PhoneNumber.parse(_initialPhone);
         } catch (_) {
           // Fallback for empty or invalid data
-          _phoneController.value = const PhoneNumber(isoCode: IsoCode.PL, nsn: '');
+          _phoneController.value =
+              const PhoneNumber(isoCode: IsoCode.PL, nsn: '');
         }
       }
     }
@@ -904,10 +906,9 @@ class _UserProfileCardState extends State<_UserProfileCard> {
     final currentName = _nameController.text;
 
     // Only trigger setState if the 'edited' status actually changes
-    final isCurrentlyDifferent = 
-      currentName != _initialName || 
-      currentPhone != _initialPhone || 
-      _stagedBytes != null;
+    final isCurrentlyDifferent = currentName != _initialName ||
+        currentPhone != _initialPhone ||
+        _stagedBytes != null;
 
     if (isCurrentlyDifferent != _edited) {
       setState(() {

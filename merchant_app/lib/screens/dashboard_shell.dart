@@ -60,7 +60,7 @@ class _DashboardShellState extends State<DashboardShell> {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isWide = context.isWide;
     final int selected = _selectedIndex(context);
-    
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -73,7 +73,7 @@ class _DashboardShellState extends State<DashboardShell> {
       child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('restaurants')
-            .doc(restaurantUid)
+            .doc(currentRestaurantUID)
             .snapshots(),
         builder: (context, snap) {
           if (!snap.hasData) {
@@ -104,7 +104,7 @@ class _DashboardShellState extends State<DashboardShell> {
           return StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
-                .doc(restaurantUid)
+                .doc(currentRestaurantUID)
                 .snapshots(),
             builder: (context, userSnap) {
               final userData = userSnap.data?.data() as Map<String, dynamic>?;
@@ -140,13 +140,13 @@ class _DashboardShellState extends State<DashboardShell> {
                         logoUrl,
                         photoUrl,
                         status,
-                        restaurantUid ?? '',
+                        currentRestaurantUID ?? '',
                       ),
                     Expanded(
                       child: Column(
                         children: [
                           _buildTopBar(
-                            restaurantUid ?? '',
+                            currentRestaurantUID ?? '',
                             context,
                             isWide,
                             brandColors,

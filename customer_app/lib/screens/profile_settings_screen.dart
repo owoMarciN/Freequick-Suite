@@ -8,7 +8,7 @@ import 'package:user_app/widgets/custom_text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_app/widgets/error_dialog.dart';
 import 'package:user_app/widgets/loading_dialog.dart';
-import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+import 'package:firebase_storage/firebase_storage.dart' as fstorage;
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:user_app/widgets/custom_phone_field.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
@@ -100,10 +100,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       final Map<String, dynamic> updateData = {};
 
       if (isImageChanged) {
-        final ref = fStorage.FirebaseStorage.instance
+        final ref = fstorage.FirebaseStorage.instance
             .ref()
             .child('users')
-            .child(currentUid!);
+            .child(currentUID!);
         final snap = await ref.putFile(_newPhoto!);
         final newUrl = await snap.ref.getDownloadURL();
         updateData["photoUrl"] = newUrl;
@@ -126,7 +126,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
       await FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .update(updateData);
 
       if (!mounted) return;
@@ -156,7 +156,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     try {
       await FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .update({"prefs.$key": value});
     } catch (_) {
       // Non-fatal — local pref still saved

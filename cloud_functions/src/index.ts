@@ -21,7 +21,6 @@ const APP_CHECK = false;
 /* ---------------------------------------------- */
 /* -------------- Helper Functions --------------
 /* ----------------------------------------------*/
-
 const getStripe = () => new Stripe(stripeSecretKey.value(), { apiVersion: "2023-10-16" });
 
 function roundToTwo(num: number | string | undefined): number {

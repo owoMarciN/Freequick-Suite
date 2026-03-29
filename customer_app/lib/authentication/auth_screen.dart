@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:user_app/authentication/login.dart';
 import 'package:user_app/authentication/register.dart';
-
 import 'package:user_app/extensions/context_translate_ext.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -34,7 +32,11 @@ class _AuthScreenState extends State<AuthScreen> {
           title: const Text(
             'I-Eat',
             style: TextStyle(
-                fontSize: 50, color: Colors.white, fontFamily: "Train", package: 'shared_assets'),
+              fontSize: 50, 
+              color: Colors.white, 
+              fontFamily: "Train", 
+              package: 'shared_assets'
+            ),
           ),
           centerTitle: true,
           bottom: TabBar(

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/brand_color_ext.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/widgets/progress_bar.dart';
@@ -44,7 +43,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Future<void> _loadAnalytics() async {
-    if (restaurantUid == null) return;
+    if (currentRestaurantUID == null) return;
     setState(() => _isLoading = true);
 
     try {
@@ -54,7 +53,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
       final snap = await FirebaseFirestore.instance
           .collection("orders")
-          .where("restaurantID", isEqualTo: restaurantUid)
+          .where("restaurantID", isEqualTo: currentRestaurantUID)
           .where("orderTime",
               isGreaterThanOrEqualTo: Timestamp.fromDate(rangeStart))
           .get();
@@ -121,14 +120,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         // Items are stored under menus subcollection — search all menus
         final menusSnap = await FirebaseFirestore.instance
             .collection("restaurants")
-            .doc(restaurantUid)
+            .doc(currentRestaurantUID)
             .collection("menus")
             .get();
 
         for (final menu in menusSnap.docs) {
           final itemSnap = await FirebaseFirestore.instance
               .collection("restaurants")
-              .doc(restaurantUid)
+              .doc(currentRestaurantUID)
               .collection("menus")
               .doc(menu.id)
               .collection("items")

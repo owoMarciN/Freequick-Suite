@@ -174,7 +174,7 @@ class _OrderList extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .collection("orders")
           .where("status", whereIn: statuses)
           .orderBy("orderTime", descending: true)

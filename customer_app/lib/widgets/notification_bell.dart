@@ -14,8 +14,7 @@ class NotificationBell extends StatefulWidget {
   const NotificationBell({super.key});
 
   @override
-  State<NotificationBell> createState() =>
-      _NotificationBellState();
+  State<NotificationBell> createState() => _NotificationBellState();
 }
 
 class _NotificationBellState extends State<NotificationBell>
@@ -60,12 +59,12 @@ class _NotificationBellState extends State<NotificationBell>
 
   @override
   Widget build(BuildContext context) {
-    if (currentUid == null) return const SizedBox.shrink();
+    if (currentUID == null) return const SizedBox.shrink();
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUid)
+          .doc(currentUID)
           .collection('notifications')
           .where('isRead', isEqualTo: false)
           .snapshots(),
@@ -74,8 +73,7 @@ class _NotificationBellState extends State<NotificationBell>
 
         // Filter by notification prefs
         final unreadCount = unreadDocs
-            .where((doc) =>
-                _shouldCount(doc.data() as Map<String, dynamic>))
+            .where((doc) => _shouldCount(doc.data() as Map<String, dynamic>))
             .length;
 
         // Shake on new notification
@@ -90,8 +88,7 @@ class _NotificationBellState extends State<NotificationBell>
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  const NotificationsScreen(),
+              builder: (_) => const NotificationsScreen(),
             ),
           ),
           child: Padding(
@@ -117,12 +114,10 @@ class _NotificationBellState extends State<NotificationBell>
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(
-                            minWidth: 16, minHeight: 16),
+                        constraints:
+                            const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Text(
-                          unreadCount > 99
-                              ? '99+'
-                              : unreadCount.toString(),
+                          unreadCount > 99 ? '99+' : unreadCount.toString(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 9,

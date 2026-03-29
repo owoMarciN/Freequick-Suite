@@ -1,11 +1,10 @@
-// lib/screens/home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/screens/profile_screen.dart';
-import '../utils/app_theme.dart';
-import '../widgets/job_request_sheet.dart';
-// Removed the broken earnings_widget import, since _EarningsCard is at the bottom of this file!
+import 'package:rider_app/utils/app_theme.dart';
+import 'package:rider_app/widgets/job_request_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -148,39 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
-  // void _showJobRequest(BuildContext context, RiderProvider provider) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     isDismissible: false,
-  //     enableDrag: false,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (_) {
-  //       // Safely map the DispatchJob object to a Dictionary/Map to satisfy the JobRequestSheet
-  //       Map<String, dynamic> jobData;
-  //       try {
-  //         jobData = (provider.pendingJob as dynamic).toMap();
-  //       } catch (_) {
-  //         jobData = {'id': provider.pendingJob!.id};
-  //       }
-
-  //       return JobRequestSheet(
-  //         job: DispatchJob.fromJson(jobData),
-  //         onAccept: () {
-  //           Navigator.pop(context);
-  //           provider
-  //               .acceptJob(provider.pendingJob!.id); // Fixed syntax error here
-  //         },
-  //         onReject: () {
-  //           Navigator.pop(context);
-  //           provider
-  //               .rejectJob(provider.pendingJob!.id); // Fixed syntax error here
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class _StatusToggle extends StatelessWidget {

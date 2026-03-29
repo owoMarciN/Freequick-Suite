@@ -44,7 +44,7 @@ class AddressScreen extends StatelessWidget {
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection("users")
-                .doc(currentUid)
+                .doc(currentUID)
                 .collection("addresses")
                 .snapshots(),
             builder: (context, snapshot) {

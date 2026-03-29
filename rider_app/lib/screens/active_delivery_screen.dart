@@ -28,7 +28,7 @@ class ActiveDeliveryScreen extends StatefulWidget {
 }
 
 class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
-  late GoogleMapController? _mapController;
+  late GoogleMapController? mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
               //  Map
               _MapSection(
                 order: order,
-                onMapCreated: (c) => _mapController = c,
+                onMapCreated: (c) => mapController = c,
               ),
 
               //  Bottom panel
@@ -94,7 +94,7 @@ class _MapSection extends StatefulWidget {
 }
 
 class _MapSectionState extends State<_MapSection> {
-  late GoogleMapController? _controller;
+  late GoogleMapController? controller;
 
   /// Extract lat/lng from the embedded address map.
   /// Falls back to Kraków centre if coordinates are missing.
@@ -149,7 +149,7 @@ class _MapSectionState extends State<_MapSection> {
       height: MediaQuery.of(context).size.height * 0.50,
       child: GoogleMap(
         onMapCreated: (c) {
-          _controller = c;
+          controller = c;
           widget.onMapCreated(c);
         },
         initialCameraPosition: CameraPosition(

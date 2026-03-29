@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+import 'package:firebase_storage/firebase_storage.dart' as fstorage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -182,12 +182,12 @@ class _OtpScreenState extends State<OtpScreen> {
       await user.linkWithCredential(phoneCredential);
 
       // 3. Upload profile photo
-      final fStorage.Reference ref = fStorage.FirebaseStorage.instance
+      final fstorage.Reference ref = fstorage.FirebaseStorage.instance
           .ref()
           .child('users')
           .child(user.uid);
 
-      final fStorage.TaskSnapshot snap = await ref.putFile(widget.args.photo);
+      final fstorage.TaskSnapshot snap = await ref.putFile(widget.args.photo);
       final String photoUrl = await snap.ref.getDownloadURL();
 
       // 4. Save to Firestore

@@ -96,14 +96,14 @@ class RiderStatsProvider extends ChangeNotifier {
     final List<double> dayEarnings = List.filled(7, 0);
     final List<int> dayDeliveries = List.filled(7, 0);
 
-    int _totalDeliveries = 0;
-    double _totalEarnings = 0;
-    int _todayDeliveries = 0;
-    double _todayEarnings = 0;
-    int _weekDeliveries = 0;
-    double _weekEarnings = 0;
-    int _monthDeliveries = 0;
-    double _monthEarnings = 0;
+    int totalDeliveries = 0;
+    double totalEarnings = 0;
+    int todayDeliveries = 0;
+    double todayEarnings = 0;
+    int weekDeliveries = 0;
+    double weekEarnings = 0;
+    int monthDeliveries = 0;
+    double monthEarnings = 0;
     double ratingSum = 0;
     int ratingCount = 0;
 
@@ -119,21 +119,21 @@ class RiderStatsProvider extends ChangeNotifier {
       final ts = data['deliveredAt'];
       if (ts is Timestamp) deliveredAt = ts.toDate();
 
-      _totalDeliveries++;
-      _totalEarnings += fee;
+      totalDeliveries++;
+      totalEarnings += fee;
 
       if (deliveredAt != null) {
         if (!deliveredAt.isBefore(todayStart)) {
-          _todayDeliveries++;
-          _todayEarnings += fee;
+          todayDeliveries++;
+          todayEarnings += fee;
         }
         if (!deliveredAt.isBefore(weekStart)) {
-          _weekDeliveries++;
-          _weekEarnings += fee;
+          weekDeliveries++;
+          weekEarnings += fee;
         }
         if (!deliveredAt.isBefore(monthStart)) {
-          _monthDeliveries++;
-          _monthEarnings += fee;
+          monthDeliveries++;
+          monthEarnings += fee;
         }
 
         // 7-day bucket
@@ -165,16 +165,16 @@ class RiderStatsProvider extends ChangeNotifier {
     }
 
     // Commit
-    todayDeliveries = _todayDeliveries;
-    todayEarnings = _round(_todayEarnings);
-    weekDeliveries = _weekDeliveries;
-    weekEarnings = _round(_weekEarnings);
-    monthDeliveries = _monthDeliveries;
-    monthEarnings = _round(_monthEarnings);
-    totalDeliveries = _totalDeliveries;
-    totalEarnings = _round(_totalEarnings);
+    todayDeliveries = todayDeliveries;
+    todayEarnings = _round(todayEarnings);
+    weekDeliveries = weekDeliveries;
+    weekEarnings = _round(weekEarnings);
+    monthDeliveries = monthDeliveries;
+    monthEarnings = _round(monthEarnings);
+    totalDeliveries = totalDeliveries;
+    totalEarnings = _round(totalEarnings);
     avgEarningsPerDelivery =
-        _totalDeliveries > 0 ? _round(_totalEarnings / _totalDeliveries) : 0;
+        totalDeliveries > 0 ? _round(totalEarnings / totalDeliveries) : 0;
     earningsByDay = byDay;
     deliveriesByDay = byDayCount;
     avgDriverRating = ratingCount > 0

@@ -55,7 +55,7 @@ Open `http://localhost:8080` in any browser. The VS Code **Flutter (Debug - Web)
 ```
 lib/
 ├ extensions/            # BrandColors ThemeExtension
-├ global/                # currentUid, SharedPreferences helpers
+├ global/                # currentUID, SharedPreferences helpers
 ├ l10n/                  # ARB localisation files
 ├ providers/             # LocalStatsProvider, GlobalStatsProvider
 ├ screens/               # All dashboard screens

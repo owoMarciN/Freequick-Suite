@@ -10,7 +10,7 @@ class CartProvider extends ChangeNotifier {
   /// Call once after login and after any cart mutation
   /// to sync the badge count with Firestore.
   Future<void> loadCart() async {
-    if (currentUid == null) {
+    if (currentUID == null) {
       if (_count == 0) return;
       _count = 0;
       notifyListeners();
@@ -19,7 +19,7 @@ class CartProvider extends ChangeNotifier {
 
     final snapshot = await FirebaseFirestore.instance
         .collection("users")
-        .doc(currentUid)
+        .doc(currentUID)
         .collection("carts")
         .count()
         .get();

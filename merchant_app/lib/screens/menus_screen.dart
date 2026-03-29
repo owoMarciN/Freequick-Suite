@@ -40,7 +40,7 @@ class _MenusScreenState extends State<MenusScreen> {
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection("restaurants")
-                  .doc(restaurantUid)
+                  .doc(currentRestaurantUID)
                   .collection("menus")
                   .orderBy("createdAt", descending: true)
                   .snapshots(),
@@ -108,7 +108,7 @@ class _MenusScreenState extends State<MenusScreen> {
                       Menus mModel =
                           Menus.fromJson(doc.data()! as Map<String, dynamic>);
                       mModel.menuID = doc.id;
-                      mModel.restaurantID = restaurantUid;
+                      mModel.restaurantID = currentRestaurantUID;
                       return MenusDesignWidget(model: mModel);
                     },
                   ),
@@ -173,7 +173,7 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
     setState(() => _isLoading = true);
 
     try {
-      final String restaurantID = restaurantUid!;
+      final String restaurantID = currentRestaurantUID!;
       final String fileName =
           '${DateTime.now().millisecondsSinceEpoch}_$_imageFileName';
 

@@ -107,7 +107,7 @@ class _OrdersScreenState extends State<OrdersScreen>
               SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 40),
                 child: OrderTableWidget(
-                  restaurantID: restaurantUid,
+                  restaurantID: currentRestaurantUID,
                   statuses: _activeStatuses,
                   onStatusChange: _updateStatus,
                 ),
@@ -115,7 +115,7 @@ class _OrdersScreenState extends State<OrdersScreen>
               SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 40),
                 child: OrderTableWidget(
-                  restaurantID: restaurantUid,
+                  restaurantID: currentRestaurantUID,
                   statuses: const ['Delivered'],
                   readOnly: true,
                 ),

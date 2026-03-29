@@ -13,7 +13,6 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen>
     with SingleTickerProviderStateMixin {
   // Tab 0 = Restaurant registrations, Tab 1 = Go Live requests
   late final TabController _tabController;
-  final String? _filter = 'pending';
 
   @override
   void initState() {

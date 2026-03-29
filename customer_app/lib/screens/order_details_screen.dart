@@ -56,7 +56,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection("users")
-            .doc(currentUid)
+            .doc(currentUID)
             .collection("orders")
             .doc(widget.orderID)
             .snapshots(),
@@ -498,7 +498,7 @@ class _AddressSection extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .collection("addresses")
           .doc(addressID)
           .get(),

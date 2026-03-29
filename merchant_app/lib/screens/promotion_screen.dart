@@ -33,7 +33,7 @@ class PromotionsScreen extends StatelessWidget {
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('restaurants')
-                .doc(restaurantUid)
+                .doc(currentRestaurantUID)
                 .collection('promotions')
                 .snapshots(),
             builder: (context, snap) {
@@ -110,7 +110,7 @@ class PromotionsScreen extends StatelessWidget {
                   return _PromotionCard(
                     promotionID: docs[i].id,
                     data: data,
-                    restaurantID: restaurantUid ?? '',
+                    restaurantID: currentRestaurantUID ?? '',
                     brandColors: brandColors,
                     colorScheme: colorScheme,
                   );
@@ -124,7 +124,8 @@ class PromotionsScreen extends StatelessWidget {
             bottom: 28,
             right: 28,
             child: FloatingActionButton.extended(
-              onPressed: () => _openAddSheet(context, restaurantUid ?? ''),
+              onPressed: () =>
+                  _openAddSheet(context, currentRestaurantUID ?? ''),
               backgroundColor: brandColors.navy,
               icon: const Icon(Icons.add_rounded, color: Colors.white),
               label: Text(context.l10n.promo_fab,

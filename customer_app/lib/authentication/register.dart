@@ -9,9 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 
 import 'package:user_app/global/global.dart';
-
 import 'package:user_app/services/image_picker_service.dart';
-
 import 'package:user_app/screens/home_screen.dart';
 
 import 'package:phone_form_field/phone_form_field.dart';

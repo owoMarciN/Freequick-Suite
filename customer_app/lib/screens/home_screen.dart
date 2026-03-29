@@ -753,7 +753,7 @@ class _RecentItemsRow extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUid)
+          .doc(currentUID)
           .collection('orders')
           .orderBy('orderTime', descending: true)
           .limit(3)
@@ -942,7 +942,7 @@ class _OrderAgainSection extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUid)
+          .doc(currentUID)
           .collection('orders')
           .orderBy('orderTime', descending: true)
           .limit(1)

@@ -98,15 +98,6 @@ class MyDrawer extends StatelessWidget {
                       icon: Icons.gavel_rounded,
                     ),
                   ),
-                  _DrawerTile(
-                    icon: Icons.cookie_outlined,
-                    label: "Cookie Policy",
-                    onTap: () => _showPolicy(
-                      context,
-                      title: "Cookie Policy",
-                      icon: Icons.cookie_outlined,
-                    ),
-                  ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -272,6 +263,7 @@ class _DrawerTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    // ignore: unused_element_parameter
     this.trailing,
   });
 

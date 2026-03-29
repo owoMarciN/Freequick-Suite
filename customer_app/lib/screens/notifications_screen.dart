@@ -98,7 +98,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(currentUid)
+            .doc(currentUID)
             .collection('notifications')
             .orderBy('createdAt', descending: true)
             .snapshots(),

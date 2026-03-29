@@ -18,7 +18,7 @@ class SaveAddressScreen extends StatefulWidget {
 
 class _SaveAddressScreenState extends State<SaveAddressScreen> {
   final formKey = GlobalKey<FormState>();
-  
+
   // Controllers
   final TextEditingController _houseNumber = TextEditingController();
   final TextEditingController _flatNumber = TextEditingController();
@@ -49,7 +49,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       _postCode.text = result['postalCode'] ?? '';
       _street.text = result['road'] ?? '';
       _houseNumber.text = result['houseNumber'] ?? '';
-      
+
       String sub = result['subpremise'] ?? '';
       _flatNumber.text = sub.isNotEmpty ? "Apt $sub" : "";
       _completeAddress.text = result['fullAddress'] ?? '';
@@ -61,7 +61,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   }
 
   void _handleMapResult() async {
-    Map<String, double>? coords = await LocationService.getUserCurrentCoordinates();
+    Map<String, double>? coords =
+        await LocationService.getUserCurrentCoordinates();
     if (!mounted) return;
 
     final result = await Navigator.push(
@@ -86,7 +87,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+        style: const TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey),
       ),
     );
   }
@@ -105,9 +107,11 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
         labelText: label,
         prefixIcon: icon != null ? Icon(icon, size: 20) : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
-      validator: (value) => (required && (value == null || value.isEmpty)) ? "Required" : null,
+      validator: (value) =>
+          (required && (value == null || value.isEmpty)) ? "Required" : null,
     );
   }
 
@@ -115,7 +119,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: UnifiedAppBar(
-        title: "Delivery Address", 
+        title: "Delivery Address",
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -126,7 +130,9 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
         ),
       ),
       bottomNavigationBar: _isAddressFetched ? _buildSaveButton() : null,
-      body: _isAddressFetched ? _buildForm() : const Center(child: CircularProgressIndicator()),
+      body: _isAddressFetched
+          ? _buildForm()
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -142,11 +148,16 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
             Card(
               elevation: 0,
               color: Colors.cyan.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
               child: ListTile(
                 leading: const Icon(Icons.location_on, color: Colors.cyan),
-                title: Text(_completeAddress.text, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)),
-                trailing: TextButton(onPressed: _handleMapResult, child: const Text("Change")),
+                title: Text(_completeAddress.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13)),
+                trailing: TextButton(
+                    onPressed: _handleMapResult, child: const Text("Change")),
               ),
             ),
 
@@ -158,7 +169,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                   child: ChoiceChip(
                     label: Text(label),
                     selected: _selectedLabel == label,
-                    onSelected: (selected) => setState(() => _selectedLabel = label),
+                    onSelected: (selected) =>
+                        setState(() => _selectedLabel = label),
                     selectedColor: Colors.cyan.withValues(alpha: 0.3),
                   ),
                 );
@@ -167,28 +179,43 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
 
             const Divider(height: 32),
             _buildSectionTitle("Location Details"),
-            
+
             Row(
               children: [
-                Expanded(child: _buildField(label: "House/Bldg*", controller: _houseNumber, icon: Icons.home)),
+                Expanded(
+                    child: _buildField(
+                        label: "House/Bldg*",
+                        controller: _houseNumber,
+                        icon: Icons.home)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildField(label: "Floor/Flat", controller: _flatNumber, required: false)),
+                Expanded(
+                    child: _buildField(
+                        label: "Floor/Flat",
+                        controller: _flatNumber,
+                        required: false)),
               ],
             ),
             const SizedBox(height: 16),
-            _buildField(label: "Street / Area", controller: _street, icon: Icons.add_road),
+            _buildField(
+                label: "Street / Area",
+                controller: _street,
+                icon: Icons.add_road),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(child: _buildField(label: "City", controller: _city)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildField(label: "Postcode", controller: _postCode, type: TextInputType.number)),
+                Expanded(
+                    child: _buildField(
+                        label: "Postcode",
+                        controller: _postCode,
+                        type: TextInputType.number)),
               ],
             ),
             const SizedBox(height: 16),
             _buildField(label: "State", controller: _state),
-            
+
             const SizedBox(height: 100), // Space for FAB
           ],
         ),
@@ -204,23 +231,28 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.cyan,
           minimumSize: const Size(double.infinity, 54),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
-        child: isLoading 
-          ? const CircularProgressIndicator(color: Colors.white) 
-          : const Text("Save Address", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text("Save Address",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold)),
       ),
     );
   }
 
   Future<void> _validateAndSave() async {
     if (!formKey.currentState!.validate()) return;
-    
+
     setState(() => isLoading = true);
     try {
       final docRef = FirebaseFirestore.instance
           .collection("users")
-          .doc(currentUid)
+          .doc(currentUID)
           .collection("addresses")
           .doc();
 

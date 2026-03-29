@@ -13,11 +13,11 @@ class MySplashScreen extends StatefulWidget {
 class _MySplashScreenState extends State<MySplashScreen> {
   void startTimer() {
     Timer(const Duration(seconds: 2), () async {
-      if (firebaseAuth.currentUser != null && restaurantUid != null) {
+      if (firebaseAuth.currentUser != null && currentRestaurantUID != null) {
         // Safe to go to Dashboard
         Router.neglect(context, () => context.go('/dashboard'));
       } else {
-        if (firebaseAuth.currentUser != null && restaurantUid == null) {
+        if (firebaseAuth.currentUser != null && currentRestaurantUID == null) {
           await firebaseAuth.signOut();
         }
 
@@ -44,7 +44,8 @@ class _MySplashScreenState extends State<MySplashScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
-                'images/1000021479.jpg', package: 'shared_assets',
+                'images/1000021479.jpg',
+                package: 'shared_assets',
                 width: 300,
               ),
             ),
@@ -55,7 +56,8 @@ class _MySplashScreenState extends State<MySplashScreen> {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 20,
-                fontFamily: "Train", package: 'shared_assets',
+                fontFamily: "Train",
+                package: 'shared_assets',
                 letterSpacing: 3,
               ),
             ),
@@ -65,7 +67,8 @@ class _MySplashScreenState extends State<MySplashScreen> {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
-                fontFamily: "Signatra", package: 'shared_assets',
+                fontFamily: "Signatra",
+                package: 'shared_assets',
                 letterSpacing: 3,
               ),
             ),

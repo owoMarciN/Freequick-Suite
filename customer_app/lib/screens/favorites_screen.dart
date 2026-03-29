@@ -45,7 +45,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     return Listener(
       onPointerDown: (_) {
         FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+        if (!currentFocus.hasPrimaryFocus &&
+            currentFocus.focusedChild != null) {
           currentFocus.unfocus();
         }
       },
@@ -78,7 +79,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("users")
-              .doc(currentUid)
+              .doc(currentUID)
               .collection("favorites")
               .snapshots(),
           builder: (context, snapshot) {
@@ -87,10 +88,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                    const Icon(Icons.error_outline,
+                        size: 60, color: Colors.red),
                     const SizedBox(height: 16),
                     Text("Error loading favorites",
-                        style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+                        style:
+                            TextStyle(fontSize: 16, color: Colors.grey[700])),
                   ],
                 ),
               );
@@ -298,8 +301,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                 color: Colors.green.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color:
-                                        Colors.green.withValues(alpha: 0.3)),
+                                    color: Colors.green.withValues(alpha: 0.3)),
                               ),
                               child: Text(
                                 tag,

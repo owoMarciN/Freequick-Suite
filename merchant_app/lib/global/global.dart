@@ -4,12 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 SharedPreferences? sharedPreferences;
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-String? get restaurantUid => sharedPreferences?.getString("uid");
+String? get currentRestaurantUID => sharedPreferences?.getString("uid");
 
 // Example: if UID is "ABC", key "name" becomes "ABC_name"
 Future<void> saveUserPref<T>(String key, T value) async {
-  if (restaurantUid == null) return;
-  final String prefixedKey = "${restaurantUid}_$key";
+  if (currentRestaurantUID == null) return;
+  final String prefixedKey = "${currentRestaurantUID}_$key";
 
   if (value is String) {
     await sharedPreferences!.setString(prefixedKey, value);
@@ -26,13 +26,13 @@ Future<void> saveUserPref<T>(String key, T value) async {
 
 // Retrieves a value prefixed by the restaurant user's UID
 T? getUserPref<T>(String key) {
-  if (restaurantUid == null) return null;
-  final String prefixedKey = "${restaurantUid}_$key";
-  
+  if (currentRestaurantUID == null) return null;
+  final String prefixedKey = "${currentRestaurantUID}_$key";
+
   return sharedPreferences!.get(prefixedKey) as T?;
 }
 
-// Use this during Logout to clear the UID, 
+// Use this during Logout to clear the UID,
 Future<void> clearSession() async {
   await sharedPreferences!.remove("uid");
   // Optional: await sharedPreferences!.clear(); // Only if you want to wipe everything

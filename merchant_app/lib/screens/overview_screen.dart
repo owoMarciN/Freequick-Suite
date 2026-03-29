@@ -32,9 +32,12 @@ class _OverviewScreenState extends State<OverviewScreen> {
       final results = await Future.wait([
         FirebaseFirestore.instance
             .collection("restaurants")
-            .doc(restaurantUid)
+            .doc(currentRestaurantUID)
             .get(),
-        FirebaseFirestore.instance.collection("users").doc(restaurantUid).get(),
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(currentRestaurantUID)
+            .get(),
         _checkHasMenusAndItems(),
       ]);
 
@@ -54,17 +57,17 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Future<bool> _checkHasMenusAndItems() async {
-    if (restaurantUid == null) return false;
+    if (currentRestaurantUID == null) return false;
     final menus = await FirebaseFirestore.instance
         .collection("restaurants")
-        .doc(restaurantUid)
+        .doc(currentRestaurantUID)
         .collection("menus")
         .limit(1)
         .get();
     if (menus.docs.isEmpty) return false;
     final items = await FirebaseFirestore.instance
         .collection("restaurants")
-        .doc(restaurantUid)
+        .doc(currentRestaurantUID)
         .collection("menus")
         .doc(menus.docs.first.id)
         .collection("items")
@@ -171,7 +174,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
           _sectionLabel(context.l10n.overview_section_orders, brandColors),
           const SizedBox(height: 14),
           OrderTableWidget(
-            restaurantID: restaurantUid,
+            restaurantID: currentRestaurantUID,
             statuses: const ['Pending', 'In Progress', 'Ready', 'Delivered'],
             limit: 5,
             readOnly: true,
@@ -482,4 +485,3 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
