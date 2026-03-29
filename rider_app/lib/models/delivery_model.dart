@@ -102,7 +102,7 @@ class DeliveryModel {
   final String orderId;
   final String storeId;
   final String customerId;
-  final String? riderId;
+  final String? riderUID;
   final String status;
   final String routePhase;
   final LatLngData pickup;
@@ -120,7 +120,7 @@ class DeliveryModel {
     required this.orderId,
     required this.storeId,
     required this.customerId,
-    this.riderId,
+    this.riderUID,
     required this.status,
     required this.routePhase,
     required this.pickup,
@@ -143,7 +143,7 @@ class DeliveryModel {
       orderId: d['orderId'] as String? ?? '',
       storeId: d['storeId'] as String? ?? '',
       customerId: d['customerId'] as String? ?? '',
-      riderId: d['riderId'] as String?,
+      riderUID: d['riderUID'] as String?,
       status: d['status'] as String? ?? 'ASSIGNING',
       routePhase: d['routePhase'] as String? ?? 'TO_PICKUP',
       pickup: LatLngData.fromMap(

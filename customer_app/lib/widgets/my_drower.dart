@@ -19,7 +19,7 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String name = getUserPref<String>("name") ?? "Guest";
+    final String name = getUserPref<String>("name") ?? "";
     final String email = getUserPref<String>("email") ?? "";
     final String photoUrl = getUserPref<String>("photoUrl") ?? "";
 

@@ -258,3 +258,8 @@ String formatPayment(dynamic p) {
   }
   return s;
 }
+
+double roundToTwo(double value) {
+  // Rounds 1.2345 to 1.23 and 1.235 to 1.24
+  return double.parse(value.toStringAsFixed(2));
+}

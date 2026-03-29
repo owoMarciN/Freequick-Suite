@@ -219,7 +219,7 @@ class _OtpScreenState extends State<OtpScreen> {
       await sharedPreferences!.setString('uid', user.uid);
       
       if (!mounted) return;
-      Provider.of<CartProvider>(context).count;
+      Provider.of<CartProvider>(context, listen: false).count;
       
       await saveUserPref<String>('email', user.email.toString());
       await saveUserPref<String>('name', widget.args.name.trim());

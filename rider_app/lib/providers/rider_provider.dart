@@ -186,7 +186,7 @@ class RiderProvider extends ChangeNotifier {
     _jobsSub = FirebaseFirestore.instance
         .collection("dispatch_jobs")
         .where("status", isEqualTo: "pending")
-        .where("riderId", isEqualTo: riderUID)
+        .where("riderUID", isEqualTo: riderUID)
         .limit(1)
         .snapshots()
         .listen((snap) {
@@ -195,8 +195,7 @@ class RiderProvider extends ChangeNotifier {
       } else {
         final doc = snap.docs.first;
         final data = doc.data();
-        if (data['riderId'] == null ||
-            data['riderId'] == riderUID) {
+        if (data['riderUID'] == null || data['riderUID'] == riderUID) {
           _pendingJob = DispatchJob.fromDoc(doc);
         } else {
           _pendingJob = null;

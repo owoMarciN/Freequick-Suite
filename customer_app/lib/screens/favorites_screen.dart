@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/models/items.dart';
-import 'package:user_app/screens/home_screen.dart';
-import 'package:user_app/screens/orders_screen.dart';
-import 'package:user_app/screens/search_screen.dart';
 import 'package:user_app/screens/item_details_screen.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
-import 'package:user_app/widgets/unified_bottom_bar.dart';
 import 'package:user_app/widgets/my_drower.dart';
 import 'package:user_app/widgets/progress_bar.dart';
 import 'package:user_app/methods/favorites_methods.dart';
@@ -20,25 +16,6 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  int _currentPageIndex = 3;
-
-  void _onBottomNavTap(int index) {
-    if (index == _currentPageIndex) return;
-    setState(() => _currentPageIndex = index);
-
-    final Map<int, Widget> routes = {
-      0: const HomeScreen(),
-      1: const OrdersScreen(),
-      2: const SearchScreen(initialText: ''),
-    };
-
-    if (routes.containsKey(index)) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => routes[index]!),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +49,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         drawer: MyDrawer(),
-        bottomNavigationBar: UnifiedBottomNavigationBar(
-          currentIndex: _currentPageIndex,
-          onTap: _onBottomNavTap,
-        ),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("users")

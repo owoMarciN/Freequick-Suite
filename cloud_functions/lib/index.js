@@ -90,14 +90,14 @@ async function notifyUser(uid, fcmToken, title, body, source, data) {
         }
     }
 }
-async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMethod, paymentDetails, }) {
+async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMethod, paymentDetails, }) {
     const [quoteDoc, userDoc, restaurantDoc] = await Promise.all([
-        db.collection("quotes").doc(quoteId).get(),
-        db.collection("users").doc(userId).get(),
+        db.collection("quotes").doc(quoteID).get(),
+        db.collection("users").doc(userID).get(),
         db.collection("restaurants").doc(restaurantID).get(),
     ]);
     if (!quoteDoc.exists)
-        throw new Error("Quote not found: " + quoteId);
+        throw new Error("Quote not found: " + quoteID);
     const quote = quoteDoc.data();
     const user = userDoc.data();
     const restaurant = restaurantDoc.data();
@@ -105,7 +105,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
     const orderRef = db.collection("orders").doc(orderID);
     const userOrderRef = db
         .collection("users")
-        .doc(userId)
+        .doc(userID)
         .collection("orders")
         .doc(orderID);
     // Resolve address
@@ -113,7 +113,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
     if (quote.orderType !== "pickup" && quote.addressID) {
         const addrDoc = await db
             .collection("users")
-            .doc(userId)
+            .doc(userID)
             .collection("addresses")
             .doc(quote.addressID)
             .get();
@@ -129,7 +129,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
     const totalAmount = roundToTwo(quote.finalTotal);
     const orderData = {
         orderID,
-        userID: userId,
+        userID: userID,
         restaurantID,
         restaurantName: restaurant.name ?? "",
         restaurantLat: restaurant.lat ?? null,
@@ -145,14 +145,14 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
         totalAmount,
         status: "Pending",
         isSuccess: true,
-        driverUID: "",
+        riderUID: "",
         orderTime: firestore_1.FieldValue.serverTimestamp(),
         updatedAt: firestore_1.FieldValue.serverTimestamp(),
     };
     const batch = db.batch();
     batch.set(orderRef, orderData);
     batch.set(userOrderRef, orderData);
-    batch.update(db.collection("quotes").doc(quoteId), {
+    batch.update(db.collection("quotes").doc(quoteID), {
         status: "USED",
         orderID,
         paymentStatus: paymentMethod === "stripe" ? "PAID" : "PENDING_COD",
@@ -176,7 +176,7 @@ async function createOrderAndDispatch({ quoteId, userId, restaurantID, paymentMe
             console.warn("Restaurant FCM failed", e);
         }
     }
-    await writeNotification(userId, "Order Placed! 🎉", `Your order from ${restaurant.name ?? "the restaurant"} has been received.`, "order");
+    await writeNotification(userID, "Order Placed! 🎉", `Your order from ${restaurant.name ?? "the restaurant"} has been received.`, "order");
     await dispatchToRider(orderID, orderData, restaurant, user);
     return orderID;
 }
@@ -203,7 +203,7 @@ async function dispatchToRider(orderID, order, restaurant, customer) {
     const finalTotal = roundToTwo(order.totalAmount);
     const isCash = (order.paymentMethod ?? "cash") === "cash";
     await db.collection("dispatch_jobs").doc().set({
-        riderId: riderDoc.id,
+        riderUID: riderDoc.id,
         orderID,
         storeName: restaurant.name ?? "",
         storeAddress: restaurant.address ?? "",
@@ -288,14 +288,14 @@ exports.googleMapsDetails = https.onRequest({ region: REGION, secrets: [googleMa
 exports.createPaymentIntent = https.onCall({ region: REGION, secrets: [stripeSecretKey, stripePublishableKey], enforceAppCheck: APP_CHECK }, async (req) => {
     if (!req.auth)
         throw new https.HttpsError("unauthenticated", "Login required");
-    const { quoteId } = req.data;
-    if (!quoteId)
-        throw new https.HttpsError("invalid-argument", "quoteId required");
-    const quoteDoc = await db.collection("quotes").doc(quoteId).get();
+    const { quoteID } = req.data;
+    if (!quoteID)
+        throw new https.HttpsError("invalid-argument", "quoteID required");
+    const quoteDoc = await db.collection("quotes").doc(quoteID).get();
     if (!quoteDoc.exists)
         throw new https.HttpsError("not-found", "Quote not found");
     const quote = quoteDoc.data();
-    if (quote.userId !== req.auth.uid)
+    if (quote.userID !== req.auth.uid)
         throw new https.HttpsError("permission-denied", "Not your quote");
     if (quote.expiresAt.toDate() < new Date())
         throw new https.HttpsError("failed-precondition", "Quote expired");
@@ -306,13 +306,13 @@ exports.createPaymentIntent = https.onCall({ region: REGION, secrets: [stripeSec
             amount: amountInGrosze,
             currency: "pln",
             metadata: {
-                quoteId,
-                userId: req.auth.uid,
+                quoteID,
+                userID: req.auth.uid,
                 restaurantID: quote.restaurantID,
             },
             automatic_payment_methods: { enabled: true },
         });
-        await db.collection("quotes").doc(quoteId).update({
+        await db.collection("quotes").doc(quoteID).update({
             stripePaymentIntentId: paymentIntent.id,
             paymentStatus: "PENDING",
         });
@@ -361,11 +361,11 @@ exports.placeOrder = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }
     if (!req.auth) {
         throw new https.HttpsError("unauthenticated", "Login required");
     }
-    const { quoteId } = req.data;
-    if (!quoteId) {
-        throw new https.HttpsError("invalid-argument", "quoteId required");
+    const { quoteID } = req.data;
+    if (!quoteID) {
+        throw new https.HttpsError("invalid-argument", "quoteID required");
     }
-    const quoteDoc = await db.collection("quotes").doc(quoteId).get();
+    const quoteDoc = await db.collection("quotes").doc(quoteID).get();
     if (!quoteDoc.exists) {
         throw new https.HttpsError("not-found", "Quote not found");
     }
@@ -374,13 +374,13 @@ exports.placeOrder = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }
         throw new https.HttpsError("already-exists", "Order already placed for this quote");
     }
     const orderID = await createOrderAndDispatch({
-        quoteId,
-        userId: req.auth.uid,
+        quoteID,
+        userID: req.auth.uid,
         restaurantID: quote.restaurantID,
         paymentMethod: "cash",
         paymentDetails: "cash",
     });
-    await db.collection("quotes").doc(quoteId).update({
+    await db.collection("quotes").doc(quoteID).update({
         orderID,
         status: "USED",
     });
@@ -405,7 +405,7 @@ exports.stripeWebhook = https.onRequest({ region: REGION, secrets: [stripeSecret
     res.json({ received: true });
 });
 async function handlePaymentSuccess(paymentIntent) {
-    const { quoteId, userId, restaurantID } = paymentIntent.metadata;
+    const { quoteID, userID, restaurantID } = paymentIntent.metadata;
     const existing = await db
         .collection("orders")
         .where("stripePaymentIntentId", "==", paymentIntent.id)
@@ -416,13 +416,13 @@ async function handlePaymentSuccess(paymentIntent) {
         return;
     }
     const orderID = await createOrderAndDispatch({
-        quoteId,
-        userId,
+        quoteID,
+        userID,
         restaurantID,
         paymentMethod: "stripe",
         paymentDetails: paymentIntent.id,
     });
-    await db.collection("quotes").doc(quoteId).update({
+    await db.collection("quotes").doc(quoteID).update({
         orderID,
         status: "USED",
     });
@@ -442,7 +442,7 @@ exports.onDispatchJobAccepted = fsEvents.onDocumentUpdated({ document: "dispatch
         return;
     if (after.status !== "accepted")
         return;
-    const { riderId, orderID } = after;
+    const { riderUID, orderID } = after;
     const orderDoc = await db.collection("orders").doc(orderID).get();
     if (!orderDoc.exists)
         return;
@@ -450,14 +450,14 @@ exports.onDispatchJobAccepted = fsEvents.onDocumentUpdated({ document: "dispatch
     const userID = orderData.userID;
     const orderUpdate = {
         status: "In Progress",
-        driverUID: riderId,
+        riderUID: riderUID,
         updatedAt: firestore_1.FieldValue.serverTimestamp(),
     };
     const batch = db.batch();
     batch.update(db.collection("orders").doc(orderID), orderUpdate);
     batch.update(db.collection("users").doc(userID).collection("orders").doc(orderID), orderUpdate);
     // Mark rider busy — matches RiderModel fields
-    batch.update(db.collection("riders").doc(riderId), {
+    batch.update(db.collection("riders").doc(riderUID), {
         hasActiveOrder: true,
         currentOrderID: orderID,
         lastSeenAt: firestore_1.FieldValue.serverTimestamp(),
@@ -500,9 +500,9 @@ exports.onOrderStatusChanged = fsEvents.onDocumentUpdated({ document: "orders/{o
     }
     // Free up rider on delivery completion
     if (status === "Delivered") {
-        const driverUID = after.driverUID;
-        if (driverUID) {
-            await db.collection("riders").doc(driverUID).update({
+        const riderUID = after.riderUID;
+        if (riderUID) {
+            await db.collection("riders").doc(riderUID).update({
                 hasActiveOrder: false,
                 currentOrderID: null,
                 lastSeenAt: firestore_1.FieldValue.serverTimestamp(),

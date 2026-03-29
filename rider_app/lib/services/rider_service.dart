@@ -5,17 +5,11 @@ class RiderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   Stream<DocumentSnapshot> streamRider(String riderUID) {
-    return _db
-        .collection(AppConstants.colRiders)
-        .doc(riderUID)
-        .snapshots();
+    return _db.collection(AppConstants.colRiders).doc(riderUID).snapshots();
   }
 
   Future<void> setOnlineStatus(String riderUID, bool isOnline) {
-    return _db
-        .collection(AppConstants.colRiders)
-        .doc(riderUID)
-        .update({
+    return _db.collection(AppConstants.colRiders).doc(riderUID).update({
       'isOnline': isOnline,
       'lastSeenAt': FieldValue.serverTimestamp(),
     });
@@ -24,15 +18,14 @@ class RiderService {
   Stream<QuerySnapshot> streamPendingJobs(String riderUID) {
     return _db
         .collection(AppConstants.colDispatchJobs)
-        .where('riderId', isEqualTo: riderUID)
+        .where('riderUID', isEqualTo: riderUID)
         .where('status', isEqualTo: AppConstants.jobPending)
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
 
   Future<void> acceptJob(String jobID, String riderUID) async {
-    final jobRef =
-        _db.collection(AppConstants.colDispatchJobs).doc(jobID);
+    final jobRef = _db.collection(AppConstants.colDispatchJobs).doc(jobID);
 
     final jobSnap = await jobRef.get();
     if (!jobSnap.exists) return;
@@ -48,18 +41,16 @@ class RiderService {
     });
 
     if (orderID != null && orderID.isNotEmpty) {
-      final orderRef =
-          _db.collection(AppConstants.colOrders).doc(orderID);
+      final orderRef = _db.collection(AppConstants.colOrders).doc(orderID);
 
       batch.update(orderRef, {
         'status': AppConstants.statusInProgress,
-        'driverUID': riderUID,
+        'riderUID': riderUID,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     }
 
-    final riderRef =
-        _db.collection(AppConstants.colRiders).doc(riderUID);
+    final riderRef = _db.collection(AppConstants.colRiders).doc(riderUID);
 
     batch.update(riderRef, {
       'hasActiveOrder': true,
@@ -70,10 +61,7 @@ class RiderService {
   }
 
   Future<void> rejectJob(String jobID) {
-    return _db
-        .collection(AppConstants.colDispatchJobs)
-        .doc(jobID)
-        .update({
+    return _db.collection(AppConstants.colDispatchJobs).doc(jobID).update({
       'status': AppConstants.jobRejected,
       'rejectedAt': FieldValue.serverTimestamp(),
     });
@@ -91,8 +79,7 @@ class RiderService {
       updates['deliveredAt'] = FieldValue.serverTimestamp();
     }
 
-    final orderRef =
-        _db.collection(AppConstants.colOrders).doc(orderID);
+    final orderRef = _db.collection(AppConstants.colOrders).doc(orderID);
 
     await orderRef.update(updates);
   }
@@ -105,8 +92,7 @@ class RiderService {
   }) async {
     final batch = _db.batch();
 
-    final orderRef =
-        _db.collection(AppConstants.colOrders).doc(orderID);
+    final orderRef = _db.collection(AppConstants.colOrders).doc(orderID);
 
     final userOrderRef = _db
         .collection(AppConstants.colUsers)
@@ -114,8 +100,7 @@ class RiderService {
         .collection(AppConstants.colOrders)
         .doc(orderID);
 
-    final riderRef =
-        _db.collection(AppConstants.colRiders).doc(riderUID);
+    final riderRef = _db.collection(AppConstants.colRiders).doc(riderUID);
 
     final Map<String, dynamic> orderUpdates = {
       'status': AppConstants.statusDelivered,
@@ -137,18 +122,11 @@ class RiderService {
   }
 
   Stream<DocumentSnapshot> streamOrder(String orderID) {
-    return _db
-        .collection(AppConstants.colOrders)
-        .doc(orderID)
-        .snapshots();
+    return _db.collection(AppConstants.colOrders).doc(orderID).snapshots();
   }
 
-  Future<void> updateRiderLocation(
-      String riderUID, double lat, double lng) {
-    return _db
-        .collection(AppConstants.colRiders)
-        .doc(riderUID)
-        .update({
+  Future<void> updateRiderLocation(String riderUID, double lat, double lng) {
+    return _db.collection(AppConstants.colRiders).doc(riderUID).update({
       'location': {'lat': lat, 'lng': lng},
       'locationUpdatedAt': FieldValue.serverTimestamp(),
     });

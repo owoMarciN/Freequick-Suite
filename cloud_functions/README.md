@@ -75,7 +75,7 @@ firebase functions:log --only onDispatchJobAccepted
 ## Functions
 
 ### `createPaymentIntent`
-Called by the customer app at checkout. Reads `quotes/{quoteId}` server-side to determine the charge amount — the client never sends the price directly. Returns a Stripe `clientSecret` for the Flutter payment sheet.
+Called by the customer app at checkout. Reads `quotes/{quoteID}` server-side to determine the charge amount — the client never sends the price directly. Returns a Stripe `clientSecret` for the Flutter payment sheet.
 
 ### `stripeWebhook`
 HTTP endpoint called by Stripe on `payment_intent.succeeded`. Verifies the Stripe signature, then calls `createOrderAndDispatch` to create order documents and dispatch a rider.
@@ -125,11 +125,11 @@ Delivered      ← set by rider app (handed to customer)
 
 | Collection | Fields |
 |---|---|
-| `orders` | `driverUID ASC` + `status ASC` + `deliveredAt DESC` |
+| `orders` | `riderUID ASC` + `status ASC` + `deliveredAt DESC` |
 | `orders` | `restaurantID ASC` + `status ASC` + `orderTime DESC` |
 | `orders` | `stripePaymentIntentId ASC` |
 | `riders` | `isOnline ASC` + `hasActiveOrder ASC` |
-| `dispatch_jobs` | `riderId ASC` + `status ASC` + `createdAt DESC` |
+| `dispatch_jobs` | `riderUID ASC` + `status ASC` + `createdAt DESC` |
 
 Firebase will print console links to create missing indexes on first query. You can also define them in `firestore.indexes.json` and deploy with:
 ```bash

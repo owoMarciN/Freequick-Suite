@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:user_app/authentication/auth_screen.dart';
+import 'package:user_app/screens/main_screen.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -118,7 +120,14 @@ class MyApp extends StatelessWidget {
         }
         return supportedLocales.first;
       },
-      home: const MySplashScreen(),
+      home: StreamBuilder(
+        stream: firebaseAuth.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) { return const MySplashScreen(); }
+          if (snapshot.data == null) { return const AuthScreen(); }
+          return const MainScreen();
+        },
+      ),
     );
   }
 }

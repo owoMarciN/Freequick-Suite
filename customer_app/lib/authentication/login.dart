@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await sharedPreferences!.setString("uid", currentUser.uid);
       
       if (!mounted) return;
-      Provider.of<CartProvider>(context).count;
+      Provider.of<CartProvider>(context, listen: false).count;
 
       await saveUserPref<String>("email", data["email"]);
       await saveUserPref<String>("name", data["name"]);

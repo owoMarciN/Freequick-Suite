@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 
 class AddressProvider extends ChangeNotifier {
-  int _count = -1; // Default to -1
+  int _count = -1;
   Map<String, dynamic> _address = {};
-  String? _selectedAddressID;              // Firestore doc ID
+  String? _selectedAddressID;
   int _totalSavedAddresses = 0;
-
-  // Storing Address coordinates
   double _lat = 0.0;
   double _lng = 0.0;
 
@@ -24,7 +22,7 @@ class AddressProvider extends ChangeNotifier {
     required Map<String, dynamic> address,
     String? addressID,
     double lat = 0.0,
-    double lng = 0.0
+    double lng = 0.0,
   }) async {
     _count             = index;
     _address           = address;
@@ -35,19 +33,20 @@ class AddressProvider extends ChangeNotifier {
 
     await saveUserPref<int>('address_index', index);
     await saveUserPref<String>('address_map', json.encode(address));
+    
+    if (addressID != null) {
+      await saveUserPref<String>('address_id', addressID);
+    }
   }
 
-  Future<void> loadSavedAddress() async {    
+  Future<void> loadSavedAddress() async {
     _count = getUserPref<int>('address_index') ?? -1;
-
-    String? addressJson = getUserPref<String>('address_map');
-    if (addressJson != null) {
-      _address = json.decode(addressJson);
-    } else {
-      _address = {}; 
-    }
-
     _selectedAddressID = getUserPref<String>('address_id');
+
+    final addressJson = getUserPref<String>('address_map');
+    _address = addressJson != null
+        ? Map<String, dynamic>.from(json.decode(addressJson))
+        : {};
 
     notifyListeners();
   }

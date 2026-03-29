@@ -16,7 +16,7 @@ import 'package:user_app/global/global.dart';
 import 'package:user_app/models/address.dart';
 
 import 'package:user_app/screens/address_screen.dart';
-import 'package:user_app/screens/home_screen.dart';
+import 'package:user_app/screens/main_screen.dart';
 
 import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/address_design.dart';
@@ -51,19 +51,31 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   @override
   void initState() {
     super.initState();
-    _init();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _init();
+    });
   }
 
   Future<void> _init() async {
-    final addressProvider =
-        Provider.of<AddressProvider>(context, listen: false);
+    try {
+      final addressProvider =
+          Provider.of<AddressProvider>(context, listen: false);
 
-    await addressProvider.loadSavedAddress();
+      await addressProvider.loadSavedAddress();
 
-    await Future.wait([
-      _loadRestaurantFromCart(),
-      _loadUserAddresses(),
-    ]);
+      await Future.wait([
+        _loadRestaurantFromCart(),
+        _loadUserAddresses(),
+      ]);
+    } catch (e) {
+      debugPrint("INIT ERROR: $e");
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadRestaurantFromCart() async {
@@ -104,16 +116,18 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   Future<void> _loadRestaurantAddress() async {
     if (_restaurantID.isEmpty) return;
     try {
-      final snap = await FirebaseFirestore.instance
+      final doc = await FirebaseFirestore.instance
           .collection("restaurants")
           .doc(_restaurantID)
-          .collection("addresses")
-          .limit(1)
           .get();
 
-      if (snap.docs.isNotEmpty) {
-        setState(() => _restaurantAddress =
-            snap.docs.first.data()['fullAddress'] ?? "Address not available");
+      if (doc.exists) {
+        final data = doc.data();
+        if (data != null) {
+          setState(() {
+            _restaurantAddress = data['address'] ?? "Address not available";
+          });
+        }
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -153,26 +167,22 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       final ap = Provider.of<AddressProvider>(context, listen: false);
       final idx = ap.count;
 
-      // No address selected at all
       if (idx < 0) {
         unifiedSnackBar("Please select a delivery address", error: true);
         return false;
       }
 
-      // Index out of range — no saved addresses exist
       if (_userAddresses.isEmpty) {
         unifiedSnackBar("Please add a delivery address before ordering",
             error: true);
         return false;
       }
 
-      // Selected index doesn't map to a valid address
       if (idx >= _userAddresses.length) {
         unifiedSnackBar("Please select a valid delivery address", error: true);
         return false;
       }
 
-      // Address must have an ID (it's a Firestore doc)
       if (ap.selectedAddressID == null || ap.selectedAddressID!.isEmpty) {
         unifiedSnackBar("Please select a saved delivery address", error: true);
         return false;
@@ -186,6 +196,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     return true;
   }
 
+  // This can always change
   double _deliveryFee(double subtotal) {
     if (_orderType != "delivery") return 0;
     if (subtotal >= 50) return 0;
@@ -202,9 +213,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       final amountProvider =
           Provider.of<AmountProvider>(context, listen: false);
       final ap = Provider.of<AddressProvider>(context, listen: false);
-      final subtotal = amountProvider.totalAmount;
-      final fee = _deliveryFee(subtotal);
-      final total = subtotal + fee;
+      final double subtotal = roundToTwo(amountProvider.totalAmount.toDouble());
+      final double fee = roundToTwo(_deliveryFee(subtotal));
+      final double total = roundToTwo(subtotal + fee);
 
       // Build quote — address is stored as addressID only.
       // The Cloud Function resolves the full address from
@@ -212,7 +223,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       final quoteRef = FirebaseFirestore.instance.collection("quotes").doc();
 
       final Map<String, dynamic> quoteData = {
-        "userId": currentUID,
+        "userID": currentUID,
         "restaurantID": _restaurantID,
         "restaurantName": _restaurantName,
         "itemIDs": getUserPref<List<String>>("userCart") ?? [],
@@ -250,9 +261,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Cash flow
-  Future<void> _placeCashOrder(String quoteId) async {
+  Future<void> _placeCashOrder(String quoteID) async {
     final result =
-        await _functions.httpsCallable('placeOrder').call({'quoteId': quoteId});
+        await _functions.httpsCallable('placeOrder').call({'quoteID': quoteID});
 
     final orderID = result.data['orderID']?.toString() ?? '';
     if (!mounted) return;
@@ -260,11 +271,11 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   //  Stripe flow
-  Future<void> _placeStripeOrder(String quoteId, double total) async {
+  Future<void> _placeStripeOrder(String quoteID, double total) async {
     try {
       final intentResult = await _functions
           .httpsCallable('createPaymentIntent')
-          .call({'quoteId': quoteId});
+          .call({'quoteID': quoteID});
 
       final clientSecret = intentResult.data['clientSecret']?.toString() ?? '';
 
@@ -284,7 +295,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       if (paymentType == null) return;
 
       // Waiting for order entry to be created
-      final orderID = await _waitForOrderCreation(quoteId);
+      final orderID = await _waitForOrderCreation(quoteID);
 
       if (orderID == null) {
         unifiedSnackBar("Order creation timeout", error: true);
@@ -297,13 +308,13 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     }
   }
 
-  Future<String?> _waitForOrderCreation(String quoteId) async {
+  Future<String?> _waitForOrderCreation(String quoteID) async {
     final completer = Completer<String?>();
     StreamSubscription? sub;
 
     sub = FirebaseFirestore.instance
         .collection("quotes")
-        .doc(quoteId)
+        .doc(quoteID)
         .snapshots()
         .listen((doc) {
       final data = doc.data();
@@ -331,7 +342,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     unifiedSnackBar("Order placed successfully!");
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => const MainScreen()),
       (route) => false,
     );
   }
@@ -340,10 +351,16 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final amountProvider = Provider.of<AmountProvider>(context);
-    final addressProvider = Provider.of<AddressProvider>(context);
+    final addressProvider = context.watch<AddressProvider>();
     final subtotal = amountProvider.totalAmount;
     final fee = _deliveryFee(subtotal);
     final total = subtotal + fee;
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6FB),
@@ -390,7 +407,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     _SectionLabel(label: "Delivery Address"),
                     const SizedBox(height: 10),
                     if (_userAddresses.isEmpty)
-                      // No addresses — prompt to add one
                       _NoAddressBanner(
                         onTap: () async {
                           await Navigator.push(
@@ -401,19 +417,31 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                           await _loadUserAddresses();
                         },
                       )
-                    else
-                    // Saved addresses list
-                    if (addressProvider.count >= 0 &&
-                        addressProvider.count < _userAddresses.length &&
-                        addressProvider.selectedAddressID != null)
-                      AddressDesign(
-                        model: _userAddresses[addressProvider.count],
-                        value: addressProvider.count,
-                        addressID:
-                            _userAddresses[addressProvider.count].addressID,
-                      )
-                    else
-                      _NoAddressBanner(
+                    else ...[
+                      Builder(
+                        builder: (context) {
+                          final selectedAddress =
+                              addressProvider.selectedAddressID != null
+                                  ? _userAddresses
+                                      .where((a) =>
+                                          a.addressID ==
+                                          addressProvider.selectedAddressID)
+                                      .toList()
+                                      .firstOrNull
+                                  : null;
+
+                          final addressToShow =
+                              selectedAddress ?? _userAddresses.first;
+
+                          return AddressDesign(
+                            model: addressToShow,
+                            value: _userAddresses.indexOf(addressToShow),
+                            addressID: addressToShow.addressID,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _AddAddressButton(
                         onTap: () async {
                           await Navigator.push(
                             context,
@@ -423,14 +451,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                           await _loadUserAddresses();
                         },
                       ),
-                    const SizedBox(height: 8),
-                    _AddAddressButton(onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => AddressScreen()),
-                      );
-                      await _loadUserAddresses();
-                    }),
+                    ],
                   ],
 
                   //  Pickup location
@@ -450,6 +471,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                   _SectionLabel(label: "Payment Method"),
                   const SizedBox(height: 10),
                   _PaymentSelector(
+                    orderType: _orderType,
                     selected: _selectedPayment,
                     onChanged: (v) => setState(() => _selectedPayment = v),
                   ),
@@ -765,13 +787,26 @@ class _AddAddressButton extends StatelessWidget {
 
 class _PaymentSelector extends StatelessWidget {
   final _PaymentMethod? selected;
+  final String? orderType;
   final ValueChanged<_PaymentMethod> onChanged;
-  const _PaymentSelector({required this.selected, required this.onChanged});
+  const _PaymentSelector(
+      {required this.selected,
+      required this.orderType,
+      required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
+    return Column(children: [
+      if (orderType == 'pickup') ...[
+        _PaymentTile(
+          icon: Icons.payments_rounded,
+          label: "Cash on pickup",
+          subtitle: "Pay when your order arrives",
+          value: _PaymentMethod.cash,
+          selected: selected,
+          onTap: () => onChanged(_PaymentMethod.cash),
+        ),
+      ] else ...[
         _PaymentTile(
           icon: Icons.payments_rounded,
           label: "Cash on Delivery",
@@ -780,17 +815,17 @@ class _PaymentSelector extends StatelessWidget {
           selected: selected,
           onTap: () => onChanged(_PaymentMethod.cash),
         ),
-        const SizedBox(height: 10),
-        _PaymentTile(
-          icon: Icons.credit_card_rounded,
-          label: "Pay by Card",
-          subtitle: "Secure payment via Stripe",
-          value: _PaymentMethod.stripe,
-          selected: selected,
-          onTap: () => onChanged(_PaymentMethod.stripe),
-        ),
       ],
-    );
+      const SizedBox(height: 10),
+      _PaymentTile(
+        icon: Icons.credit_card_rounded,
+        label: "Pay by Card",
+        subtitle: "Secure payment via Stripe",
+        value: _PaymentMethod.stripe,
+        selected: selected,
+        onTap: () => onChanged(_PaymentMethod.stripe),
+      ),
+    ]);
   }
 }
 

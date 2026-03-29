@@ -22,13 +22,19 @@ void unifiedSnackBar(String msg, {bool error = false, Color? bgColor}) {
       bgColor ?? (error ? Colors.redAccent.shade700 : const Color(0xFF1E293B));
 
   late OverlayEntry overlayEntry;
+  bool isRemoved = false;
 
   overlayEntry = OverlayEntry(
     builder: (context) => _SnackBarToast(
       msg: msg,
       error: error,
       bgColor: resolvedColor,
-      onDismiss: () => overlayEntry.remove(),
+      onDismiss: () {
+        if (!isRemoved) {
+          isRemoved = true;
+          overlayEntry.remove();
+        }
+      },
     ),
   );
 
@@ -82,7 +88,7 @@ class _SnackBarToastState extends State<_SnackBarToast>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 24,
+      bottom: 64,
       left: 16,
       right: 16,
       child: Material(
@@ -105,7 +111,7 @@ class _SnackBarToastState extends State<_SnackBarToast>
             children: [
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   children: [
                     Icon(

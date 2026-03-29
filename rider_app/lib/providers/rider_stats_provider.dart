@@ -1,7 +1,7 @@
 // lib/providers/rider_stats_provider.dart
 //
 // Real-time stats for a single rider, computed from orders/{id}
-// where driverUID == riderUID and status == 'Delivered'.
+// where riderUID == riderUID and status == 'Delivered'.
 //
 // Mount above HomeScreen once the rider is authenticated:
 //
@@ -66,10 +66,10 @@ class RiderStatsProvider extends ChangeNotifier {
 
   void _subscribe() {
     // Stream all delivered orders for this rider.
-    // Firestore index needed: orders on driverUID ASC + status ASC + deliveredAt DESC
+    // Firestore index needed: orders on riderUID ASC + status ASC + deliveredAt DESC
     _sub = FirebaseFirestore.instance
         .collection('orders')
-        .where('driverUID', isEqualTo: riderUID)
+        .where('riderUID', isEqualTo: riderUID)
         .where('status', isEqualTo: 'Delivered')
         .orderBy('deliveredAt', descending: true)
         .snapshots()

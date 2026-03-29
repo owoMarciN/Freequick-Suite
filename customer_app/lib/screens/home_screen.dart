@@ -13,14 +13,12 @@ import 'package:user_app/widgets/restaurant_card.dart';
 import 'package:user_app/widgets/address_header.dart';
 import 'package:user_app/widgets/my_drower.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
-import 'package:user_app/widgets/unified_bottom_bar.dart';
+
 import 'package:user_app/widgets/cart_icon.dart';
 import 'package:user_app/widgets/notification_icon.dart';
 import 'package:user_app/widgets/progress_bar.dart';
 
-import 'package:user_app/screens/orders_screen.dart';
 import 'package:user_app/screens/search_screen.dart';
-import 'package:user_app/screens/favorites_screen.dart';
 import 'package:user_app/screens/item_details_screen.dart';
 import 'package:user_app/screens/menus_screen.dart';
 
@@ -37,9 +35,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //  Bottom nav
-  int _currentPageIndex = 0;
-
   //  Home content state
   final PageController _promoPageController =
       PageController(viewportFraction: 0.92);
@@ -67,20 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _promoPageController.dispose();
     super.dispose();
-  }
-
-  void _onBottomNavTap(int index) {
-    if (index == _currentPageIndex) return;
-    setState(() => _currentPageIndex = index);
-    final Map<int, Widget> routes = {
-      1: const OrdersScreen(),
-      2: const SearchScreen(initialText: ''),
-      3: const FavoritesScreen(),
-    };
-    if (routes.containsKey(index)) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => routes[index]!));
-    }
   }
 
   @override
@@ -117,10 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           drawer: MyDrawer(),
-          bottomNavigationBar: UnifiedBottomNavigationBar(
-            currentIndex: _currentPageIndex,
-            onTap: _onBottomNavTap,
-          ),
           body: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(

@@ -4,11 +4,7 @@ import 'package:algoliasearch/algoliasearch_lite.dart';
 import 'package:user_app/widgets/search_tabs.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/my_drower.dart';
-import 'package:user_app/widgets/unified_bottom_bar.dart';
 
-import 'package:user_app/screens/home_screen.dart';
-import 'package:user_app/screens/orders_screen.dart';
-import 'package:user_app/screens/favorites_screen.dart';
 import 'package:user_app/screens/menus_screen.dart';
 import 'package:user_app/screens/item_details_screen.dart';
 
@@ -60,7 +56,6 @@ class _SearchScreenState extends State<SearchScreen> {
       ? _algoliaItemIndex
       : throw Exception("ALGOLIA_ITEM_INDEX is not defined.");
 
-  int _currentPageIndex = 2;
   late TextEditingController _searchController;
   late final SearchClient _client;
 
@@ -265,20 +260,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _onBottomNavTap(int index) {
-    if (index == _currentPageIndex) return;
-    setState(() => _currentPageIndex = index);
-    final Map<int, Widget> routes = {
-      0: const HomeScreen(),
-      1: const OrdersScreen(),
-      3: const FavoritesScreen(),
-    };
-    if (routes.containsKey(index)) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => routes[index]!));
-    }
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -324,10 +305,6 @@ class _SearchScreenState extends State<SearchScreen> {
             actions: [const CartIconWidget()],
           ),
           drawer: MyDrawer(),
-          bottomNavigationBar: UnifiedBottomNavigationBar(
-            currentIndex: _currentPageIndex,
-            onTap: _onBottomNavTap,
-          ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

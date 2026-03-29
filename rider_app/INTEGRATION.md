@@ -33,7 +33,7 @@ deliveries/{id}
   ├ pickup          : { lat, lng }
   ├ dropoff         : { lat, lng }
   ├ trackingEnabled : bool  (false after delivery complete)
-  ├ riderId         : string
+  ├ riderUID         : string
   ├ customerId      : string
   └ orderId         : string
 
@@ -109,7 +109,7 @@ When your Cloud Function assigns a rider, create this doc so the rider app picks
 ```javascript
 // Cloud Function (Node.js)
 await db.collection('dispatch_jobs').add({
-  riderId:         assignedRiderId,      // rider app queries this
+  riderUID:         assignedRiderId,      // rider app queries this
   deliveryId:      deliveryId,
   orderId:         orderId,
   storeName:       store.name,
@@ -123,11 +123,11 @@ await db.collection('dispatch_jobs').add({
 
 // After rider accepts (dispatch_jobs/{id}.status == 'ACCEPTED'):
 await db.collection('deliveries').doc(deliveryId).update({
-  riderId:     riderId,
+  riderUID:     riderUID,
   status:      'ASSIGNED',
   routePhase:  'TO_PICKUP',
 });
-await db.collection('riders').doc(riderId).update({
+await db.collection('riders').doc(riderUID).update({
   hasActiveDelivery:  true,
   currentDeliveryId:  deliveryId,
 });
@@ -146,15 +146,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Riders can read/write their own profile
-    match /riders/{riderId} {
-      allow read, write: if request.auth.uid == riderId;
+    match /riders/{riderUID} {
+      allow read, write: if request.auth.uid == riderUID;
     }
 
     // Deliveries: customer reads, rider reads+updates location/status
     match /deliveries/{deliveryId} {
       allow read: if request.auth.uid == resource.data.customerId
-                  || request.auth.uid == resource.data.riderId;
-      allow update: if request.auth.uid == resource.data.riderId
+                  || request.auth.uid == resource.data.riderUID;
+      allow update: if request.auth.uid == resource.data.riderUID
                     && request.resource.data.diff(resource.data)
                        .affectedKeys()
                        .hasOnly(['riderLocation','status','routePhase',
@@ -164,8 +164,8 @@ service cloud.firestore {
 
     // Dispatch jobs: rider reads their own pending jobs
     match /dispatch_jobs/{jobId} {
-      allow read:   if request.auth.uid == resource.data.riderId;
-      allow update: if request.auth.uid == resource.data.riderId
+      allow read:   if request.auth.uid == resource.data.riderUID;
+      allow update: if request.auth.uid == resource.data.riderUID
                     && request.resource.data.diff(resource.data)
                        .affectedKeys().hasOnly(['status','acceptedAt','rejectedAt']);
     }
@@ -173,8 +173,8 @@ service cloud.firestore {
     // Orders: rider can read + update status only
     match /orders/{orderId} {
       allow read:   if request.auth.uid == resource.data.customerId
-                    || request.auth.uid == resource.data.riderId;
-      allow update: if request.auth.uid == resource.data.riderId
+                    || request.auth.uid == resource.data.riderUID;
+      allow update: if request.auth.uid == resource.data.riderUID
                     && request.resource.data.diff(resource.data)
                        .affectedKeys().hasOnly(['status','updatedAt']);
     }

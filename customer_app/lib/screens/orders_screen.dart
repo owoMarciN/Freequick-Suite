@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/widgets/progress_bar.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
-import 'package:user_app/screens/home_screen.dart';
-import 'package:user_app/screens/favorites_screen.dart';
-import 'package:user_app/widgets/unified_bottom_bar.dart';
-import 'package:user_app/screens/search_screen.dart';
 import 'package:user_app/widgets/my_drower.dart';
 import 'package:user_app/screens/order_details_screen.dart';
 
@@ -19,7 +15,6 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen>
     with SingleTickerProviderStateMixin {
-  int _currentPageIndex = 1;
   late TabController _tabController;
 
   @override
@@ -32,20 +27,6 @@ class _OrdersScreenState extends State<OrdersScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _onBottomNavTap(int index) {
-    if (index == _currentPageIndex) return;
-    setState(() => _currentPageIndex = index);
-    final Map<int, Widget> routes = {
-      0: const HomeScreen(),
-      2: const SearchScreen(initialText: ''),
-      3: const FavoritesScreen(),
-    };
-    if (routes.containsKey(index)) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => routes[index]!));
-    }
   }
 
   Future<List<DocumentSnapshot>> _fetchOrderItems(
@@ -107,10 +88,6 @@ class _OrdersScreenState extends State<OrdersScreen>
         ),
       ),
       drawer: MyDrawer(),
-      bottomNavigationBar: UnifiedBottomNavigationBar(
-        currentIndex: _currentPageIndex,
-        onTap: _onBottomNavTap,
-      ),
       body: Column(
         children: [
           Container(
