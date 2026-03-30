@@ -20,4 +20,38 @@ class AppLocalizationsPl extends AppLocalizations {
   String time_hours(int n) {
     return '${n}godz. temu';
   }
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get password_does_not_meet_requirements => 'Hasło nie spełnia wymagań';
+
+  @override
+  String get password_is_required => 'Wymagane jest hasło';
+
+  @override
+  String get snackbar_dismiss => 'ODRZUCAĆ';
+
+  @override
+  String get field_error_required => 'To pole jest wymagane';
+
+  @override
+  String get field_error_invalid_format => 'Nieprawidłowy format';
+
+  @override
+  String get field_email_message => 'Podaj prawidłowy adres e-mail';
+
+  @override
+  String get field_nip_message => 'NIP musi składać się dokładnie z 10 cyfr';
+
+  @override
+  String get field_regon_message => 'REGON musi mieć 9 lub 14 cyfr';
+
+  @override
+  String get field_postal_code_message =>
+      'Wprowadź prawidłowy kod pocztowy (XX-XXX)';
+
+  @override
+  String get field_hint_prefix => 'Wchodzić ';
 }

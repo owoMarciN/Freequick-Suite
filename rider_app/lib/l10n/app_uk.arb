@@ -2,5 +2,16 @@
     "@@locale": "uk",
     "time_just_now": "Щойно",
     "time_minutes": "{n}хв тому",
-    "time_hours": "{n}год тому"
+    "time_hours": "{n}год тому",
+    "ok": "Гаразд",
+    "password_does_not_meet_requirements": "Пароль не відповідає вимогам",
+    "password_is_required": "Потрібен пароль",
+    "snackbar_dismiss": "ВІДХИЛИТИ",
+    "field_error_required": "Це поле обов'язкове",
+    "field_error_invalid_format": "Недійсний формат",
+    "field_email_message": "Введіть дійсну адресу електронної пошти",
+    "field_nip_message": "Національний ідентифікаційний номер (NIP) має складатися рівно з 10 цифр",
+    "field_regon_message": "REGON має складатися з 9 або 14 цифр",
+    "field_postal_code_message": "Введіть дійсний поштовий індекс (XX-XXX)",
+    "field_hint_prefix": "Введіть"
 }

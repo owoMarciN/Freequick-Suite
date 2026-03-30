@@ -121,6 +121,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n}h ago'**
   String time_hours(int n);
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @password_does_not_meet_requirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Password does not meet requirements'**
+  String get password_does_not_meet_requirements;
+
+  /// No description provided for @password_is_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get password_is_required;
+
+  /// No description provided for @snackbar_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'DISMISS'**
+  String get snackbar_dismiss;
+
+  /// No description provided for @field_error_required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get field_error_required;
+
+  /// No description provided for @field_error_invalid_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid format'**
+  String get field_error_invalid_format;
+
+  /// No description provided for @field_email_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get field_email_message;
+
+  /// No description provided for @field_nip_message.
+  ///
+  /// In en, this message translates to:
+  /// **'NIP must be exactly 10 digits'**
+  String get field_nip_message;
+
+  /// No description provided for @field_regon_message.
+  ///
+  /// In en, this message translates to:
+  /// **'REGON must be 9 or 14 digits'**
+  String get field_regon_message;
+
+  /// No description provided for @field_postal_code_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid postal code (XX-XXX)'**
+  String get field_postal_code_message;
+
+  /// No description provided for @field_hint_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter '**
+  String get field_hint_prefix;
 }
 
 class _AppLocalizationsDelegate

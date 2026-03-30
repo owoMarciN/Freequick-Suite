@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rider_app/providers/rider_provider.dart';
+import 'package:rider_app/screens/home_screen.dart';
 import 'package:rider_app/services/auth_service.dart';
 import 'package:rider_app/utils/app_theme.dart';
 
@@ -11,16 +14,15 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final AuthService _authService = AuthService();
-  final TextEditingController _nameController =
-      TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   String _vehicleType = 'SCOOTER';
   bool _isLoading = false;
   String? _error;
 
   final List<Map<String, dynamic>> _vehicles = [
-    {'type': 'BIKE',    'label': 'Bicycle', 'icon': Icons.pedal_bike},
+    {'type': 'BIKE', 'label': 'Bicycle', 'icon': Icons.pedal_bike},
     {'type': 'SCOOTER', 'label': 'Scooter', 'icon': Icons.electric_scooter},
-    {'type': 'CAR',     'label': 'Car',     'icon': Icons.directions_car},
+    {'type': 'CAR', 'label': 'Car', 'icon': Icons.directions_car},
   ];
 
   @override
@@ -57,12 +59,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               // Name field
               TextField(
                 controller: _nameController,
-                style:
-                    const TextStyle(color: AppTheme.textPrimary),
+                style: const TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Full Name',
-                  prefixIcon: Icon(Icons.person_outline,
-                      color: AppTheme.textSecondary),
+                  prefixIcon:
+                      Icon(Icons.person_outline, color: AppTheme.textSecondary),
                 ),
               ),
 
@@ -73,35 +74,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(
-                        fontSize: 15,
-                        color: AppTheme.textSecondary),
+                    ?.copyWith(fontSize: 15, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 12),
 
               // Vehicle selector
               Row(
                 children: _vehicles.map((v) {
-                  final bool isSelected =
-                      _vehicleType == v['type'];
+                  final bool isSelected = _vehicleType == v['type'];
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
-                        onTap: () => setState(
-                            () => _vehicleType = v['type']),
+                        onTap: () => setState(() => _vehicleType = v['type']),
                         child: AnimatedContainer(
-                          duration:
-                              const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 18),
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.primary
-                                    .withValues(alpha: 0.15)
+                                ? AppTheme.primary.withValues(alpha: 0.15)
                                 : AppTheme.surfaceLight,
-                            borderRadius:
-                                BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
                                   ? AppTheme.primary
@@ -144,8 +137,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 16),
                 Text(
                   _error!,
-                  style: const TextStyle(
-                      color: AppTheme.danger, fontSize: 13),
+                  style: const TextStyle(color: AppTheme.danger, fontSize: 13),
                 ),
               ],
 
@@ -160,8 +152,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white),
+                              strokeWidth: 2, color: Colors.white),
                         )
                       : const Text('Start Delivering'),
                 ),
@@ -175,8 +166,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Future<void> _saveProfile() async {
+    debugPrint("BUTTON CLICKED");
+
     final name = _nameController.text.trim();
+
     if (name.isEmpty) {
+      debugPrint("NAME EMPTY");
       setState(() => _error = 'Please enter your name');
       return;
     }
@@ -187,19 +182,33 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     });
 
     try {
-      final phone =
-          _authService.currentUser?.phoneNumber ?? '';
+      final phone = _authService.currentUser?.phoneNumber ?? '';
+      debugPrint("Saving profile...");
+
       await _authService.ensureRiderProfile(
         name: name,
         phone: phone,
         vehicleType: _vehicleType,
       );
 
+      debugPrint("PROFILE SAVED");
+
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+
+      debugPrint("RELOADING PROVIDER...");
+
+
+      /// How does the provider changes the state and the navigation????
+      if (!mounted) return;
+      context.read<RiderProvider>().reload();
+
+      debugPrint("DONE");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } catch (e) {
-      setState(
-          () => _error = 'Failed to save profile. Try again.');
+      debugPrint("ERROR OCCURRED: $e");
+      setState(() => _error = 'Failed to save profile. Try again.');
     }
 
     if (mounted) setState(() => _isLoading = false);

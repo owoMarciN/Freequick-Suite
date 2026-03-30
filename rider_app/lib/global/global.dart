@@ -6,12 +6,12 @@
 // onboarding complete flag etc.).
 //
 // Usage in main.dart:
-//   riderPrefs = await SharedPreferences.getInstance();
+//   sharedPreferences = await SharedPreferences.getInstance();
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-SharedPreferences? riderPrefs;
+SharedPreferences? sharedPreferences;
 final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
 // UID always comes from FirebaseAuth — never stored locally
@@ -26,22 +26,22 @@ Future<void> saveRiderPref<T>(String key, T value) async {
   final String prefixedKey = '${currentRiderUID}_$key';
 
   if (value is String) {
-    await riderPrefs!.setString(prefixedKey, value);
+    await sharedPreferences!.setString(prefixedKey, value);
   } else if (value is int) {
-    await riderPrefs!.setInt(prefixedKey, value);
+    await sharedPreferences!.setInt(prefixedKey, value);
   } else if (value is bool) {
-    await riderPrefs!.setBool(prefixedKey, value);
+    await sharedPreferences!.setBool(prefixedKey, value);
   } else if (value is double) {
-    await riderPrefs!.setDouble(prefixedKey, value);
+    await sharedPreferences!.setDouble(prefixedKey, value);
   } else if (value is List<String>) {
-    await riderPrefs!.setStringList(prefixedKey, value);
+    await sharedPreferences!.setStringList(prefixedKey, value);
   }
 }
 
 T? getRiderPref<T>(String key) {
   if (currentRiderUID == null) return null;
   final String prefixedKey = '${currentRiderUID}_$key';
-  return riderPrefs!.get(prefixedKey) as T?;
+  return sharedPreferences!.get(prefixedKey) as T?;
 }
 
 //  Session clear

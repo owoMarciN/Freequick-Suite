@@ -148,12 +148,31 @@ class RiderProvider extends ChangeNotifier {
     notifyListeners();
 
     _riderSub?.cancel();
+
+    final doc =
+        await FirebaseFirestore.instance.collection('riders').doc(uid).get();
+
+    if (!doc.exists) {
+      _appState = RiderAppState.needsProfile;
+      notifyListeners();
+      return;
+    }
+
+    _rider = RiderModel.fromDoc(doc);
+    _isOnline = _rider!.isOnline;
+
+    if (_rider!.hasActiveOrder && _rider!.currentOrderID != null) {
+      _appState = RiderAppState.onJob;
+      _subscribeToOrder(_rider!.currentOrderID!);
+    } else {
+      _appState = RiderAppState.idle;
+      _subscribeToJobs(uid);
+    }
+
+    notifyListeners();
+
     _riderSub = _service.streamRider(uid).listen((snap) {
-      if (!snap.exists) {
-        _appState = RiderAppState.needsProfile;
-        notifyListeners();
-        return;
-      }
+      if (!snap.exists) return;
 
       _rider = RiderModel.fromDoc(snap);
       _isOnline = _rider!.isOnline;
@@ -173,9 +192,7 @@ class RiderProvider extends ChangeNotifier {
           _subscribeToJobs(uid);
         }
       }
-      notifyListeners();
-    }, onError: (e) {
-      _errorMessage = 'Stream Error: $e';
+
       notifyListeners();
     });
   }
@@ -261,6 +278,27 @@ class RiderProvider extends ChangeNotifier {
       _errorMessage = 'Failed to update order: $e';
     }
     _setLoading(false);
+  }
+
+  Future<void> reloadToHome() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    _appState = RiderAppState.loading;
+    notifyListeners(); // forces UI to show splash
+
+    // load the rider document once
+    final doc = await FirebaseFirestore.instance.collection('riders').doc(uid).get();
+    if (!doc.exists) {
+      _appState = RiderAppState.needsProfile;
+    } else {
+      _rider = RiderModel.fromDoc(doc);
+      _isOnline = _rider!.isOnline;
+      _appState = RiderAppState.idle;
+      _subscribeToJobs(uid); // optional, start job listener
+    }
+
+    notifyListeners(); // forces UI rebuild immediately
   }
 
   Future<void> reload() async {

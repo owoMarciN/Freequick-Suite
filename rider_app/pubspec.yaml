@@ -14,6 +14,8 @@ dependencies:
   shared_assets:
     path: ../shared_assets
 
+  flutter_localizations:
+    sdk: flutter
   # Firebase
   firebase_core: ^4.6.0
   firebase_auth: ^6.3.0
@@ -45,6 +47,7 @@ dependencies:
   phone_form_field: ^10.0.17
   country_flags: ^4.1.2
   auto_translator: ^2.3.5
+  easy_localization: ^3.0.1
 
 dev_dependencies:
   flutter_test:

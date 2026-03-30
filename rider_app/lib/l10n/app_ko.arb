@@ -2,5 +2,16 @@
     "@@locale": "ko",
     "time_just_now": "방금",
     "time_minutes": "{n}m 전",
-    "time_hours": "{n}시간 전"
+    "time_hours": "{n}시간 전",
+    "ok": "좋아요",
+    "password_does_not_meet_requirements": "비밀번호가 요구 사항을 충족하지 않습니다.",
+    "password_is_required": "비밀번호가 필요합니다",
+    "snackbar_dismiss": "해고하다",
+    "field_error_required": "이 항목은 필수 입력 사항입니다.",
+    "field_error_invalid_format": "잘못된 형식입니다",
+    "field_email_message": "유효한 이메일 주소를 입력하세요",
+    "field_nip_message": "NIP는 정확히 10자리 숫자여야 합니다.",
+    "field_regon_message": "REGON은 9자리 또는 14자리 숫자여야 합니다.",
+    "field_postal_code_message": "유효한 우편번호(XX-XXX)를 입력하세요.",
+    "field_hint_prefix": "입력하다 "
 }

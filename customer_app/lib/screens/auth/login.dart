@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
-import 'package:user_app/authentication/auth_screen.dart';
+import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/screens/main_screen.dart';
 

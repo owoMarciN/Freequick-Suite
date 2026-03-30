@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:user_app/authentication/auth_screen.dart';
+import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/screens/profile_settings_screen.dart';
 import 'package:user_app/screens/orders_screen.dart';

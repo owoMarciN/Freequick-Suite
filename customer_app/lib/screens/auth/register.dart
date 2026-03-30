@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-import 'package:user_app/screens/otp_screen.dart';
+import 'package:user_app/screens/auth/otp_screen.dart';
 import 'package:user_app/services/image_picker_service.dart';
 
 import 'package:phone_form_field/phone_form_field.dart';

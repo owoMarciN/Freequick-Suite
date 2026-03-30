@@ -571,7 +571,7 @@ export const onDispatchJobAccepted = fsEvents.onDocumentUpdated(
  
     const orderUpdate = {
       status:    "In Progress",
-      riderUID: riderUID,
+      riderUID:  riderUID,
       updatedAt: FieldValue.serverTimestamp(),
     };
  
