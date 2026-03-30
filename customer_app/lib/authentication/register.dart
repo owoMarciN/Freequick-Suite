@@ -1,16 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firestorage;
-
-import 'package:provider/provider.dart';
-import 'package:user_app/providers/cart_provider.dart';
-
-import 'package:user_app/global/global.dart';
+import 'package:user_app/screens/otp_screen.dart';
 import 'package:user_app/services/image_picker_service.dart';
-import 'package:user_app/screens/home_screen.dart';
 
 import 'package:phone_form_field/phone_form_field.dart';
 
@@ -40,7 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   late final PhoneController _phoneController;
 
   File? _croppedImage;
-  String downloadUrl = "";
 
   @override
   void initState() {
@@ -50,12 +41,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmePasswordController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   Future<void> _getImage() async {
     final file = await ImagePickerService.pickAndCrop(context);
     if (file != null) setState(() => _croppedImage = file);
   }
 
-  Future<void> formValidation() async {
+  // -- Validation -------------------------------------------------------------
+  Future<void> _submit() async {
     if (_croppedImage == null) {
       showDialog(
           context: context,
@@ -77,96 +79,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) =>
-              LoadingDialog(message: context.l10n.registeringAccount));
-
-      try {
-        UserCredential auth = await firebaseAuth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
-
-        User? currentUser = auth.user;
-
-        if (currentUser != null) {
-          firestorage.Reference reference = firestorage.FirebaseStorage.instance
-              .ref()
-              .child('users')
-              .child(currentUser.uid);
-
-          firestorage.UploadTask uploadTask = reference.putFile(_croppedImage!);
-          firestorage.TaskSnapshot taskSnapshot = await uploadTask;
-
-          downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-          await saveDataToFireStore(currentUser);
-
-          if (!mounted) return;
-          Navigator.pop(context);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-        }
-      } catch (error) {
-        if (!mounted) return;
-        Navigator.pop(context);
-        showDialog(
-          context: context,
-          builder: (_) =>
-              ErrorDialog(message: context.l10n.storageError(error)),
-        );
-      }
-    } else {
-      showDialog(
-          context: context,
-          builder: (_) => ErrorDialog(message: context.l10n.errorEnterRegInfo));
+        context: context,
+        barrierDismissible: false,
+        builder: (_) =>
+          LoadingDialog(message: context.l10n.registeringAccount)
+      );
+      return;
     }
-  }
 
-  Future<void> saveDataToFireStore(User currentUser) async {
-    DocumentReference userRef =
-        FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
-    await userRef.set({
-      "userID": currentUser.uid,
-      "name": _nameController.text.trim(),
-      "email": currentUser.email,
-      "phone": _phoneController.value.international,
-      "photoUrl": downloadUrl.trim(),
-      "createdAt": DateTime.now(),
-      "role": 'customer',
-      "status": "approved",
-    });
-
-    if (!mounted) return;
-
-    await userRef.collection('notifications').add({
-      "userID": currentUser.uid,
-      "title": context.l10n.welcomeNotifTitle,
-      "body": context.l10n.welcomeNotifBody(_nameController.text.trim()),
-      "createdAt": DateTime.now(),
-      "isRead": false,
-    });
-
-    await sharedPreferences!.setString("uid", currentUser.uid);
-
-    if (!mounted) return;
-    Provider.of<CartProvider>(context, listen:false).count;
-
-    await saveUserPref<String>("email", currentUser.email.toString());
-    await saveUserPref<String>("name", _nameController.text.trim());
-    await saveUserPref<String>("photoUrl", downloadUrl.trim());
-    await saveUserPref<String>("phone", _phoneController.value.international);
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmePasswordController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+    // Pass everything to OtpScreen.
+    // OtpScreen will:
+    //   1. Send OTP to the phone number
+    //   2. Verify the code
+    //   3. Create the email/password account
+    //   4. Link the phone credential to it
+    //   5. Upload the photo
+    //   6. Save to Firestore + SharedPreferences
+    //   7. Navigate to MainScreen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OtpScreen(
+          args: OtpScreenArgs(
+            name:     _nameController.text.trim(),
+            email:    _emailController.text.trim(),
+            password: _passwordController.text,
+            phone:    _phoneController.value.international,
+            photo:    _croppedImage!,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -263,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 10),
                 AuthButton(
                   label: context.l10n.signUp,
-                  onPressed: () async => await formValidation(),
+                  onPressed: () async => await _submit(),
                 ),
                 const SizedBox(height: 30),
               ],

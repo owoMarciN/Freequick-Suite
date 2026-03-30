@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:user_app/extensions/context_translate_ext.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/providers/cart_provider.dart';
-import 'package:user_app/screens/home_screen.dart';
+import 'package:user_app/screens/main_screen.dart';
 import 'package:user_app/widgets/error_dialog.dart';
 import 'package:user_app/widgets/loading_dialog.dart';
 
@@ -61,8 +61,6 @@ class _OtpScreenState extends State<OtpScreen> {
   int _secondsLeft = _resendSeconds;
   Timer? _timer;
 
-  // -- Lifecycle --------------------------------------------------------------
-
   @override
   void initState() {
     super.initState();
@@ -84,7 +82,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // -- OTP sending ------------------------------------------------------------
-
   Future<void> _sendOtp({bool resend = false}) async {
     setState(() {
       _errorMsg = null;
@@ -136,7 +133,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // -- Verify pressed ---------------------------------------------------------
-
   Future<void> _verify() async {
     final code = _controllers.map((c) => c.text.trim()).join();
     if (code.length < _codeLength) {
@@ -157,7 +153,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // -- Account creation -------------------------------------------------------
-
   Future<void> _createAccount(PhoneAuthCredential phoneCredential) async {
     if (!mounted) return;
 
@@ -217,20 +212,20 @@ class _OtpScreenState extends State<OtpScreen> {
 
       // 5. Save locally
       await sharedPreferences!.setString('uid', user.uid);
-      
+
       if (!mounted) return;
       Provider.of<CartProvider>(context, listen: false).count;
-      
+
       await saveUserPref<String>('email', user.email.toString());
       await saveUserPref<String>('name', widget.args.name.trim());
       await saveUserPref<String>('photoUrl', photoUrl.trim());
       await saveUserPref<String>('phone', widget.args.phone);
 
       if (!mounted) return;
-      Navigator.pop(context); // dismiss loading
+      Navigator.pop(context);
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainScreen()),
         (_) => false,
       );
     } on FirebaseAuthException catch (e) {
@@ -253,7 +248,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // -- Helpers ----------------------------------------------------------------
-
   void _onDigitChanged(String value, int index) {
     if (value.length == 1 && index < _codeLength - 1) {
       _focusNodes[index + 1].requestFocus();
@@ -446,8 +440,7 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 }
 
-// -- OTP single box ------------------------------------------------------------
-
+// -- OTP single box -----------------------------------------------------------
 class _OtpBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;

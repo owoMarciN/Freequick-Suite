@@ -69,7 +69,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   )),
             ],
             indicatorColor: Colors.white38,
-            indicatorWeight: 6,
+            indicatorWeight: 12,
           ),
         ),
         body: Container(

@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/authentication/auth_screen.dart';
-import 'package:user_app/screens/home_screen.dart';
 import 'package:user_app/global/global.dart';
+import 'package:user_app/screens/main_screen.dart';
 
 import 'package:user_app/widgets/auth_button.dart';
 import 'package:user_app/widgets/error_dialog.dart';
@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } on FirebaseException catch (e) {
       if (!mounted) return;
