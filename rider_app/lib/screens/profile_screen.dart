@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rider_app/models/rider_model.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:rider_app/utils/app_theme.dart';
@@ -25,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
       body: Consumer2<RiderProvider, RiderStatsProvider>(
         builder: (context, provider, stats, _) {
           final rider = provider.rider;
-          if (rider == null) {
+          if (rider == null || stats.isLoading) {
             return const Center(
               child: CircularProgressIndicator(color: AppTheme.primary),
             );
@@ -51,6 +52,9 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _confirmSignOut(BuildContext context) {
+
+    final riderProvider = Provider.of<RiderProvider>(context, listen: false);
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -71,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              Provider.of<RiderProvider>(context, listen: false).signOut();
+              riderProvider.signOut();
             },
             style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

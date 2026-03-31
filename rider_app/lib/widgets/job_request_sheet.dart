@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:rider_app/providers/rider_provider.dart';
-import '../utils/app_theme.dart';
+import 'package:rider_app/models/dispatch_model.dart';
+import 'package:rider_app/utils/app_theme.dart';
 
 class JobRequestSheet extends StatefulWidget {
   final DispatchJob job;
@@ -14,7 +14,7 @@ class JobRequestSheet extends StatefulWidget {
     required this.job,
     required this.onAccept,
     required this.onReject,
-    this.timeoutSeconds = 30,
+    this.timeoutSeconds = 60,
   });
 
   @override

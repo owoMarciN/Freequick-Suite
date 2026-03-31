@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/screens/home_screen.dart';
+import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/services/auth_service.dart';
 import 'package:rider_app/utils/app_theme.dart';
 
@@ -197,14 +197,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       debugPrint("RELOADING PROVIDER...");
 
-
-      /// How does the provider changes the state and the navigation????
       if (!mounted) return;
-      context.read<RiderProvider>().reload();
+      context.read<RiderProvider>().init();
 
       debugPrint("DONE");
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } catch (e) {
       debugPrint("ERROR OCCURRED: $e");

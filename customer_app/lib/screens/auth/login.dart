@@ -76,17 +76,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> readDataAndSetDataLocally(User currentUser) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.getIdToken(true);
+      }
+
       final docRef =
           FirebaseFirestore.instance.collection("users").doc(currentUser.uid);
 
       final snapshot =
           await docRef.get(const GetOptions(source: Source.serverAndCache));
 
-      if (!mounted) return;
-      Navigator.pop(context);
-
       if (!snapshot.exists) {
         firebaseAuth.signOut();
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const AuthScreen()),
@@ -107,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       await sharedPreferences!.setString("uid", currentUser.uid);
-      
+
       if (!mounted) return;
       Provider.of<CartProvider>(context, listen: false).count;
 
@@ -122,11 +125,16 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } on FirebaseException catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context);
+      if (e.code == 'permission-denied') {
+        ErrorDialog(message: "Syncing security permissions... please wait.");
 
+        await Future.delayed(const Duration(seconds: 1));
+        await readDataAndSetDataLocally(currentUser);
+      }
+
+      if (!mounted) return;
       if (e.code == 'unavailable') {
-        unifiedSnackBar(context.l10n.networkUnavailable, error: true);
+        ErrorDialog(message: context.l10n.networkUnavailable);
       } else {
         showDialog(
           context: context,
@@ -163,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.bottomCenter,
                     padding: const EdgeInsets.all(15),
                     child: Image.asset(
-                      'images/login.png', 
+                      'images/login.png',
                       package: 'shared_assets',
                       height: 270,
                     ),
