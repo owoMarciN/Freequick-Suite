@@ -62,7 +62,7 @@ Future<void> addItemToCart(String? itemID, String? menuID, String? restaurantID,
     saveUserPref<List<String>>("userCart", tempCartList);
 
     unifiedSnackBar("Item Added Successfully.");
-
+    
     Provider.of<CartProvider>(context, listen: false).loadCart();
   });
 }

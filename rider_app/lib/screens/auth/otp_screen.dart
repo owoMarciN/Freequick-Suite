@@ -141,7 +141,9 @@ class _OtpScreenState extends State<OtpScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       // Clear boxes on wrong code
-      for (final c in _controllers) c.clear();
+      for (final c in _controllers) {
+        c.clear();
+      }
       _focusNodes.first.requestFocus();
       setState(() {
         _isVerifying = false;

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/screens/profile_screen.dart';
 import 'package:rider_app/utils/app_theme.dart';
 import 'package:rider_app/widgets/job_request_sheet.dart';
 
@@ -139,12 +138,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      actions: [
-        IconButton(
-            icon: const Icon(Icons.person_outline, color: AppTheme.textPrimary),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => ProfileScreen()))),
-      ],
     );
   }
 }

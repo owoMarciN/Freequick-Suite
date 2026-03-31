@@ -4,106 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rider_app/services/auth_service.dart';
 import 'package:rider_app/services/rider_service.dart';
-import 'package:rider_app/models/delivery_model.dart';
+import 'package:rider_app/models/dispatch_model.dart';
+import 'package:rider_app/models/rider_model.dart';
 
-class RiderModel {
-  final String uid;
-  final String name;
-  final String phone;
-  final String photoUrl;
-  final String vehicleType;
-  final bool isOnline;
-  final bool hasActiveOrder;
-  final String? currentOrderID;
-  final int totalDeliveries;
-  final double totalEarnings;
-  final double rating;
 
-  const RiderModel({
-    required this.uid,
-    required this.name,
-    this.phone = '',
-    this.photoUrl = '',
-    this.vehicleType = 'SCOOTER',
-    this.isOnline = false,
-    this.hasActiveOrder = false,
-    this.currentOrderID,
-    this.totalDeliveries = 0,
-    this.totalEarnings = 0,
-    this.rating = 5.0,
-  });
-
-  factory RiderModel.fromDoc(DocumentSnapshot doc) {
-    final d = doc.data() as Map<String, dynamic>? ?? {};
-    return RiderModel(
-      uid: doc.id,
-      name: d['name'] as String? ?? 'Rider',
-      phone: d['phone'] as String? ?? '',
-      photoUrl: d['photoUrl'] as String? ?? '',
-      vehicleType: d['vehicleType'] as String? ?? 'SCOOTER',
-      isOnline: d['isOnline'] as bool? ?? false,
-      hasActiveOrder: d['hasActiveOrder'] as bool? ?? false,
-      currentOrderID: d['currentOrderID'] as String?,
-      totalDeliveries: (d['totalDeliveries'] as num?)?.toInt() ?? 0,
-      totalEarnings: (d['totalEarnings'] as num?)?.toDouble() ?? 0,
-      rating: (d['rating'] as num?)?.toDouble() ?? 5.0,
-    );
-  }
-}
-
-class DispatchJob {
-  final String id;
-  final String orderID;
-  final String restaurantName;
-  final String restaurantAddress;
-  final String? customerName;
-  final String? customerAddress;
-  final double totalAmount;
-  final double deliveryFee;
-  final String orderType;
-  final String paymentMethod;
-  final List<OrderItem> items;
-  final bool collectPayment;
-
-  const DispatchJob({
-    required this.id,
-    required this.orderID,
-    this.restaurantName = '',
-    this.restaurantAddress = '',
-    this.customerName,
-    this.customerAddress,
-    this.totalAmount = 0,
-    this.deliveryFee = 0,
-    this.orderType = 'delivery',
-    this.paymentMethod = 'cash',
-    this.items = const [],
-    this.collectPayment = false,
-  });
-
-  factory DispatchJob.fromDoc(DocumentSnapshot doc) {
-    final d = doc.data() as Map<String, dynamic>? ?? {};
-    return DispatchJob(
-      id: doc.id,
-      orderID: d['orderID'] as String? ?? '',
-      restaurantName: d['restaurantName'] as String? ?? '',
-      restaurantAddress: d['restaurantAddress'] as String? ?? '',
-      customerName: d['customerName'] as String?,
-      customerAddress: d['customerAddress'] as String?,
-      totalAmount: (d['totalAmount'] as num?)?.toDouble() ?? 0,
-      deliveryFee: (d['deliveryFee'] as num?)?.toDouble() ?? 0,
-      orderType: d['orderType'] as String? ?? 'delivery',
-      paymentMethod: d['paymentMethod'] as String? ?? 'cash',
-      collectPayment: d['collectPayment'] as bool? ?? false,
-      items: (d['items'] as List<dynamic>? ?? [])
-          .map((e) => OrderItem.fromMap((e as Map).cast<String, dynamic>()))
-          .toList(),
-    );
-  }
-
-  String get storeName => restaurantName;
-  String? get storeAddress =>
-      restaurantAddress.isEmpty ? null : restaurantAddress;
-}
 
 enum RiderAppState { loading, unauthenticated, needsProfile, idle, onJob }
 
@@ -149,52 +53,68 @@ class RiderProvider extends ChangeNotifier {
 
     _riderSub?.cancel();
 
-    final doc =
-        await FirebaseFirestore.instance.collection('riders').doc(uid).get();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.getIdToken(true);
+      }
+  
+      final doc = await FirebaseFirestore.instance.collection('riders').doc(uid).get();
 
-    if (!doc.exists) {
-      _appState = RiderAppState.needsProfile;
-      notifyListeners();
-      return;
-    }
+      if (!doc.exists) {
+        _appState = RiderAppState.needsProfile;
+        notifyListeners();
+        return;
+      }
 
-    _rider = RiderModel.fromDoc(doc);
-    _isOnline = _rider!.isOnline;
-
-    if (_rider!.hasActiveOrder && _rider!.currentOrderID != null) {
-      _appState = RiderAppState.onJob;
-      _subscribeToOrder(_rider!.currentOrderID!);
-    } else {
-      _appState = RiderAppState.idle;
-      _subscribeToJobs(uid);
-    }
-
-    notifyListeners();
-
-    _riderSub = _service.streamRider(uid).listen((snap) {
-      if (!snap.exists) return;
-
-      _rider = RiderModel.fromDoc(snap);
+      _rider = RiderModel.fromDoc(doc);
       _isOnline = _rider!.isOnline;
 
       if (_rider!.hasActiveOrder && _rider!.currentOrderID != null) {
-        if (_appState != RiderAppState.onJob) {
-          _appState = RiderAppState.onJob;
-          _subscribeToOrder(_rider!.currentOrderID!);
-          _jobsSub?.cancel();
-          _pendingJob = null;
-        }
+        _appState = RiderAppState.onJob;
+        _subscribeToOrder(_rider!.currentOrderID!);
       } else {
-        if (_appState != RiderAppState.idle) {
-          _appState = RiderAppState.idle;
-          _activeOrder = null;
-          _orderSub?.cancel();
-          _subscribeToJobs(uid);
-        }
+        _appState = RiderAppState.idle;
+        _subscribeToJobs(uid);
       }
 
       notifyListeners();
-    });
+
+      _riderSub = _service.streamRider(uid).listen((snap) {
+        if (!snap.exists) return;
+
+        _rider = RiderModel.fromDoc(snap);
+        _isOnline = _rider!.isOnline;
+
+        if (_rider!.hasActiveOrder && _rider!.currentOrderID != null) {
+          if (_appState != RiderAppState.onJob) {
+            _appState = RiderAppState.onJob;
+            _subscribeToOrder(_rider!.currentOrderID!);
+            _jobsSub?.cancel();
+            _pendingJob = null;
+          }
+        } else {
+          if (_appState != RiderAppState.idle) {
+            _appState = RiderAppState.idle;
+            _activeOrder = null;
+            _orderSub?.cancel();
+            _subscribeToJobs(uid);
+          }
+        }
+
+        notifyListeners();
+      });
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        _errorMessage = "Syncing security permissions... please wait.";
+        notifyListeners();
+        // Retry once after a short delay
+        await Future.delayed(const Duration(seconds: 1));
+        return _setupRiderStream(uid); 
+      }
+      _errorMessage = "Firestore Error: ${e.message}";
+      notifyListeners();
+    }
   }
 
   void _subscribeToJobs(String riderUID) {
