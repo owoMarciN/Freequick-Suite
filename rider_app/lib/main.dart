@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/extensions/brand_color_ext.dart';
 import 'package:rider_app/l10n/app_localizations.dart';
-import 'package:rider_app/models/language.dart';
+import 'package:rider_app/models/language_model.dart';
 import 'package:rider_app/providers/locale_provider.dart';
 import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/utils/app_constants.dart';

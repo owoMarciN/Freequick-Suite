@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rider_app/screens/home_screen.dart';
 import 'package:rider_app/screens/auth/profile_setup_screen.dart';
+import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/utils/app_theme.dart';
 
 class OtpScreenArgs {
@@ -42,7 +42,6 @@ class _OtpScreenState extends State<OtpScreen> {
   bool _isVerifying = false;
   String? _error;
 
-  //  Resend countdown
   static const int _resendCooldown = 60;
   int _secondsLeft = _resendCooldown;
   Timer? _countdownTimer;
@@ -56,16 +55,10 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void dispose() {
     _countdownTimer?.cancel();
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final f in _focusNodes) {
-      f.dispose();
-    }
+    for (final c in _controllers) { c.dispose(); }
+    for (final f in _focusNodes) { f.dispose(); }
     super.dispose();
   }
-
-  //  OTP sending
 
   Future<void> _sendOtp({bool forceResend = false}) async {
     setState(() {
@@ -78,14 +71,13 @@ class _OtpScreenState extends State<OtpScreen> {
       forceResendingToken: forceResend ? _resendToken : null,
       timeout: const Duration(seconds: 60),
       verificationCompleted: (credential) async {
-        // Auto-verified on Android
         await _verifyWithCredential(credential);
       },
       verificationFailed: (e) {
         if (!mounted) return;
         setState(() {
           _isSending = false;
-          _error = e.message ?? 'Failed to send OTP. Check your number.';
+          _error = e.message ?? 'Failed to send OTP.';
         });
       },
       codeSent: (verificationId, resendToken) {
@@ -98,7 +90,6 @@ class _OtpScreenState extends State<OtpScreen> {
         _startCountdown();
       },
       codeAutoRetrievalTimeout: (verificationId) {
-        if (!mounted) return;
         _verificationId = verificationId;
       },
     );
@@ -121,8 +112,6 @@ class _OtpScreenState extends State<OtpScreen> {
     });
   }
 
-  //  OTP verification
-
   Future<void> _verify() async {
     final code = _controllers.map((c) => c.text).join();
     if (code.length < 6 || _verificationId == null) return;
@@ -139,12 +128,9 @@ class _OtpScreenState extends State<OtpScreen> {
       );
       await _verifyWithCredential(credential);
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      // Clear boxes on wrong code
-      for (final c in _controllers) {
-        c.clear();
-      }
+      for (final c in _controllers) { c.clear(); }
       _focusNodes.first.requestFocus();
+      if (!mounted) return;
       setState(() {
         _isVerifying = false;
         _error = switch (e.code) {
@@ -158,7 +144,21 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   Future<void> _verifyWithCredential(AuthCredential credential) async {
-    await _auth.signInWithCredential(credential);
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Email user not signed in');
+
+    try {
+      await user.linkWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'provider-already-linked') {
+        // Phone already linked, ignore
+      } else if (e.code == 'credential-already-in-use') {
+        // Phone used by another user, sign in with phone
+        await _auth.signInWithCredential(credential);
+      } else {
+        rethrow;
+      }
+    }
 
     if (!mounted) return;
 
@@ -168,23 +168,19 @@ class _OtpScreenState extends State<OtpScreen> {
     if (!mounted) return;
 
     if (riderDoc.exists) {
-      // Existing rider — go straight to home
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (_) => false,
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+        (route) => false,
       );
     } else {
-      // New rider — collect name and vehicle type
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const ProfileSetupScreen()),
-        (_) => false,
+        (route) => false,
       );
     }
   }
-
-  //  Build
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +207,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //  Header
                       Text(
                         'Verify\nYour Number',
                         style: Theme.of(context)
@@ -230,16 +225,11 @@ class _OtpScreenState extends State<OtpScreen> {
                             color: AppTheme.textSecondary,
                             height: 1.5),
                       ),
-
                       const SizedBox(height: 40),
-
-                      //  OTP boxes
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(6, (i) => _buildBox(i)),
                       ),
-
-                      //  Error
                       if (_error != null) ...[
                         const SizedBox(height: 16),
                         Container(
@@ -266,10 +256,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           ),
                         ),
                       ],
-
                       const SizedBox(height: 32),
-
-                      //  Verify button
                       SizedBox(
                         width: double.infinity,
                         height: 54,
@@ -290,10 +277,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
-                      //  Resend
                       Center(
                         child: _secondsLeft > 0
                             ? Text(
@@ -351,16 +335,12 @@ class _OtpScreenState extends State<OtpScreen> {
           ),
         ),
         onChanged: (v) {
-          // Clear error when user starts typing
           if (_error != null) setState(() => _error = null);
-
           if (v.isNotEmpty && i < 5) {
             _focusNodes[i + 1].requestFocus();
           } else if (v.isEmpty && i > 0) {
             _focusNodes[i - 1].requestFocus();
           }
-
-          // Auto-verify when all 6 digits entered
           final code = _controllers.map((c) => c.text).join();
           if (code.length == 6) _verify();
         },

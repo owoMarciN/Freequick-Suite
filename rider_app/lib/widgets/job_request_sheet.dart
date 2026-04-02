@@ -5,8 +5,8 @@ import 'package:rider_app/utils/app_theme.dart';
 
 class JobRequestSheet extends StatefulWidget {
   final DispatchJob job;
-  final VoidCallback onAccept;
-  final VoidCallback onReject;
+  final Future<void> Function() onAccept;
+  final Future<void> Function() onReject;
   final int timeoutSeconds;
 
   const JobRequestSheet({
@@ -14,7 +14,7 @@ class JobRequestSheet extends StatefulWidget {
     required this.job,
     required this.onAccept,
     required this.onReject,
-    this.timeoutSeconds = 60,
+    this.timeoutSeconds = 6000,
   });
 
   @override
@@ -27,11 +27,13 @@ class _JobRequestSheetState extends State<JobRequestSheet>
   Timer? _timer;
   late AnimationController _pulse;
   bool _showItems = false;
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
     _secondsLeft = widget.timeoutSeconds;
+
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -52,6 +54,39 @@ class _JobRequestSheetState extends State<JobRequestSheet>
     _timer?.cancel();
     _pulse.dispose();
     super.dispose();
+  }
+
+  Future<void> _safeAccept() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      await widget.onAccept();
+    } catch (e) {
+      debugPrint('ACCEPT ERROR: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Aplication Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  Future<void> _safeReject() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    try {
+      await widget.onReject();
+    } catch (e) {
+      debugPrint('REJECT ERROR: $e');
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
   @override
@@ -79,24 +114,11 @@ class _JobRequestSheetState extends State<JobRequestSheet>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Pasek postępu czasu
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 5,
-              backgroundColor: AppTheme.divider,
-              valueColor: AlwaysStoppedAnimation(
-                isLowTime ? AppTheme.danger : AppTheme.primary,
-              ),
-            ),
-          ),
 
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
               children: [
-                // Nagłówek i Zarobki
                 Row(
                   children: [
                     AnimatedBuilder(
@@ -118,15 +140,15 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Nowe zlecenie',
+                          const Text('New Job',
                               style: TextStyle(
                                   color: AppTheme.textPrimary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16)),
                           Text(
                             isLowTime
-                                ? 'Autoodrzucenie za $_secondsLeft s'
-                                : 'Wygasa za $_secondsLeft s',
+                                ? 'Autorejecting in $_secondsLeft s'
+                                : 'Expires in $_secondsLeft s',
                             style: TextStyle(
                               color: isLowTime ? AppTheme.danger : AppTheme.textSecondary,
                               fontSize: 12,
@@ -135,7 +157,8 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         ],
                       ),
                     ),
-                    // Badge z zarobkiem kuriera
+
+                    // Badge with payment
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
@@ -144,7 +167,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4)),
                       ),
                       child: Text(
-                        'zł ${(job.deliveryFee).toStringAsFixed(2)}', // Używamy deliveryFee jako zarobek
+                        'zł ${(job.deliveryFee).toStringAsFixed(2)}',
                         style: const TextStyle(
                           color: AppTheme.primary,
                           fontWeight: FontWeight.w900,
@@ -157,7 +180,21 @@ class _JobRequestSheetState extends State<JobRequestSheet>
 
                 const SizedBox(height: 16),
 
-                // Trasa (Restauracja -> Klient)
+                // Timer
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 5,
+                    backgroundColor: AppTheme.divider,
+                    valueColor: AlwaysStoppedAnimation(
+                      isLowTime ? AppTheme.danger : AppTheme.primary,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -169,16 +206,16 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       _RouteRow(
                         icon: Icons.store_rounded,
                         iconColor: AppTheme.info,
-                        label: 'Odbiór',
-                        value: job.storeName,
-                        sub: job.storeAddress,
+                        label: 'Pickup from',
+                        value: job.restaurantName,
+                        sub: job.restaurantAddress,
                       ),
                       const SizedBox(height: 8),
                       _RouteRow(
                         icon: Icons.location_on_rounded,
                         iconColor: AppTheme.danger,
-                        label: 'Dostawa',
-                        value: job.customerName ?? 'Klient',
+                        label: 'Ship to',
+                        value: job.customerName ?? 'Customer',
                         sub: job.customerAddress,
                       ),
                     ],
@@ -193,14 +230,14 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                     _StatChip(
                       icon: Icons.payments_outlined,
                       label: _isCash(job.paymentMethod)
-                          ? 'Gotówka · zł${job.totalAmount.toStringAsFixed(2)}'
-                          : 'Zapłacone (Stripe)',
+                          ? 'Cash · zł${job.finalTotal.toStringAsFixed(2)}'
+                          : 'Payed (Stripe)',
                       color: _isCash(job.paymentMethod) ? AppTheme.warning : AppTheme.primary,
                     ),
                     const SizedBox(width: 8),
                     _StatChip(
                       icon: Icons.receipt_long_outlined,
-                      label: '${job.items.length} produkty',
+                      label: '${job.items.length} products',
                       color: AppTheme.info,
                     ),
                   ],
@@ -208,7 +245,6 @@ class _JobRequestSheetState extends State<JobRequestSheet>
 
                 const SizedBox(height: 12),
 
-                // Ostrzeżenie o pobraniu gotówki
                 if (job.collectPayment || _isCash(job.paymentMethod)) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -222,7 +258,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Pobierz zł${job.totalAmount.toStringAsFixed(2)} od klienta przy dostawie',
+                          'Get zł${job.finalTotal.toStringAsFixed(2)} of payment',
                           style: const TextStyle(
                               color: AppTheme.warning,
                               fontWeight: FontWeight.bold,
@@ -244,26 +280,26 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: widget.onReject,
+                        onPressed: _safeReject,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.danger,
                           side: const BorderSide(color: AppTheme.danger),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Odrzuć'),
+                        child: const Text('Reject'),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       flex: 2,
                       child: ElevatedButton(
-                        onPressed: widget.onAccept,
+                        onPressed: _safeAccept,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Akceptuj'),
+                        child: const Text('Accept'),
                       ),
                     ),
                   ],
@@ -291,7 +327,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
               children: [
                 const Icon(Icons.fastfood_outlined, color: AppTheme.textSecondary, size: 16),
                 const SizedBox(width: 8),
-                Text(_showItems ? 'Ukryj produkty' : 'Pokaż produkty',
+                Text(_showItems ? 'Hide products' : 'Show products',
                     style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
                 const Spacer(),
                 Icon(_showItems ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
@@ -316,7 +352,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                     Text('${item.quantity}x', style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(width: 8),
                     Expanded(child: Text(item.name)),
-                    Text('zł ${(item.price * item.quantity).toStringAsFixed(2)}'),
+                    Text('zł ${(item.price).toStringAsFixed(2)}'),
                   ],
                 ),
               )).toList(),
@@ -347,9 +383,9 @@ class _RouteRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: iconColor, size: 20),
+        Icon(icon, color: iconColor, size: 24),
         const SizedBox(width: 10),
         Expanded(
           child: Column(

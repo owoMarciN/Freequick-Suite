@@ -1,9 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
+import 'package:rider_app/providers/rider_stats_provider.dart'; // Ensure this is imported
+import 'package:rider_app/test/test_function_sheet.dart';
 import 'package:rider_app/utils/app_theme.dart';
 import 'package:rider_app/widgets/job_request_sheet.dart';
+import 'package:rider_app/widgets/rider_stats_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,15 +21,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: Consumer<RiderProvider>(
-        builder: (context, provider, _) {
-          final job = provider.pendingJob;
+      // Using MultiProvider local to this builder to access both providers easily
+      body: Consumer2<RiderProvider, RiderStatsProvider>(
+        builder: (context, riderProvider, statsProvider, _) {
+          final job = riderProvider.pendingJob;
 
+          // Logic for showing job requests
           if (job != null && job.id != _lastJobId) {
             _lastJobId = job.id;
-
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showJobRequest(context, provider);
+              _showJobRequest(context, riderProvider);
             });
           }
 
@@ -37,17 +40,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return CustomScrollView(
             slivers: [
-              _buildAppBar(context, provider),
+              _buildAppBar(context, riderProvider),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     const SizedBox(height: 8),
-                    _StatusToggle(provider: provider),
+                    _StatusToggle(provider: riderProvider),
                     const SizedBox(height: 24),
-                    _EarningsCard(provider: provider),
+                    
+                    // Test Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => const TestFunctionsSheet(),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text("Test Cloud Functions", 
+                          style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                    
                     const SizedBox(height: 24),
-                    _StatsRow(provider: provider),
+                    // Using shared EarningsCard
+                    EarningsCard(provider: riderProvider),
+                    
+                    const SizedBox(height: 24),
+                    // Updated Stats Row passing the stats provider
+                    _StatsRow(provider: riderProvider, stats: statsProvider),
+                    
                     const SizedBox(height: 24),
                     _RecentActivity(),
                   ]),
@@ -69,13 +99,17 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => JobRequestSheet(
         job: provider.pendingJob!,
-        onAccept: () {
+        onAccept: () async {
+          final jobId = provider.pendingJob?.id;
+          if (jobId == null) return;
           Navigator.pop(context);
-          provider.acceptJob(provider.pendingJob!.id);
+          await provider.acceptJob(jobId);
         },
-        onReject: () {
+        onReject: () async {
+          final jobId = provider.pendingJob?.id;
+          if (jobId == null) return;
           Navigator.pop(context);
-          provider.rejectJob(provider.pendingJob!.id);
+          await provider.rejectJob(jobId);
         },
       ),
     );
@@ -95,8 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppTheme.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.delivery_dining,
-                color: AppTheme.primary, size: 20),
+            child: const Icon(Icons.delivery_dining, color: AppTheme.primary, size: 20),
           ),
           const SizedBox(width: 10),
           Column(
@@ -116,9 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: provider.isOnline
-                          ? AppTheme.primary
-                          : AppTheme.textSecondary,
+                      color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -126,9 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     provider.isOnline ? 'Online' : 'Offline',
                     style: TextStyle(
-                      color: provider.isOnline
-                          ? AppTheme.primary
-                          : AppTheme.textSecondary,
+                      color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
                       fontSize: 11,
                     ),
                   ),
@@ -151,14 +180,10 @@ class _StatusToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: provider.isOnline
-            ? AppTheme.primary.withValues(alpha: 0.1)
-            : AppTheme.cardBg,
+        color: provider.isOnline ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: provider.isOnline
-              ? AppTheme.primary.withValues(alpha: 0.3)
-              : AppTheme.divider,
+          color: provider.isOnline ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.divider,
         ),
       ),
       child: Row(
@@ -169,20 +194,15 @@ class _StatusToggle extends StatelessWidget {
               Text(
                 provider.isOnline ? 'You\'re Online' : 'You\'re Offline',
                 style: TextStyle(
-                  color: provider.isOnline
-                      ? AppTheme.primary
-                      : AppTheme.textPrimary,
+                  color: provider.isOnline ? AppTheme.primary : AppTheme.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
-                provider.isOnline
-                    ? 'Ready to receive orders'
-                    : 'Go online to receive orders',
-                style: const TextStyle(
-                    color: AppTheme.textSecondary, fontSize: 13),
+                provider.isOnline ? 'Ready to receive orders' : 'Go online to receive orders',
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -191,78 +211,9 @@ class _StatusToggle extends StatelessWidget {
             scale: 1.2,
             child: Switch.adaptive(
               value: provider.isOnline,
-              onChanged:
-                  provider.isLoading ? null : (_) => provider.toggleOnline(),
+              onChanged: provider.isLoading ? null : (_) => provider.toggleOnline(),
               activeThumbColor: AppTheme.primary,
-              trackColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return AppTheme.primary.withValues(alpha: 0.3);
-                }
-                return AppTheme.surfaceLight;
-              }),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EarningsCard extends StatelessWidget {
-  final RiderProvider provider;
-  const _EarningsCard({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.primary.withValues(alpha: 0.2),
-            AppTheme.primary.withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Today's Earnings",
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'zł 0.00',
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${provider.rider?.totalDeliveries ?? 0}',
-                    style: const TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const Text('total deliveries',
-                      style: TextStyle(
-                          color: AppTheme.textSecondary, fontSize: 11)),
-                ],
-              ),
-            ],
           ),
         ],
       ),
@@ -272,76 +223,63 @@ class _EarningsCard extends StatelessWidget {
 
 class _StatsRow extends StatelessWidget {
   final RiderProvider provider;
-  const _StatsRow({required this.provider});
+  final RiderStatsProvider stats;
+  const _StatsRow({required this.provider, required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    final rating = provider.rider?.rating ?? 5.0;
     return Row(
       children: [
-        _StatCard(
+        // Rating from Stats Provider
+        StatCard(
           label: 'Rating',
-          value: '${rating.toStringAsFixed(1)} ★',
+          value: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.star_rounded, color: AppTheme.warning, size: 18),
+              const SizedBox(width: 4),
+              Text(stats.totalRatings > 0 
+                ? stats.avgDriverRating.toStringAsFixed(1) 
+                : '—',),
+            ],
+          ),
           color: AppTheme.warning,
         ),
         const SizedBox(width: 12),
-        _StatCard(
+        
+        // Vehicle using helper from shared widgets
+        StatCard(
           label: 'Vehicle',
-          value: _vehicleLabel(provider.rider?.vehicleType ?? 'SCOOTER'),
+          value: buildVehicleWidget(provider.rider?.vehicleType ?? 'SCOOTER'),
           color: AppTheme.info,
         ),
         const SizedBox(width: 12),
-        _StatCard(
+        
+        // Status indicator
+        StatCard(
           label: 'Status',
-          value: provider.isOnline ? 'Active' : 'Idle',
+          value: _buildStatusIndicator(provider.isOnline),
           color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
         ),
       ],
     );
   }
 
-  String _vehicleLabel(String type) {
-    switch (type) {
-      case 'BIKE':
-        return '🚲 Bike';
-      case 'SCOOTER':
-        return '🛵 Scooter';
-      case 'CAR':
-        return '🚗 Car';
-      default:
-        return type;
-    }
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  const _StatCard(
-      {required this.label, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: AppTheme.cardBg,
-          borderRadius: BorderRadius.circular(14),
+  Widget _buildStatusIndicator(bool isOnline) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isOnline ? Colors.green : Colors.grey,
+            shape: BoxShape.circle,
+          ),
         ),
-        child: Column(
-          children: [
-            Text(value,
-                style: TextStyle(
-                    color: color, fontSize: 15, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(label,
-                style: const TextStyle(
-                    color: AppTheme.textSecondary, fontSize: 11)),
-          ],
-        ),
-      ),
+        const SizedBox(width: 6),
+        Text(isOnline ? 'Online' : 'Offline'),
+      ],
     );
   }
 }
@@ -353,9 +291,7 @@ class _RecentActivity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Recent Activity',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontSize: 16,
-                )),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 16)),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(20),
@@ -369,12 +305,10 @@ class _RecentActivity extends StatelessWidget {
                 Icon(Icons.history, color: AppTheme.textSecondary, size: 36),
                 SizedBox(height: 8),
                 Text('No recent deliveries',
-                    style:
-                        TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                 SizedBox(height: 4),
                 Text('Go online to start receiving jobs',
-                    style:
-                        TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               ],
             ),
           ),

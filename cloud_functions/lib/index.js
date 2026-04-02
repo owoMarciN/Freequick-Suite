@@ -101,6 +101,27 @@ async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMe
     const quote = quoteDoc.data();
     const user = userDoc.data();
     const restaurant = restaurantDoc.data();
+    const rawItemIDs = quote.itemIDs || [];
+    const items = await Promise.all(rawItemIDs.map(async (encodedString) => {
+        // Format: restaurantID:menuID:itemID:quantity
+        const [resId, menuId, itemId, qty] = encodedString.split(':');
+        const itemDoc = await db
+            .collection("restaurants").doc(resId)
+            .collection("menus").doc(menuId)
+            .collection("items").doc(itemId).get();
+        const itemData = itemDoc.data();
+        const originalPrice = itemData?.price || 0.0;
+        const discountPercent = itemData?.discount || 0.0;
+        const discountedPrice = roundToTwo(originalPrice * (1.0 - (discountPercent / 100.0)));
+        return {
+            name: itemData?.title || "Unknown Item",
+            originalPrice: originalPrice,
+            price: discountedPrice,
+            discount: discountPercent,
+            quantity: parseInt(qty) || 1,
+            itemID: itemId
+        };
+    }));
     const orderID = db.collection("orders").doc().id;
     const orderRef = db.collection("orders").doc(orderID);
     const userOrderRef = db
@@ -134,7 +155,7 @@ async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMe
         restaurantName: restaurant.name ?? "",
         restaurantLat: restaurant.lat ?? null,
         restaurantLng: restaurant.lng ?? null,
-        itemIDs: quote.itemIDs ?? [],
+        items,
         address: resolvedAddress,
         addressID: quote.addressID ?? null,
         orderType: quote.orderType ?? "delivery",
@@ -205,11 +226,11 @@ async function dispatchToRider(orderID, order, restaurant, customer) {
     await db.collection("dispatch_jobs").doc().set({
         riderUID: riderDoc.id,
         orderID,
-        storeName: restaurant.name ?? "",
-        storeAddress: restaurant.address ?? "",
+        restaurantName: restaurant.name ?? "",
+        restaurantAddress: restaurant.address ?? "",
         customerAddress: order.address?.fullAddress ?? "",
         customerName: customer.name ?? "",
-        items: [],
+        items: order.items || [],
         finalTotal,
         deliveryFee,
         riderEarnings,

@@ -48,26 +48,22 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Verify email + password exist in Firebase Auth.
-      // We sign in to confirm the credentials are correct, then
-      // immediately sign out and hand off to OTP for phone verification.
+      // Sign in with email
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
 
-      // Sign out immediately — OTP screen will sign in via phone
-      await FirebaseAuth.instance.signOut();
-
       if (!mounted) return;
 
+      // Navigate to OTP screen
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => OtpScreen(
             args: OtpScreenArgs(
-              email: _emailCtrl.text.trim(), 
-              password: _passwordCtrl.text, 
+              email: _emailCtrl.text.trim(),
+              password: _passwordCtrl.text,
               phone: _phoneCtrl.value.international,
             ),
           ),
@@ -83,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _ => e.message ?? 'Login failed. Try again.',
         };
       });
-    } catch (e) {
+    } catch (_) {
       setState(() => _error = 'Something went wrong. Try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -118,10 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style:
                         TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                   ),
-
                   const SizedBox(height: 48),
-
-                  //  Email
                   CustomTextField(
                     data: Icons.email_outlined,
                     controller: _emailCtrl,
@@ -131,25 +124,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? 'Email is required'
                         : null,
                   ),
-
                   const SizedBox(height: 12),
-
-                  //  Password
                   CustomPasswordField(
                     controller: _passwordCtrl,
                     label: 'Password',
                     isRequired: true,
                     isConfirmation: true,
                   ),
-
                   const SizedBox(height: 12),
-
-                  //  Phone
                   CustomPhoneField(
                     controller: _phoneCtrl,
                     label: 'Phone number for OTP verification',
                   ),
-
                   if (_error != null) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -176,10 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ],
-
                   const SizedBox(height: 32),
-
-                  //  Submit
                   SizedBox(
                     width: double.infinity,
                     height: 54,

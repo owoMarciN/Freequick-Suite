@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:rider_app/utils/app_constants.dart';
 
 class RiderService {
@@ -27,44 +28,57 @@ class RiderService {
   Future<void> acceptJob(String jobID, String riderUID) async {
     final jobRef = _db.collection(AppConstants.colDispatchJobs).doc(jobID);
 
-    final jobSnap = await jobRef.get();
-    if (!jobSnap.exists) return;
+    try {
+      await _db.runTransaction((tx) async {
+        final jobSnap = await tx.get(jobRef);
 
-    final data = jobSnap.data() as Map<String, dynamic>;
-    final orderID = data['orderID'] as String?;
+        if (!jobSnap.exists) {
+          throw Exception('Job does not exist');
+        }
 
-    final batch = _db.batch();
+        final data = jobSnap.data() as Map<String, dynamic>;
+        
+        if (data['status'] != AppConstants.jobPending) {
+          throw Exception('Job already taken');
+        }
 
-    batch.update(jobRef, {
-      'status': AppConstants.jobAccepted,
-      'acceptedAt': FieldValue.serverTimestamp(),
-    });
+        final orderID = data['orderID'] as String?;
 
-    if (orderID != null && orderID.isNotEmpty) {
-      final orderRef = _db.collection(AppConstants.colOrders).doc(orderID);
+        tx.update(jobRef, {
+          'status': AppConstants.jobAccepted,
+          'acceptedAt': FieldValue.serverTimestamp(),
+        });
 
-      batch.update(orderRef, {
-        'status': AppConstants.statusInProgress,
-        'riderUID': riderUID,
-        'updatedAt': FieldValue.serverTimestamp(),
+        final riderRef =
+            _db.collection(AppConstants.colRiders).doc(riderUID);
+
+        tx.update(riderRef, {
+          'hasActiveOrder': true,
+          'currentOrderID': orderID,
+        });
       });
+      debugPrint('LOG: JOB ACCEPT SUCCESS');
+    } catch (e) {
+      debugPrint('LOG: JOB ACCEPT FAILED: $e');
+      rethrow;
     }
-
-    final riderRef = _db.collection(AppConstants.colRiders).doc(riderUID);
-
-    batch.update(riderRef, {
-      'hasActiveOrder': true,
-      'currentOrderID': orderID,
-    });
-
-    await batch.commit();
   }
 
-  Future<void> rejectJob(String jobID) {
-    return _db.collection(AppConstants.colDispatchJobs).doc(jobID).update({
-      'status': AppConstants.jobRejected,
-      'rejectedAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> rejectJob(String jobID) async {
+    try {
+      await _db
+          .collection(AppConstants.colDispatchJobs)
+          .doc(jobID)
+          .update({
+        'status': AppConstants.jobRejected,
+        'rejectedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('LOG: JOB REJECT SUCCESS');
+    } catch (e) {
+      debugPrint('LOG: JOB REJECT FAILED: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateOrderStatus(String orderID, String newStatus) async {

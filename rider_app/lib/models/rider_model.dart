@@ -23,7 +23,7 @@ class RiderModel {
     this.hasActiveOrder = false,
     this.currentOrderID,
     this.totalDeliveries = 0,
-    this.totalEarnings = 0,
+    this.totalEarnings = 0.0,
     this.rating = 5.0,
   });
 
@@ -39,7 +39,7 @@ class RiderModel {
       hasActiveOrder: d['hasActiveOrder'] as bool? ?? false,
       currentOrderID: d['currentOrderID'] as String?,
       totalDeliveries: (d['totalDeliveries'] as num?)?.toInt() ?? 0,
-      totalEarnings: (d['totalEarnings'] as num?)?.toDouble() ?? 0,
+      totalEarnings: (d['totalEarnings'] as num?)?.toDouble() ?? 0.0,
       rating: (d['rating'] as num?)?.toDouble() ?? 5.0,
     );
   }
