@@ -14,7 +14,7 @@ class JobRequestSheet extends StatefulWidget {
     required this.job,
     required this.onAccept,
     required this.onReject,
-    this.timeoutSeconds = 6000,
+    this.timeoutSeconds = 60,
   });
 
   @override
