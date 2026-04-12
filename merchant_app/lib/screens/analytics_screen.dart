@@ -21,6 +21,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   double _totalRevenue = 0;
   double _todayRevenue = 0;
   int _totalOrders = 0;
+  // ignore: unused_field
   int _todayOrders = 0;
   double _avgOrderValue = 0;
 
