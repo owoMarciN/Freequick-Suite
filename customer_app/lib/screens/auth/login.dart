@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:provider/provider.dart';
+import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/global/global.dart';
@@ -113,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
       Provider.of<CartProvider>(context, listen: false).count;
+      Provider.of<AddressProvider>(context, listen: false).loadSavedAddress();
 
       await saveUserPref<String>("email", data["email"]);
       await saveUserPref<String>("name", data["name"]);

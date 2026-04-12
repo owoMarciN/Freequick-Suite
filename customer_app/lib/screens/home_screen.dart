@@ -1056,8 +1056,6 @@ class _RestaurantPlaceholder extends StatelessWidget {
   }
 }
 
-//  Top Rated Restaurants horizontal scroll
-
 class _TopRatedRestaurants extends StatelessWidget {
   const _TopRatedRestaurants();
 
