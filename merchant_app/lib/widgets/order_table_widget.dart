@@ -103,7 +103,7 @@ class OrderTableWidget extends StatelessWidget {
                     double.tryParse(d['totalAmount']?.toString() ?? '0') ?? 0;
                 final ts = d['orderTime'] as Timestamp?;
                 final String timeLabel =
-                    ts != null ? timestampToString(context, ts.toDate()) : '—';
+                    ts != null ? dateTimeToString(context, ts.toDate()) : '—';
                 final String shortId =
                     '#${doc.id.substring(0, doc.id.length.clamp(0, 8))}';
 

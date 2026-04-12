@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
-
 import 'package:user_app/global/global.dart';
-
 import 'package:user_app/widgets/unified_snackbar.dart';
-
 import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
 
 List<String> separateItemIDs(List<dynamic> userCart) {
   return userCart.map((item) {
@@ -62,7 +58,7 @@ Future<void> addItemToCart(String? itemID, String? menuID, String? restaurantID,
     saveUserPref<List<String>>("userCart", tempCartList);
 
     unifiedSnackBar("Item Added Successfully.");
-    
+
     Provider.of<CartProvider>(context, listen: false).loadCart();
   });
 }
@@ -238,7 +234,7 @@ Future<void> decrementCartItemQuantity(
 }
 
 /// Reformat timestamps to a readable string
-String formatTime(BuildContext context, DateTime dt) {
+String dateTimeToString(BuildContext context, DateTime dt) {
   final now = DateTime.now();
   final diff = now.difference(dt);
   if (diff.inMinutes < 1) return context.l10n.time_just_now;
@@ -247,6 +243,22 @@ String formatTime(BuildContext context, DateTime dt) {
   }
   if (diff.inHours < 24) return context.l10n.time_hours(diff.inHours);
   return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}';
+}
+
+DateTime? timestampToDateTimeTime(dynamic raw) {
+  if (raw is Timestamp) return raw.toDate();
+  if (raw is DateTime) return raw;
+  return null;
+}
+
+String formatPhoneNumber(String? raw) {
+  if (raw == null || raw.isEmpty) return 'No phone';
+  try {
+    // Use formatNumberSync for immediate UI feedback
+    return formatNumberSync(raw);
+  } catch (e) {
+    return raw; // Fallback to raw if it can't be parsed
+  }
 }
 
 String formatPayment(dynamic p) {
@@ -264,7 +276,8 @@ double roundToTwo(double value) {
   return double.parse(value.toStringAsFixed(2));
 }
 
-Future<List<Map<String, dynamic>>> fetchItems(List<String> itemIDs, String restID) async {
+Future<List<Map<String, dynamic>>> fetchItems(
+    List<String> itemIDs, String restID) async {
   final List<Map<String, dynamic>> results = [];
 
   for (String id in itemIDs) {
@@ -283,12 +296,12 @@ Future<List<Map<String, dynamic>>> fetchItems(List<String> itemIDs, String restI
         // Inject the IDs back into the data map so ItemDetailsScreen has what it needs
         data['itemID'] = doc.id;
         data['restaurantID'] = restID;
-        
+
         // We can dynamically extract the missing menuID directly from the Firestore path!
         // Path format: restaurants/restID/menus/menuID/items/itemID
         final pathSegments = doc.reference.path.split('/');
         if (pathSegments.length >= 4) {
-            data['menuID'] = pathSegments[3]; 
+          data['menuID'] = pathSegments[3];
         }
 
         results.add(data);

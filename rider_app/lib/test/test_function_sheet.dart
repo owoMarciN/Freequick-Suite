@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:rider_app/utils/app_theme.dart';
 
 class TestFunctionsSheet extends StatefulWidget {
   const TestFunctionsSheet({super.key});
@@ -12,7 +13,7 @@ class TestFunctionsSheet extends StatefulWidget {
 class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
   final FirebaseFunctions _functions =
       FirebaseFunctions.instanceFor(region: 'europe-west1');
-  
+
   bool _isRunning = false;
   String _log = '';
 
@@ -53,9 +54,8 @@ class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
 
     final quoteID = await _createTestQuote();
 
-    final res = await _functions
-        .httpsCallable('placeOrder')
-        .call({'quoteID': quoteID});
+    final res =
+        await _functions.httpsCallable('placeOrder').call({'quoteID': quoteID});
 
     _appendLog("CASH RESULT: ${res.data}");
   }
@@ -127,14 +127,17 @@ class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
       padding: const EdgeInsets.all(16),
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
           const Text(
             "Cloud Functions Tester",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 18,
+                color: Colors.blueGrey,
+                fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ..._actions.map(
@@ -148,7 +151,10 @@ class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
                     backgroundColor: a.color,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(a.label),
+                  child: Text(
+                    a.label,
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -164,7 +170,9 @@ class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
               ),
               child: SingleChildScrollView(
                 child: Text(
-                  _log.isEmpty ? "Logs will appear here..." : _log,
+                  _log.isEmpty
+                      ? "Remember to firsly uncomment the database rules to allow anyone to read/write for testing purposes. Logs will appear here..."
+                      : _log,
                   style: const TextStyle(
                     color: Colors.greenAccent,
                     fontFamily: 'monospace',

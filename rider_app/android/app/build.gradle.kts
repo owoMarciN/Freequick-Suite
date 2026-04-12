@@ -1,5 +1,6 @@
 import org.gradle.api.JavaVersion
 import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Base64
 
 val dartEnvironmentVariables = mutableMapOf<String, String>()
@@ -32,8 +33,10 @@ android {
         isCoreLibraryDesugaringEnabled = true 
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
 
     defaultConfig {

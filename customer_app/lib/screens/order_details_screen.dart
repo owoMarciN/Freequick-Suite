@@ -429,7 +429,7 @@ class _SummaryCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.schedule_rounded,
             label: "Ordered At",
-            value: formatTime(context, data["orderTime"].toDate()),
+            value: dateTimeToString(context, data["orderTime"].toDate()),
           ),
           const SizedBox(height: 10),
           _InfoRow(

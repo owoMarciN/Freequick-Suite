@@ -16,12 +16,14 @@ import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'global/global.dart';
 import 'screens/auth/login_screen.dart';
-
+import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   sharedPreferences = await SharedPreferences.getInstance();
+
+  await init();
 
   // Load locale first
   final localeProvider = LocaleProvider();
@@ -29,7 +31,7 @@ void main() async {
 
   // Init rider provider
   final riderProvider = RiderProvider();
-  riderProvider.init(); // will start listening to auth & Firestore
+  riderProvider.init();
 
   runApp(
     MultiProvider(
@@ -37,7 +39,7 @@ void main() async {
         ChangeNotifierProvider.value(value: localeProvider),
         ChangeNotifierProvider.value(value: riderProvider),
         ChangeNotifierProxyProvider<RiderProvider, RiderStatsProvider>(
-          create: (_) => RiderStatsProvider(''), 
+          create: (_) => RiderStatsProvider(''),
           update: (context, riderProv, previous) {
             final uid = riderProv.rider?.uid ?? '';
 
@@ -66,9 +68,11 @@ class RiderApp extends StatelessWidget {
       navigatorKey: snackBarNavigatorKey,
       theme: darkTheme,
       locale: localeProvider.locale,
-      supportedLocales: Language.languageList.map(
-        (lang) => Locale(lang.code, lang.countryCode),
-      ).toList(),
+      supportedLocales: Language.languageList
+          .map(
+            (lang) => Locale(lang.code, lang.countryCode),
+          )
+          .toList(),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -78,15 +82,21 @@ class RiderApp extends StatelessWidget {
       localeResolutionCallback: (locale, supportedLocales) {
         if (locale == null) return supportedLocales.first;
         for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale.languageCode) return supportedLocale;
+          if (supportedLocale.languageCode == locale.languageCode) {
+            return supportedLocale;
+          }
         }
         return supportedLocales.first;
       },
       home: StreamBuilder(
         stream: firebaseAuth.authStateChanges(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) { return const CircularProgressIndicator(); }
-          if (snapshot.data == null) { return const LoginScreen(); }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.data == null) {
+            return const LoginScreen();
+          }
           return const MainScreen();
         },
       ),

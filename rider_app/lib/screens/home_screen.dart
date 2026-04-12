@@ -51,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return CustomScrollView(
             slivers: [
-              _buildAppBar(context, riderProvider),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 sliver: SliverList(
@@ -137,66 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pop(context);
           await provider.rejectJob(jobId);
         },
-      ),
-    );
-  }
-
-  SliverAppBar _buildAppBar(BuildContext context, RiderProvider provider) {
-    return SliverAppBar(
-      expandedHeight: 0,
-      floating: true,
-      backgroundColor: AppTheme.surface,
-      title: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.delivery_dining,
-                color: AppTheme.primary, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                provider.rider?.name ?? 'Rider',
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: provider.isOnline
-                          ? AppTheme.primary
-                          : AppTheme.textSecondary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    provider.isOnline ? 'Online' : 'Offline',
-                    style: TextStyle(
-                      color: provider.isOnline
-                          ? AppTheme.primary
-                          : AppTheme.textSecondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

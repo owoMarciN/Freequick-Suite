@@ -37,6 +37,8 @@ import 'package:merchant_app/services/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
+
 import 'package:web/web.dart' as web;
 
 void main() async {
@@ -52,6 +54,8 @@ void main() async {
     providerWeb:
         ReCaptchaV3Provider("6LdxDXYsAAAAAMUEjjSL0wbJUGB3uYPPX8mzZoec"),
   );
+
+  await init();
 
   sharedPreferences = await SharedPreferences.getInstance();
 

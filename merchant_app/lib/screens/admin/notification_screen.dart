@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/widgets/unified_snackbar.dart';
 
 class AdminNotificationsScreen extends StatefulWidget {
@@ -162,111 +164,57 @@ class _SendTabState extends State<_SendTab> {
   Future<void> _send() async {
     if (!_formKey.currentState!.validate()) return;
     if (_audience == _Audience.specific && _selectedUsers.isEmpty) {
-      unifiedSnackBar(context, context.l10n.admin_notifications_select_user,
-          error: true);
+      unifiedSnackBar(context, context.l10n.admin_notifications_select_user, error: true);
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final db = FirebaseFirestore.instance;
-      final String title = _titleController.text.trim();
-      final String body = _bodyController.text.trim();
-      final now = Timestamp.now();
-
-      // -- 1. Resolve target UIDs --------------------------------------------
-      List<String> targetUIDs = [];
-
-      if (_audience == _Audience.specific) {
-        targetUIDs = _selectedUsers.map((u) => u['uid'] as String).toList();
-      } else if (_audience == _Audience.restaurants) {
-        final snap = await db
-            .collection('users')
-            .where('role', isEqualTo: 'restaurant_admin')
-            .get();
-        targetUIDs = snap.docs.map((d) => d.id).toList();
-      } else {
-        final snap = await db.collection('users').get();
-        targetUIDs = snap.docs.map((d) => d.id).toList();
-      }
-
-      if (targetUIDs.isEmpty) {
-        if (mounted) {
-          unifiedSnackBar(context, context.l10n.admin_notifications_no_users,
-              error: true);
-        }
-        return;
-      }
-
-      // -- 2. Batch-write (chunked at 500) -----------------------------------
-      const int chunkSize = 500;
-      for (int i = 0; i < targetUIDs.length; i += chunkSize) {
-        final chunk = targetUIDs.sublist(
-          i,
-          (i + chunkSize) > targetUIDs.length
-              ? targetUIDs.length
-              : i + chunkSize,
-        );
-        final batch = db.batch();
-        for (final uid in chunk) {
-          final ref =
-              db.collection('users').doc(uid).collection('notifications').doc();
-          batch.set(ref, {
-            'title': title,
-            'body': body,
-            'isRead': false,
-            'timestamp': now,
-            'source': 'admin',
-          });
-        }
-        await batch.commit();
-      }
-
-      // -- 3. History record -------------------------------------------------
-      if (!mounted) return;
-      final String targetName = _audience == _Audience.specific
-          ? _selectedUsers.map((u) => u['name'] ?? 'Unknown').join(', ')
-          : _audienceLabel(context, _audience);
-
-      await db.collection('adminNotificationHistory').add({
-        'title': title,
-        'body': body,
+      // 1. Prepare data for the Cloud Function
+      final Map<String, dynamic> data = {
+        'title': _titleController.text.trim(),
+        'body': _bodyController.text.trim(),
         'audience': _audience.name,
-        'targetName': targetName,
-        'sentCount': targetUIDs.length,
-        'sentAt': now,
-      });
+        'targetUIDs': _selectedUsers.map((u) => u['uid'] as String).toList(),
+      };
+
+      // 2. Call the Cloud Function (Ensure region matches your deployment)
+      final result = await FirebaseFunctions.instanceFor(region: 'europe-west1')
+          .httpsCallable('sendAdminNotification')
+          .call(data);
+
+      final bool success = result.data['success'] ?? false;
+      final int count = result.data['sentCount'] ?? 0;
 
       if (!mounted) return;
-      unifiedSnackBar(
-          context,
-          targetUIDs.length == 1
-              ? context.l10n.admin_notifications_sent_one
-              : context.l10n.admin_notifications_sent_many(targetUIDs.length));
 
-      _titleController.clear();
-      _bodyController.clear();
-      _searchController.clear();
-      setState(() {
-        _audience = _Audience.all;
-        _selectedUsers.clear();
-        _searchResults = [];
-      });
+      if (success) {
+        unifiedSnackBar(
+          context,
+          count == 1
+              ? context.l10n.admin_notifications_sent_one
+              : context.l10n.admin_notifications_sent_many(count),
+        );
+
+        // Reset UI
+        _titleController.clear();
+        _bodyController.clear();
+        _searchController.clear();
+        setState(() {
+          _audience = _Audience.all;
+          _selectedUsers.clear();
+          _searchResults = [];
+        });
+      } else {
+        unifiedSnackBar(context, "Cloud Function failed to process request.", error: true);
+      }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, e.toString(), error: true);
+      if (mounted) unifiedSnackBar(context, "Error: ${e.toString()}", error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
-  String _audienceLabel(BuildContext context, _Audience a) => switch (a) {
-        _Audience.all => context.l10n.admin_notifications_audience_label_all,
-        _Audience.restaurants =>
-          context.l10n.admin_notifications_audience_label_restaurants,
-        _Audience.specific =>
-          context.l10n.admin_notifications_audience_label_specific,
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -609,7 +557,7 @@ class _HistoryTab extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('adminNotificationHistory')
-          .orderBy('sentAt', descending: true)
+          .orderBy('timestamp', descending: true)
           .limit(50)
           .snapshots(),
       builder: (context, snap) {
@@ -664,8 +612,8 @@ class _HistoryCard extends StatelessWidget {
     final body = data['body']?.toString() ?? '';
     final targetName = data['targetName']?.toString() ?? '—';
     final int sentCount = data['sentCount'] ?? 0;
-    final Timestamp? ts = data['sentAt'] as Timestamp?;
-    final String time = ts != null ? _fmt(ts.toDate()) : '—';
+    final Timestamp? ts = data['timestamp'] as Timestamp?;
+    final String time = ts != null ? dateTimeToString(context, ts.toDate()) : '—';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -735,13 +683,5 @@ class _HistoryCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _fmt(DateTime d) {
-    final date =
-        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-    final time =
-        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-    return '$date $time';
   }
 }

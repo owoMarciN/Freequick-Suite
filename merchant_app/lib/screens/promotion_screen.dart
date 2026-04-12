@@ -178,8 +178,8 @@ class _PromotionCard extends StatelessWidget {
         : null;
     final bool isActive = data['isActive'] == true;
 
-    final DateTime? startDate = timestampToDate(data['startDate']);
-    final DateTime? endDate = timestampToDate(data['endDate']);
+    final DateTime? startDate = timestampToDateTime(data['startDate']);
+    final DateTime? endDate = timestampToDateTime(data['endDate']);
 
     final now = DateTime.now();
     final bool dateActive = startDate != null &&
@@ -373,7 +373,7 @@ class _PromotionCard extends StatelessWidget {
                           size: 14, color: brandColors.muted),
                       const SizedBox(width: 6),
                       Text(
-                        '${timestampToString(context, startDate)} → ${timestampToString(context, endDate)}',
+                        '${dateTimeToString(context, startDate)} → ${dateTimeToString(context, endDate)}',
                         style:
                             TextStyle(fontSize: 12, color: brandColors.muted),
                       ),

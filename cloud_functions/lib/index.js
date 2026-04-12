@@ -1,13 +1,50 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveFcmToken = exports.onRiderLocationUpdate = exports.onOrderStatusChanged = exports.onDispatchJobAccepted = exports.stripeWebhook = exports.placeOrder = exports.getPaymentMethodType = exports.createPaymentIntent = exports.googleMapsDetails = exports.googleMapsAutocomplete = void 0;
-const https = require("firebase-functions/v2/https");
-const fsEvents = require("firebase-functions/v2/firestore");
+exports.saveFcmToken = exports.onRiderLocationUpdate = exports.onOrderStatusChanged = exports.onDispatchJobAccepted = exports.stripeWebhook = exports.placeOrder = exports.getPaymentMethodType = exports.createPaymentIntent = exports.googleMapsDetails = exports.googleMapsAutocomplete = exports.sendAdminNotification = void 0;
+const https = __importStar(require("firebase-functions/v2/https"));
+const fsEvents = __importStar(require("firebase-functions/v2/firestore"));
 const params_1 = require("firebase-functions/params");
 const firestore_1 = require("firebase-admin/firestore");
-const admin = require("firebase-admin");
-const stripe_1 = require("stripe");
-const axios_1 = require("axios");
+const admin = __importStar(require("firebase-admin"));
+const stripe_1 = __importDefault(require("stripe"));
+const axios_1 = __importDefault(require("axios"));
+const emoji = __importStar(require("node-emoji"));
 admin.initializeApp();
 const db = admin.firestore();
 // Secrets (Firebase Secret Manager)
@@ -17,6 +54,16 @@ const stripeWebhookSecret = (0, params_1.defineSecret)("STRIPE_WEBHOOK_SECRET");
 const googleMapsKey = (0, params_1.defineSecret)("GOOGLE_MAPS_KEY");
 const REGION = "europe-west1";
 const APP_CHECK = false;
+/* ---------------------------------------------- */
+/* -------------- Emoji Definitions --------------
+/* ----------------------------------------------*/
+const EMOJI = {
+    CASH: emoji.get('dollar'),
+    CHECK: emoji.get('white_check_mark'),
+    SUCCESS: emoji.get('tada'),
+    BELL: emoji.get('bell'),
+    SCOOTER: emoji.get('motor_scooter'),
+};
 /* ---------------------------------------------- */
 /* -------------- Helper Functions --------------
 /* ----------------------------------------------*/
@@ -69,7 +116,7 @@ async function writeNotification(uid, title, body, source) {
         body,
         source,
         isRead: false,
-        createdAt: firestore_1.FieldValue.serverTimestamp(),
+        timestamp: firestore_1.FieldValue.serverTimestamp(),
     });
 }
 // FCM push + in-app notification
@@ -90,6 +137,42 @@ async function notifyUser(uid, fcmToken, title, body, source, data) {
         }
     }
 }
+exports.sendAdminNotification = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }, async (req) => {
+    // Security Check
+    if (!req.auth || req.auth.token.role !== 'admin') {
+        throw new https.HttpsError("permission-denied", "Unauthorized");
+    }
+    const { title, body, audience, targetUIDs } = req.data;
+    const db = admin.firestore();
+    // 1. Get the list of people to notify
+    let usersToNotify = [];
+    if (audience === "specific") {
+        // For specific users, we need to fetch their FCM tokens first
+        const snaps = await Promise.all(targetUIDs.map((uid) => db.collection("users").doc(uid).get()));
+        usersToNotify = snaps.map(s => ({ uid: s.id, fcmToken: s.data()?.fcmToken }));
+    }
+    else {
+        // For "all" or "restaurants"
+        let query = db.collection("users");
+        if (audience === "restaurants") {
+            query = query.where("role", "==", "restaurant");
+        }
+        const snap = await query.get();
+        usersToNotify = snap.docs.map((d) => ({ uid: d.id, fcmToken: d.data()?.fcmToken }));
+    }
+    // 2. Loop through and use your existing helper!
+    // We use Promise.all to send them all in parallel for speed
+    await Promise.all(usersToNotify.map(user => notifyUser(user.uid, user.fcmToken, title, body, "admin")));
+    // 3. Log to History
+    await db.collection("adminNotificationHistory").add({
+        title,
+        body,
+        audience,
+        sentCount: usersToNotify.length,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { success: true, sentCount: usersToNotify.length };
+});
 async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMethod, paymentDetails, }) {
     const [quoteDoc, userDoc, restaurantDoc] = await Promise.all([
         db.collection("quotes").doc(quoteID).get(),
@@ -182,11 +265,11 @@ async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMe
     // Notify restaurant & customer
     if (restaurant.fcmToken) {
         try {
-            const cashLabel = paymentMethod === "cash" ? " 💵 Cash" : "";
+            const cashLabel = paymentMethod === "cash" ? `${EMOJI.CASH} Cash` : "";
             await admin.messaging().send({
                 token: restaurant.fcmToken,
                 notification: {
-                    title: "🔔 New Order!",
+                    title: `${EMOJI.BELL} New Order!`,
                     body: `Order #${orderID.slice(0, 8)} received${cashLabel}`,
                 },
                 data: { type: "NEW_ORDER", orderID },
@@ -197,7 +280,7 @@ async function createOrderAndDispatch({ quoteID, userID, restaurantID, paymentMe
             console.warn("Restaurant FCM failed", e);
         }
     }
-    await writeNotification(userID, "Order Placed! 🎉", `Your order from ${restaurant.name ?? "the restaurant"} has been received.`, "order");
+    await writeNotification(userID, `Order Placed! ${EMOJI.SUCCESS}`, `Your order from ${restaurant.name ?? "the restaurant"} has been received.`, "order");
     await dispatchToRider(orderID, orderData, restaurant, user);
     return orderID;
 }
@@ -244,11 +327,11 @@ async function dispatchToRider(orderID, order, restaurant, customer) {
     });
     if (rider.fcmToken) {
         try {
-            const paymentLabel = isCash ? "💵 Collect cash" : "✅ Card paid";
+            const paymentLabel = isCash ? `${EMOJI.CASH} Collect cash` : `${EMOJI.CHECK} Card paid`;
             await admin.messaging().send({
                 token: rider.fcmToken,
                 notification: {
-                    title: "🛵 New Delivery!",
+                    title: `${EMOJI.SCOOTER} New Delivery!`,
                     body: `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
                 },
                 data: { type: "DISPATCH_JOB", orderID },
@@ -378,7 +461,6 @@ exports.getPaymentMethodType = https.onCall({ region: REGION, secrets: [stripeSe
  * collect cash from the customer.
  */
 exports.placeOrder = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }, async (req) => {
-    const { data, auth } = req;
     if (!req.auth) {
         throw new https.HttpsError("unauthenticated", "Login required");
     }
@@ -501,15 +583,15 @@ exports.onOrderStatusChanged = fsEvents.onDocumentUpdated({ document: "orders/{o
     const status = after.status;
     const messages = {
         "In Progress": {
-            title: "Order Accepted ✅",
+            title: `Order Accepted ${EMOJI.CHECK}`,
             body: "The restaurant is preparing your order.",
         },
         "Ready": {
-            title: "On the Way! 🛵",
+            title: `On the Way! ${EMOJI.SCOOTER}`,
             body: "Your rider has picked up your order.",
         },
         "Delivered": {
-            title: "Delivered! 🎉",
+            title: `Delivered! ${EMOJI.SUCCESS}`,
             body: "Your order has arrived. Enjoy your meal!",
         },
     };

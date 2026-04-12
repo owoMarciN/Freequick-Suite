@@ -13,20 +13,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('My Profile'),
-        elevation: 0,
-        backgroundColor: AppTheme.background,
-        automaticallyImplyLeading: false,
-        actions: [
-          TextButton.icon(
-            onPressed: () => _confirmSignOut(context),
-            icon: const Icon(Icons.logout_rounded, size: 18, color: AppTheme.danger),
-            label: const Text('Sign Out', style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: Consumer2<RiderProvider, RiderStatsProvider>(
         builder: (context, provider, stats, _) {
           final rider = provider.rider;
@@ -50,37 +36,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _confirmSignOut(BuildContext context) {
-    final riderProvider = Provider.of<RiderProvider>(context, listen: false);
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const Text('Are you sure you want to exit the app?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              riderProvider.signOut();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.danger,
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Sign Out', style: TextStyle(color: Colors.white)),
-          ),
-        ],
       ),
     );
   }

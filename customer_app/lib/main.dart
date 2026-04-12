@@ -30,6 +30,8 @@ import 'package:user_app/widgets/unified_snackbar.dart';
 
 import 'package:user_app/extensions/extensions_import.dart';
 
+import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,6 +42,8 @@ Future<void> main() async {
 
   // Initialize SharedPreferences
   sharedPreferences = await SharedPreferences.getInstance();
+
+  await init();
 
   // Initialize Stripe
   Stripe.publishableKey =
@@ -123,8 +127,12 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder(
         stream: firebaseAuth.authStateChanges(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) { return const MySplashScreen(); }
-          if (snapshot.data == null) { return const AuthScreen(); }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MySplashScreen();
+          }
+          if (snapshot.data == null) {
+            return const AuthScreen();
+          }
           return const MainScreen();
         },
       ),

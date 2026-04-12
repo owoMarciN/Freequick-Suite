@@ -5,6 +5,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as admin from "firebase-admin";
 import Stripe from "stripe";
 import axios from "axios";
+import * as emoji from 'node-emoji';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -17,6 +18,17 @@ const googleMapsKey        = defineSecret("GOOGLE_MAPS_KEY");
 
 const REGION = "europe-west1";
 const APP_CHECK = false;
+
+/* ---------------------------------------------- */
+/* -------------- Emoji Definitions --------------
+/* ----------------------------------------------*/
+const EMOJI = {
+  CASH:    emoji.get('dollar'),          
+  CHECK:   emoji.get('white_check_mark'), 
+  SUCCESS: emoji.get('tada'),           
+  BELL:    emoji.get('bell'),             
+  SCOOTER: emoji.get('motor_scooter'),    
+};
 
 /* ---------------------------------------------- */
 /* -------------- Helper Functions --------------
@@ -87,8 +99,8 @@ async function writeNotification(
       title,
       body,
       source,
-      isRead:    false,
-      createdAt: FieldValue.serverTimestamp(),
+      isRead: false,
+      timestamp: FieldValue.serverTimestamp(),
     });
 }
 
@@ -117,6 +129,56 @@ async function notifyUser(
     }
   }
 }
+
+export const sendAdminNotification = https.onCall(
+  { region: REGION, enforceAppCheck: APP_CHECK },
+  async (req) => {
+  // Security Check
+  if (!req.auth || req.auth.token.role !== 'admin') {
+    throw new https.HttpsError("permission-denied", "Unauthorized");
+  }
+
+  const { title, body, audience, targetUIDs } = req.data;
+  const db = admin.firestore();
+
+  // 1. Get the list of people to notify
+  let usersToNotify: { uid: string, fcmToken?: string }[] = [];
+
+  if (audience === "specific") {
+    // For specific users, we need to fetch their FCM tokens first
+    const snaps = await Promise.all(
+      targetUIDs.map((uid: string) => db.collection("users").doc(uid).get())
+    );
+    usersToNotify = snaps.map(s => ({ uid: s.id, fcmToken: s.data()?.fcmToken }));
+  } else {
+    // For "all" or "restaurants"
+    let query: any = db.collection("users");
+    if (audience === "restaurants") {
+      query = query.where("role", "==", "restaurant");
+    }
+    const snap = await query.get();
+    usersToNotify = snap.docs.map((d: any) => ({ uid: d.id, fcmToken: d.data()?.fcmToken }));
+  }
+
+  // 2. Loop through and use your existing helper!
+  // We use Promise.all to send them all in parallel for speed
+  await Promise.all(
+    usersToNotify.map(user => 
+      notifyUser(user.uid, user.fcmToken, title, body, "admin")
+    )
+  );
+
+  // 3. Log to History
+  await db.collection("adminNotificationHistory").add({
+    title,
+    body,
+    audience,
+    sentCount: usersToNotify.length,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, sentCount: usersToNotify.length };
+});
 
 async function createOrderAndDispatch({
   quoteID,
@@ -232,11 +294,11 @@ async function createOrderAndDispatch({
   // Notify restaurant & customer
   if (restaurant.fcmToken) {
     try {
-      const cashLabel = paymentMethod === "cash" ? " 💵 Cash" : "";
+      const cashLabel = paymentMethod === "cash" ? `${EMOJI.CASH} Cash` : "";
       await admin.messaging().send({
         token: restaurant.fcmToken,
         notification: {
-          title: "🔔 New Order!",
+          title: `${EMOJI.BELL} New Order!`,
           body: `Order #${orderID.slice(0, 8)} received${cashLabel}`,
         },
         data: { type: "NEW_ORDER", orderID },
@@ -249,7 +311,7 @@ async function createOrderAndDispatch({
 
   await writeNotification(
     userID,
-    "Order Placed! 🎉",
+    `Order Placed! ${EMOJI.SUCCESS}`,
     `Your order from ${restaurant.name ?? "the restaurant"} has been received.`,
     "order"
   );
@@ -314,11 +376,11 @@ async function dispatchToRider(
 
   if (rider.fcmToken) {
     try {
-      const paymentLabel = isCash ? "💵 Collect cash" : "✅ Card paid";
+      const paymentLabel = isCash ? `${EMOJI.CASH} Collect cash` : `${EMOJI.CHECK} Card paid`;
       await admin.messaging().send({
         token: rider.fcmToken,
         notification: {
-          title: "🛵 New Delivery!",
+          title: `${EMOJI.SCOOTER} New Delivery!`,
           body: `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
         },
         data: { type: "DISPATCH_JOB", orderID },
@@ -479,7 +541,6 @@ export const getPaymentMethodType = https.onCall(
 export const placeOrder = https.onCall(
   { region: REGION, enforceAppCheck: APP_CHECK },
   async (req) => {
-    const { data, auth } = req;
     if (!req.auth) {
       throw new https.HttpsError("unauthenticated", "Login required");
     }
@@ -643,15 +704,15 @@ export const onOrderStatusChanged = fsEvents.onDocumentUpdated(
  
     const messages: Record<string, { title: string; body: string }> = {
       "In Progress": {
-        title: "Order Accepted ✅",
+        title: `Order Accepted ${EMOJI.CHECK}`,
         body:  "The restaurant is preparing your order.",
       },
       "Ready": {
-        title: "On the Way! 🛵",
+        title: `On the Way! ${EMOJI.SCOOTER}`,
         body:  "Your rider has picked up your order.",
       },
       "Delivered": {
-        title: "Delivered! 🎉",
+        title: `Delivered! ${EMOJI.SUCCESS}`,
         body:  "Your order has arrived. Enjoy your meal!",
       },
     };
