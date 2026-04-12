@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/widgets/progress_bar.dart';
 import 'package:user_app/widgets/unified_app_bar.dart';
 import 'package:user_app/widgets/my_drower.dart';
@@ -27,40 +28,6 @@ class _OrdersScreenState extends State<OrdersScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<List<DocumentSnapshot>> _fetchOrderItems(
-      DocumentSnapshot orderDoc) async {
-    final orderData = orderDoc.data() as Map<String, dynamic>;
-    final itemIDs = orderData['itemIDs'] as List<dynamic>;
-    final List<DocumentSnapshot> allItems = [];
-    final Map<String, List<String>> menuItemsMap = {};
-
-    for (final item in itemIDs) {
-      final parts = item.toString().split(':');
-      if (parts.length >= 3) {
-        final key = "${parts[0]}:${parts[1]}";
-        menuItemsMap.putIfAbsent(key, () => []).add(parts[2]);
-      }
-    }
-
-    for (final entry in menuItemsMap.entries) {
-      final pathParts = entry.key.split(':');
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection("restaurants")
-            .doc(pathParts[0])
-            .collection("menus")
-            .doc(pathParts[1])
-            .collection("items")
-            .where(FieldPath.documentId, whereIn: entry.value)
-            .get();
-        allItems.addAll(snap.docs);
-      } catch (e) {
-        debugPrint("Error fetching items: $e");
-      }
-    }
-    return allItems;
   }
 
   @override
@@ -117,13 +84,11 @@ class _OrdersScreenState extends State<OrdersScreen>
                   statuses: const ["Pending", "In Progress", "Ready"],
                   emptyMessage: "No active orders",
                   emptySubtitle: "Your current orders will appear here",
-                  fetchItems: _fetchOrderItems,
                 ),
                 _OrderList(
                   statuses: const ["Delivered"],
                   emptyMessage: "No past orders",
                   emptySubtitle: "Your delivered orders will appear here",
-                  fetchItems: _fetchOrderItems,
                 ),
               ],
             ),
@@ -137,22 +102,19 @@ class _OrdersScreenState extends State<OrdersScreen>
 class _OrderList extends StatelessWidget {
   final List<String> statuses;
   final String emptyMessage, emptySubtitle;
-  final Future<List<DocumentSnapshot>> Function(DocumentSnapshot) fetchItems;
 
   const _OrderList({
     required this.statuses,
     required this.emptyMessage,
     required this.emptySubtitle,
-    required this.fetchItems,
   });
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection("users")
-          .doc(currentUID)
           .collection("orders")
+          .where("userID", isEqualTo: currentUID)
           .where("status", whereIn: statuses)
           .orderBy("orderTime", descending: true)
           .snapshots(),
@@ -163,36 +125,33 @@ class _OrderList extends StatelessWidget {
         if (snapshot.data!.docs.isEmpty) {
           return _EmptyState(message: emptyMessage, subtitle: emptySubtitle);
         }
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            final orderDoc = snapshot.data!.docs[index];
-            final orderData = orderDoc.data() as Map<String, dynamic>;
-            final status = orderData["status"]?.toString() ?? "Pending";
 
-            return FutureBuilder<List<DocumentSnapshot>>(
-              future: fetchItems(orderDoc),
-              builder: (context, snap) {
-                if (!snap.hasData) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFEEEEEE)),
-                    ),
-                    child: Center(child: circularProgress()),
-                  );
-                }
+        final docs = snapshot.data!.docs;
+
+        return FutureBuilder<List<List<Map<String, dynamic>>>>(
+          future: _fetchAllItems(docs),
+          builder: (context, itemSnap) {
+            if (!itemSnap.hasData) {
+              return Center(child: circularProgress());
+            }
+
+            final allItems = itemSnap.data!;
+
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final orderDoc = docs[index];
+                final orderData = orderDoc.data() as Map<String, dynamic>;
+                final status = orderData["status"]?.toString() ?? "Pending";
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _OrderListItem(
                     orderID: orderDoc.id,
                     orderData: orderData,
                     status: status,
-                    items: snap.data!,
+                    items: allItems[index],
                   ),
                 );
               },
@@ -202,12 +161,38 @@ class _OrderList extends StatelessWidget {
       },
     );
   }
+
+  Future<List<List<Map<String, dynamic>>>> _fetchAllItems(
+      List<QueryDocumentSnapshot> docs) async {
+    List<List<Map<String, dynamic>>> result = [];
+
+    for (final doc in docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final List<dynamic> items = data['items'] ?? [];
+      final List<String> ids = items
+          .map((e) => e['itemID']?.toString() ?? '')
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      final restID = data['restaurantID']?.toString() ?? '';
+
+      if (ids.isEmpty) {
+        result.add([]);
+        continue;
+      }
+
+      final fetched = await fetchItems(ids, restID);
+      result.add(List<Map<String, dynamic>>.from(fetched));
+    }
+
+    return result;
+  }
 }
 
 class _OrderListItem extends StatelessWidget {
   final String orderID, status;
   final Map<String, dynamic> orderData;
-  final List<DocumentSnapshot> items;
+  final List<Map<String, dynamic>> items;
 
   const _OrderListItem({
     required this.orderID,
@@ -225,7 +210,7 @@ class _OrderListItem extends StatelessWidget {
 
   static const List<String> _stepLabels = [
     "Processing",
-    "Accepted",
+    "In Progress",
     "On the Way",
     "Delivered",
   ];
@@ -284,9 +269,8 @@ class _OrderListItem extends StatelessWidget {
                   SizedBox(
                     height: 48,
                     child: Row(
-                      children: items.take(3).map((doc) {
-                        final d = doc.data() as Map<String, dynamic>;
-                        final url = (d['imageUrl'] ?? '') as String;
+                      children: items.take(3).map((item) {
+                        final url = (item['imageUrl'] ?? '') as String;
                         return Container(
                           width: 48,
                           height: 48,
@@ -298,8 +282,11 @@ class _OrderListItem extends StatelessWidget {
                           clipBehavior: Clip.antiAlias,
                           child: url.isNotEmpty
                               ? Image.network(url, fit: BoxFit.cover)
-                              : Icon(Icons.fastfood_rounded,
-                                  color: Colors.grey.shade300, size: 22),
+                              : Icon(
+                                  Icons.fastfood_rounded,
+                                  color: Colors.grey.shade300,
+                                  size: 22,
+                                ),
                         );
                       }).toList(),
                     ),
@@ -356,7 +343,7 @@ class _OrderListItem extends StatelessWidget {
                         color: Colors.redAccent),
                   ),
                   const SizedBox(height: 8),
-                  _MiniProgressBar(currentStep: step),
+                  _MiniProgressBar(currentStep: step, status: status),
                 ],
               ),
             ),
@@ -369,7 +356,8 @@ class _OrderListItem extends StatelessWidget {
 
 class _MiniProgressBar extends StatelessWidget {
   final int currentStep;
-  const _MiniProgressBar({required this.currentStep});
+  final String status;
+  const _MiniProgressBar({required this.currentStep, required this.status});
 
   static const int _total = 4;
 
@@ -377,8 +365,10 @@ class _MiniProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: List.generate(_total, (i) {
-        final bool done = i <= currentStep;
+        final bool isDone = (status == "Delivered") ? true : (i < currentStep);
+        final bool isCurrent = (status != "Delivered") && (i == currentStep);
         final bool isLast = i == _total - 1;
+
         return Expanded(
           child: Row(
             children: [
@@ -388,8 +378,10 @@ class _MiniProgressBar extends StatelessWidget {
                 height: 10,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: done ? Colors.redAccent : Colors.grey.shade200,
-                  border: i == currentStep
+                  color: isDone || isCurrent
+                      ? Colors.redAccent
+                      : Colors.grey.shade200,
+                  border: isCurrent
                       ? Border.all(
                           color: Colors.redAccent.withValues(alpha: 0.3),
                           width: 3)
@@ -401,9 +393,7 @@ class _MiniProgressBar extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     height: 2,
-                    color: i < currentStep
-                        ? Colors.redAccent
-                        : Colors.grey.shade200,
+                    color: isDone ? Colors.redAccent : Colors.grey.shade200,
                   ),
                 ),
             ],

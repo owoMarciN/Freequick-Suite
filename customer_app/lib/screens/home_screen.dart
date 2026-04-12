@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:user_app/methods/assistant_methods.dart';
 
 import 'package:user_app/models/restaurants.dart';
 import 'package:user_app/models/items.dart';
@@ -232,8 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  //  Header (flat red, no gradient)
 
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -720,8 +719,6 @@ class _PromotionsBanner extends StatelessWidget {
       );
 }
 
-//  Order again — recent items row
-
 class _RecentItemsRow extends StatelessWidget {
   const _RecentItemsRow();
 
@@ -729,69 +726,57 @@ class _RecentItemsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUID)
           .collection('orders')
+          .where('userID', isEqualTo: currentUID)
           .orderBy('orderTime', descending: true)
-          .limit(3)
+          .limit(5)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const _SkeletonRow();
         }
 
-        final List<String> rawItemIDs = [];
+        // 1. Extract itemIDs from the orders
+        final Set<String> itemIDsToFetch = {};
+        String? fallbackRestID;
+
         for (final doc in snapshot.data!.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          rawItemIDs.addAll(List<String>.from(data['itemIDs'] ?? []));
-          if (rawItemIDs.length >= 8) break;
+          fallbackRestID ??= data['restaurantID']?.toString();
+
+          final List<dynamic> items = data['items'] ?? [];
+          for (var item in items) {
+            final itemMap = item as Map<String, dynamic>;
+            if (itemMap['itemID'] != null) {
+              itemIDsToFetch.add(itemMap['itemID'].toString());
+            }
+          }
+          if (itemIDsToFetch.length >= 8) break;
         }
 
-        if (rawItemIDs.isEmpty) return const _SkeletonRow();
+        if (itemIDsToFetch.isEmpty) return const _SkeletonRow();
 
+        // 2. Fetch the actual item data using a Collection Group query
         return FutureBuilder<List<Map<String, dynamic>>>(
-          future: _fetchItems(rawItemIDs.take(8).toList()),
-          builder: (context, snap) {
-            if (!snap.hasData || snap.data!.isEmpty) {
+          future:
+              fetchItems(itemIDsToFetch.toList(), fallbackRestID ?? ''),
+          builder: (context, itemSnap) {
+            if (!itemSnap.hasData || itemSnap.data!.isEmpty) {
               return const _SkeletonRow();
             }
+
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: snap.data!.length,
-              itemBuilder: (context, index) =>
-                  _RecentItemCard(data: snap.data![index]),
+              itemCount: itemSnap.data!.length,
+              itemBuilder: (context, index) {
+                return _RecentItemCard(data: itemSnap.data![index]);
+              },
             );
           },
         );
       },
     );
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchItems(List<String> rawIDs) async {
-    final List<Map<String, dynamic>> results = [];
-    final Set<String> seen = {};
-
-    for (final raw in rawIDs) {
-      final parts = raw.split(':');
-      if (parts.length < 3) continue;
-      if (seen.contains(parts[2])) continue;
-      seen.add(parts[2]);
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection('restaurants')
-            .doc(parts[0])
-            .collection('menus')
-            .doc(parts[1])
-            .collection('items')
-            .doc(parts[2])
-            .get();
-        if (snap.exists) {
-          results.add({...snap.data()!, '_restaurantID': parts[0]});
-        }
-      } catch (_) {}
-    }
-    return results;
   }
 }
 
@@ -802,13 +787,16 @@ class _RecentItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = (data['imageUrl'] ?? '') as String;
-    final title = (data['title'] ?? '') as String;
+    final title = (data['name'] ?? data['title'] ?? '') as String;
     final price = (data['price'] as num?)?.toStringAsFixed(2) ?? '';
 
     return GestureDetector(
       onTap: () {
         final item = Items.fromJson(data);
         item.itemID = data['itemID'] ?? '';
+        item.menuID = data['menuID'] ?? '';
+        item.restaurantID = data['restaurantID'] ?? '';
+
         Navigator.push(context,
             MaterialPageRoute(builder: (_) => ItemDetailsScreen(model: item)));
       },
@@ -909,8 +897,6 @@ class _SkeletonRow extends StatelessWidget {
   }
 }
 
-//  Order Again section — only rendered if user has past orders
-
 class _OrderAgainSection extends StatelessWidget {
   const _OrderAgainSection();
 
@@ -918,20 +904,15 @@ class _OrderAgainSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUID)
           .collection('orders')
+          .where('userID', isEqualTo: currentUID)
           .orderBy('orderTime', descending: true)
           .limit(1)
           .snapshots(),
       builder: (context, snapshot) {
-        // Still loading — render nothing so layout doesn't jump
         if (!snapshot.hasData) return const SizedBox.shrink();
-
-        // No orders yet — skip the section entirely
         if (snapshot.data!.docs.isEmpty) return const SizedBox.shrink();
 
-        // User has at least one order — show section
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -62,7 +62,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
     setState(() => _isProcessing = true);
 
     try {
+      _timer?.cancel();
       await widget.onAccept();
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       debugPrint('ACCEPT ERROR: $e');
       if (mounted) {
@@ -81,7 +83,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
     setState(() => _isProcessing = true);
 
     try {
+      _timer?.cancel();
       await widget.onReject();
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       debugPrint('REJECT ERROR: $e');
     } finally {

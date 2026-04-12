@@ -263,3 +263,39 @@ double roundToTwo(double value) {
   // Rounds 1.2345 to 1.23 and 1.235 to 1.24
   return double.parse(value.toStringAsFixed(2));
 }
+
+Future<List<Map<String, dynamic>>> fetchItems(List<String> itemIDs, String restID) async {
+  final List<Map<String, dynamic>> results = [];
+
+  for (String id in itemIDs) {
+    try {
+      // Because menuID is missing from your DB, we search all 'items' subcollections for this itemID
+      final querySnap = await FirebaseFirestore.instance
+          .collectionGroup('items')
+          .where('itemID', isEqualTo: id)
+          .limit(1)
+          .get();
+
+      if (querySnap.docs.isNotEmpty) {
+        final doc = querySnap.docs.first;
+        Map<String, dynamic> data = doc.data();
+
+        // Inject the IDs back into the data map so ItemDetailsScreen has what it needs
+        data['itemID'] = doc.id;
+        data['restaurantID'] = restID;
+        
+        // We can dynamically extract the missing menuID directly from the Firestore path!
+        // Path format: restaurants/restID/menus/menuID/items/itemID
+        final pathSegments = doc.reference.path.split('/');
+        if (pathSegments.length >= 4) {
+            data['menuID'] = pathSegments[3]; 
+        }
+
+        results.add(data);
+      }
+    } catch (e) {
+      debugPrint("Error fetching item: $e");
+    }
+  }
+  return results;
+}

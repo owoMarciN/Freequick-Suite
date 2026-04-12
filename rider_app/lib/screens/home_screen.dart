@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/providers/rider_stats_provider.dart'; // Ensure this is imported
+import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:rider_app/test/test_function_sheet.dart';
 import 'package:rider_app/utils/app_theme.dart';
 import 'package:rider_app/widgets/job_request_sheet.dart';
 import 'package:rider_app/widgets/rider_stats_widgets.dart';
+import 'package:rider_app/screens/active_delivery_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _lastJobId;
+  bool _jobSheetOpen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +27,21 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Consumer2<RiderProvider, RiderStatsProvider>(
         builder: (context, riderProvider, statsProvider, _) {
           final job = riderProvider.pendingJob;
+          final activeOrder = riderProvider.activeOrder;
 
-          // Logic for showing job requests
-          if (job != null && job.id != _lastJobId) {
+          if (job != null && job.id != _lastJobId && !_jobSheetOpen) {
             _lastJobId = job.id;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showJobRequest(context, riderProvider);
+            _jobSheetOpen = true;
+
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!mounted) return;
+              await _showJobRequest(context, riderProvider);
+
+              if (mounted) {
+                setState(() {
+                  _jobSheetOpen = false;
+                });
+              }
             });
           }
 
@@ -47,8 +58,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   delegate: SliverChildListDelegate([
                     const SizedBox(height: 8),
                     _StatusToggle(provider: riderProvider),
+
+                    if (activeOrder != null) ...[
+                      const SizedBox(height: 16),
+                      _ActiveOrderCard(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ActiveDeliveryScreen()),
+                          );
+                        },
+                      ),
+                    ],
+
                     const SizedBox(height: 24),
-                    
+
                     // Test Button
                     SizedBox(
                       width: double.infinity,
@@ -65,19 +90,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: const Text("Test Cloud Functions", 
-                          style: TextStyle(color: Colors.white)),
+                        child: const Text("Test Cloud Functions",
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
                     // Using shared EarningsCard
                     EarningsCard(provider: riderProvider),
-                    
+
                     const SizedBox(height: 24),
                     // Updated Stats Row passing the stats provider
                     _StatsRow(provider: riderProvider, stats: statsProvider),
-                    
+
                     const SizedBox(height: 24),
                     _RecentActivity(),
                   ]),
@@ -90,8 +115,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showJobRequest(BuildContext context, RiderProvider provider) {
-    showModalBottomSheet(
+  Future<void> _showJobRequest(BuildContext context, RiderProvider provider) {
+    // 2. Add the 'return' keyword here!
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       isDismissible: false,
@@ -129,7 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppTheme.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.delivery_dining, color: AppTheme.primary, size: 20),
+            child: const Icon(Icons.delivery_dining,
+                color: AppTheme.primary, size: 20),
           ),
           const SizedBox(width: 10),
           Column(
@@ -149,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
+                      color: provider.isOnline
+                          ? AppTheme.primary
+                          : AppTheme.textSecondary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -157,7 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     provider.isOnline ? 'Online' : 'Offline',
                     style: TextStyle(
-                      color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
+                      color: provider.isOnline
+                          ? AppTheme.primary
+                          : AppTheme.textSecondary,
                       fontSize: 11,
                     ),
                   ),
@@ -166,6 +197,74 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActiveOrderCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ActiveOrderCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          // Using a gradient or distinct color to make it pop
+          gradient: LinearGradient(
+            colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.8)],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primary.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.directions_bike_rounded,
+                  color: Colors.white),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Active Delivery',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'Tap to return to map & navigation',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                color: Colors.white, size: 18),
+          ],
+        ),
       ),
     );
   }
@@ -180,10 +279,14 @@ class _StatusToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: provider.isOnline ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.cardBg,
+        color: provider.isOnline
+            ? AppTheme.primary.withValues(alpha: 0.1)
+            : AppTheme.cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: provider.isOnline ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.divider,
+          color: provider.isOnline
+              ? AppTheme.primary.withValues(alpha: 0.3)
+              : AppTheme.divider,
         ),
       ),
       child: Row(
@@ -194,15 +297,20 @@ class _StatusToggle extends StatelessWidget {
               Text(
                 provider.isOnline ? 'You\'re Online' : 'You\'re Offline',
                 style: TextStyle(
-                  color: provider.isOnline ? AppTheme.primary : AppTheme.textPrimary,
+                  color: provider.isOnline
+                      ? AppTheme.primary
+                      : AppTheme.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
-                provider.isOnline ? 'Ready to receive orders' : 'Go online to receive orders',
-                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                provider.isOnline
+                    ? 'Ready to receive orders'
+                    : 'Go online to receive orders',
+                style: const TextStyle(
+                    color: AppTheme.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -211,7 +319,8 @@ class _StatusToggle extends StatelessWidget {
             scale: 1.2,
             child: Switch.adaptive(
               value: provider.isOnline,
-              onChanged: provider.isLoading ? null : (_) => provider.toggleOnline(),
+              onChanged:
+                  provider.isLoading ? null : (_) => provider.toggleOnline(),
               activeThumbColor: AppTheme.primary,
             ),
           ),
@@ -238,15 +347,17 @@ class _StatsRow extends StatelessWidget {
             children: [
               const Icon(Icons.star_rounded, color: AppTheme.warning, size: 18),
               const SizedBox(width: 4),
-              Text(stats.totalRatings > 0 
-                ? stats.avgDriverRating.toStringAsFixed(1) 
-                : '—',),
+              Text(
+                stats.totalRatings > 0
+                    ? stats.avgDriverRating.toStringAsFixed(1)
+                    : '—',
+              ),
             ],
           ),
           color: AppTheme.warning,
         ),
         const SizedBox(width: 12),
-        
+
         // Vehicle using helper from shared widgets
         StatCard(
           label: 'Vehicle',
@@ -254,7 +365,7 @@ class _StatsRow extends StatelessWidget {
           color: AppTheme.info,
         ),
         const SizedBox(width: 12),
-        
+
         // Status indicator
         StatCard(
           label: 'Status',
@@ -291,7 +402,10 @@ class _RecentActivity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Recent Activity',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 16)),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 16)),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(20),
@@ -305,10 +419,12 @@ class _RecentActivity extends StatelessWidget {
                 Icon(Icons.history, color: AppTheme.textSecondary, size: 36),
                 SizedBox(height: 8),
                 Text('No recent deliveries',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                    style:
+                        TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                 SizedBox(height: 4),
                 Text('Go online to start receiving jobs',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    style:
+                        TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               ],
             ),
           ),

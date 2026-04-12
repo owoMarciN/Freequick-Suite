@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:rider_app/screens/home_screen.dart';
 import 'package:rider_app/utils/app_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:rider_app/providers/rider_provider.dart';
@@ -29,6 +30,8 @@ class ActiveDeliveryScreen extends StatefulWidget {
 
 class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
   late GoogleMapController? mapController;
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,7 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
         final String orderID = order['orderID']?.toString() ?? '';
 
         return Scaffold(
-          backgroundColor: AppTheme.background,
+          backgroundColor: Colors.transparent,
           body: Stack(
             children: [
               //  Map
@@ -59,16 +62,34 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
               ),
 
               //  Bottom panel
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _BottomPanel(
-                  order: order,
-                  status: status,
-                  orderID: orderID,
-                  provider: provider,
-                ),
+              // Inside ActiveDeliveryScreen build method:
+              DraggableScrollableSheet(
+                controller: _sheetController,
+                initialChildSize: 0.25,
+                minChildSize: 0.12,
+                maxChildSize: 0.6,
+                snap: true,
+                snapSizes: const [0.12, 0.25, 0.5, 0.6],
+                builder: (context, scrollController) {
+                  return Container(
+                    decoration: const BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 10, color: Colors.black12)
+                      ],
+                    ),
+                    // Pass the scrollController directly to your panel
+                    child: _BottomPanel(
+                      order: order,
+                      status: status,
+                      orderID: orderID,
+                      provider: provider,
+                      scrollController: scrollController,
+                    ),
+                  );
+                },
               ),
 
               //  Top bar
@@ -146,7 +167,6 @@ class _MapSectionState extends State<_MapSection> {
     };
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.50,
       child: GoogleMap(
         onMapCreated: (c) {
           controller = c;
@@ -195,7 +215,10 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           _GlassButton(
-            onTap: () => Navigator.pushNamed(context, '/home'),
+            onTap: () => Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false, // This removes ALL previous routes
+            ),
             child: const Icon(Icons.arrow_back_rounded,
                 color: AppTheme.textPrimary, size: 20),
           ),
@@ -271,67 +294,58 @@ class _BottomPanel extends StatelessWidget {
   final String status;
   final String orderID;
   final RiderProvider provider;
+  final ScrollController scrollController;
 
   const _BottomPanel({
     required this.order,
     required this.status,
     required this.orderID,
     required this.provider,
+    required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle
-            Container(
-              margin: const EdgeInsets.only(top: 10, bottom: 6),
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.divider,
-                borderRadius: BorderRadius.circular(2),
-              ),
+    return ListView(
+      controller: scrollController,
+      padding: EdgeInsets.zero,
+      children: [
+        Center(
+          child: Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 60,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.3), // Subtle white
+              borderRadius: BorderRadius.circular(10),
             ),
-
-            // Status stepper
-            _StatusStepper(status: status),
-
-            const Divider(color: AppTheme.divider, height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  // Action card
-                  _ActionCard(
-                    status: status,
-                    orderID: orderID,
-                    provider: provider,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Order details
-                  _OrderDetailsCard(order: order),
-                  const SizedBox(height: 14),
-
-                  // Navigate button
-                  _NavigateButton(order: order, status: status),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-            SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(
+          height: 16,
+        ),
+        // Status stepper
+        _StatusStepper(status: status),
+
+        const Divider(color: AppTheme.divider, height: 30),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              _ActionCard(
+                status: status,
+                orderID: orderID,
+                provider: provider,
+              ),
+              const SizedBox(height: 14),
+              _OrderDetailsCard(order: order),
+              const SizedBox(height: 14),
+              _NavigateButton(order: order, status: status),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

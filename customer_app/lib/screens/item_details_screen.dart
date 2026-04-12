@@ -33,8 +33,20 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Safety check for the model
+    if (widget.model == null) {
+      return const Scaffold(body: Center(child: Text("Item not found")));
+    }
+
     final item = widget.model!;
     
+    // Normalize data: in your new Firestore orders, 'title' is likely stored as 'name'
+    // This ensures the screen displays the text even if the field name varies
+    final String displayTitle = item.title ?? 'Unknown Item';
+    final String itemID = item.itemID ?? '';
+    final String menuID = item.menuID ?? '';
+    final String restID = item.restaurantID ?? '';
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       extendBodyBehindAppBar: true,
@@ -48,7 +60,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -68,14 +80,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: StreamBuilder<bool>(
-              stream: isFavoriteStream(item.itemID ?? ''),
+              stream: isFavoriteStream(itemID),
               builder: (context, snapshot) {
                 bool isFavorite = snapshot.data ?? false;
                 
@@ -86,8 +98,8 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                     size: 22,
                   ),
                   onPressed: () {
-                    if (item.itemID != null && item.menuID != null && item.restaurantID != null) {
-                      toggleFavorite(item.restaurantID!, item.menuID!, item.itemID!);
+                    if (itemID.isNotEmpty && menuID.isNotEmpty && restID.isNotEmpty) {
+                      toggleFavorite(restID, menuID, itemID);
                     }
                   },
                 );
@@ -102,7 +114,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -124,11 +136,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero Image with discount badge
+                  // Hero Image
                   Stack(
                     children: [
                       Hero(
-                        tag: item.itemID ?? '',
+                        tag: itemID,
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height * 0.45,
@@ -147,7 +159,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         ),
                       ),
                       
-                      // Discount badge overlay
                       if (item.hasDiscount)
                         Positioned(
                           bottom: 40,
@@ -161,7 +172,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               borderRadius: BorderRadius.circular(25),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
+                                  color: Colors.black.withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -173,7 +184,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 const Icon(Icons.local_offer, color: Colors.white, size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${item.discount!.toInt()}% OFF',
+                                  '${item.discount?.toInt() ?? 0}% OFF',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -204,92 +215,55 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
-                                child: FittedBox(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    item.title ?? 'Unknown Item',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 28,
-                                      color: Colors.black87,
-                                      height: 1.2,
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  displayTitle,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                    color: Colors.black87,
+                                    height: 1.2,
                                   ),
                                 ),
                               ),
-
-                              const SizedBox(width: 50),
           
-                              StreamBuilder<int>(
-                                stream: itemLikesStream(item.restaurantID!, item.menuID!, item.itemID!),
-                                builder: (context, snapshot) {
-                                  // Show the stream data, or fall back to the initial model value while loading
-                                  int currentLikes = snapshot.data ?? item.likes ?? 0;
+                              if (restID.isNotEmpty && menuID.isNotEmpty && itemID.isNotEmpty)
+                                StreamBuilder<int>(
+                                  stream: itemLikesStream(restID, menuID, itemID),
+                                  builder: (context, snapshot) {
+                                    int currentLikes = snapshot.data ?? item.likes ?? 0;
+                                    if (currentLikes <= 0) return const SizedBox.shrink();
 
-                                  if (currentLikes <= 0) return const SizedBox.shrink();
-
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.withValues(alpha: 0.85),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.favorite, color: Colors.white, size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '$currentLikes',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.withOpacity(0.85),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.favorite, color: Colors.white, size: 16),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '$currentLikes',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                             ],
                           ),
 
-                          // Tags
-                          if (item.tags != null && item.tags!.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6.0,
-                              runSpacing: 4.0,
-                              children: item.tags!.take(3).map((tag) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.95),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.local_offer, color: Colors.white, size: 13),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        tag,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),                  
-                          ],
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 12),
 
                           // Description
                           Text(
@@ -321,16 +295,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      '${item.price!.toStringAsFixed(2)}zł',
+                                      '${item.price?.toStringAsFixed(2) ?? "0.00"}zł',
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: Colors.grey[500],
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
-
                                     const SizedBox(height: 4),
-
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
@@ -345,25 +317,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                           color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 4),
-
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.green.shade200),
-                                      ),
-                                      child: Text(
-                                        'Save ${item.savedAmount.toStringAsFixed(2)}zł',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.green.shade700,
                                         ),
                                       ),
                                     ),
@@ -390,7 +343,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 20),
 
                           // Quantity Section
                           Center(
@@ -417,43 +370,25 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     children: [
                                       IconButton(
                                         onPressed: _decrementQuantity,
-                                        icon: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: quantity > 1 ? Colors.blue : Colors.grey[400],
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: quantity > 1 ? Colors.white : Colors.grey[550],
-                                            size: 16,
-                                          ),
+                                        icon: CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: quantity > 1 ? Colors.blue : Colors.grey[400],
+                                          child: const Icon(Icons.remove, color: Colors.white, size: 16),
                                         ),
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20),
                                         child: Text(
                                           quantity.toString(),
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
+                                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       IconButton(
                                         onPressed: _incrementQuantity,
-                                        icon: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: quantity < 9 ? Colors.blue : Colors.grey[400],
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.add,
-                                            color: quantity < 9 ? Colors.white : Colors.grey[550],
-                                            size: 16,
-                                          ),
+                                        icon: CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: quantity < 9 ? Colors.blue : Colors.grey[400],
+                                          child: const Icon(Icons.add, color: Colors.white, size: 16),
                                         ),
                                       ),
                                     ],
@@ -473,59 +408,31 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
           // Add to Cart Button
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), // Added bottom padding for modern screens
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2)),
               ],
             ),
             child: InkWell(
               onTap: () {               
-                addItemToCart(
-                  item.itemID,
-                  item.menuID,
-                  item.restaurantID,
-                  context,
-                  quantity,
-                );
+                addItemToCart(itemID, menuID, restID, context, quantity);
               },
               child: Container(
                 height: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade600, Colors.blue.shade400],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  gradient: LinearGradient(colors: [Colors.blue.shade600, Colors.blue.shade400]),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.shopping_bag_outlined,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 24),
                     const SizedBox(width: 12),
                     Text(
                       "Add to Cart - ${((item.hasDiscount ? item.discountedPrice : (item.price ?? 0.0)) * quantity).toStringAsFixed(2)}zł",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
