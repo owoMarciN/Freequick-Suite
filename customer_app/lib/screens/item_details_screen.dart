@@ -40,8 +40,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
     final item = widget.model!;
     
-    // Normalize data: in your new Firestore orders, 'title' is likely stored as 'name'
-    // This ensures the screen displays the text even if the field name varies
     final String displayTitle = item.title ?? 'Unknown Item';
     final String itemID = item.itemID ?? '';
     final String menuID = item.menuID ?? '';
@@ -60,7 +58,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -80,7 +78,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -114,7 +112,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -172,7 +170,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               borderRadius: BorderRadius.circular(25),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -239,7 +237,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     return Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.withOpacity(0.85),
+                                        color: Colors.red.withValues(alpha: 0.85),
                                         borderRadius: BorderRadius.circular(5),
                                       ),
                                       child: Row(
@@ -406,13 +404,12 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             ),
           ),
 
-          // Add to Cart Button
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), // Added bottom padding for modern screens
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2)),
               ],
             ),
             child: InkWell(
