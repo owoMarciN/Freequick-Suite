@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:merchant_app/auth/login.dart';
-import 'package:merchant_app/auth/register.dart';
+import 'package:merchant_app/screens/auth/login.dart';
+import 'package:merchant_app/screens/auth/register.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 import 'package:go_router/go_router.dart';
 

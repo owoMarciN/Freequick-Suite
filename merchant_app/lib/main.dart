@@ -16,7 +16,7 @@ import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/extensions/brand_color_ext.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:merchant_app/auth/auth_screen.dart';
+import 'package:merchant_app/screens/auth/auth_screen.dart';
 import 'package:dynamic_path_url_strategy/dynamic_path_url_strategy.dart';
 
 import 'package:merchant_app/screens/landing_page_screen.dart';

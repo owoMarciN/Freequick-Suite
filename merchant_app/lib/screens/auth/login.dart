@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authResult = await firebaseAuth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
 
       final User? currentUser = authResult.user;
@@ -51,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await _loadAndSaveUserData(currentUser);
       }
     } on FirebaseAuthException catch (error) {
+      debugPrint("LOGIN ERROR: ${error.code} - ${error.message}");
       if (!mounted) return;
       Navigator.pop(context);
       showDialog(
@@ -107,11 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final restaurantData = restaurantSnap.data()!;
 
       // -- 3. Save prefs ------------------------------------------------------
-      // Status is intentionally NOT checked here.
-      // DashboardShell reads status from Firestore in real-time and shows
-      // the appropriate gate screen (pending / rejected / suspended).
-      // This way the user stays signed in and sees a proper explanation
-      // instead of a generic error dialog.
       await sharedPreferences!.setString("uid", currentUser.uid);
       await saveUserPref<String>("accountName", userData["name"] ?? "");
       await saveUserPref<String>("accountEmail", userData["email"] ?? "");
@@ -127,9 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       context.go('/splash');
-
     } catch (e) {
-
       if (firebaseAuth.currentUser != null) await firebaseAuth.signOut();
       if (!mounted) return;
 
@@ -147,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _failWith(String message) async {
     await firebaseAuth.signOut();
     if (!mounted) return;
-    
+
     Navigator.pop(context);
     showDialog(
       context: context,

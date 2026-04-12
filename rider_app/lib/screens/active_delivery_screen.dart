@@ -15,7 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:rider_app/screens/home_screen.dart';
+import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/utils/app_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:rider_app/providers/rider_provider.dart';
@@ -216,7 +216,7 @@ class _TopBar extends StatelessWidget {
         children: [
           _GlassButton(
             onTap: () => Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const MainScreen()),
               (route) => false, // This removes ALL previous routes
             ),
             child: const Icon(Icons.arrow_back_rounded,
