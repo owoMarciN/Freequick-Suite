@@ -47,11 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final User? currentUser = authResult.user;
+
       if (currentUser != null) {
         await _loadAndSaveUserData(currentUser);
       }
     } on FirebaseAuthException catch (error) {
-      debugPrint("LOGIN ERROR: ${error.code} - ${error.message}");
       if (!mounted) return;
       Navigator.pop(context);
       showDialog(
@@ -64,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loadAndSaveUserData(User currentUser) async {
     try {
-      // -- 1. Check user record exists and has restaurant role ---------------
       final userSnap = await FirebaseFirestore.instance
           .collection("users")
           .doc(currentUser.uid)
@@ -79,22 +78,21 @@ class _LoginScreenState extends State<LoginScreen> {
       final String role = userData["role"]?.toString() ?? "";
 
       if (role == "admin") {
-        // Admin goes straight to admin panel — no restaurant doc needed
         await sharedPreferences!.setString("uid", currentUser.uid);
         await saveUserPref<String>("accountName", userData["name"] ?? "");
         await saveUserPref<String>("accountEmail", userData["email"] ?? "");
+
         if (!mounted) return;
         Navigator.pop(context);
         context.go('/admin/overview');
         return;
       }
 
-      if (role != "restaurant") {
+      if (role.toLowerCase() != "restaurant") {
         if (!mounted) return;
         return _failWith(context.l10n.permission_restaurant_accounts_only);
       }
 
-      // -- 2. Check restaurant record exists ---------------------------------
       final restaurantSnap = await FirebaseFirestore.instance
           .collection("restaurants")
           .doc(currentUser.uid)
@@ -107,7 +105,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final restaurantData = restaurantSnap.data()!;
 
-      // -- 3. Save prefs ------------------------------------------------------
+      final String status =
+          restaurantData["status"]?.toString().toLowerCase() ?? "";
+
+      if (status == "Not approved") {
+        if (!mounted) return;
+        return _failWith("Account not approved yet");
+      }
+
       await sharedPreferences!.setString("uid", currentUser.uid);
       await saveUserPref<String>("accountName", userData["name"] ?? "");
       await saveUserPref<String>("accountEmail", userData["email"] ?? "");
@@ -124,7 +129,10 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pop(context);
       context.go('/splash');
     } catch (e) {
-      if (firebaseAuth.currentUser != null) await firebaseAuth.signOut();
+      if (firebaseAuth.currentUser != null) {
+        await firebaseAuth.signOut();
+      }
+
       if (!mounted) return;
 
       Navigator.pop(context);
@@ -135,11 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Signs out and shows an error dialog.
-  // Only used for hard failures: wrong role, missing records.
-  // Status blocks (pending/rejected/suspended) are NOT handled here.
   Future<void> _failWith(String message) async {
     await firebaseAuth.signOut();
+
     if (!mounted) return;
 
     Navigator.pop(context);
@@ -202,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Text(
                           context.l10n.login,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.2,

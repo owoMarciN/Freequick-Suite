@@ -144,7 +144,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
     final int completedCount = tasks.where((t) => t.done).length;
     final double progress = completedCount / tasks.length;
     // Hide setup card only when the restaurant has been approved and gone live
-    final bool isLive = (_restaurantData?['status'] as String?) == 'Active';
+    final bool isLive = (_restaurantData?['status'] as String?) == 'active';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(28, 28, 28, 48),

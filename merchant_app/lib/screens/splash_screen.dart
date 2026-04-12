@@ -12,17 +12,15 @@ class MySplashScreen extends StatefulWidget {
 
 class _MySplashScreenState extends State<MySplashScreen> {
   void startTimer() {
-    Timer(const Duration(seconds: 2), () async {
-      if (firebaseAuth.currentUser != null && currentRestaurantUID != null) {
-        // Safe to go to Dashboard
-        Router.neglect(context, () => context.go('/dashboard'));
-      } else {
-        if (firebaseAuth.currentUser != null && currentRestaurantUID == null) {
-          await firebaseAuth.signOut();
-        }
+    Timer(const Duration(seconds: 2), () {
+      final user = firebaseAuth.currentUser;
 
-        if (!mounted) return;
-        Router.neglect(context, () => context.go('/auth/login'));
+      if (!mounted) return;
+
+      if (user != null) {
+        context.go('/dashboard');
+      } else {
+        context.go('/auth/login');
       }
     });
   }

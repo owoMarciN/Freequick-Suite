@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("restaurants")
-                    .where("status", isEqualTo: "Active")
+                    .where("status", isEqualTo: "active")
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
@@ -1066,7 +1066,7 @@ class _TopRatedRestaurants extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('restaurants')
-          .where('status', isEqualTo: 'Active')
+          .where('status', isEqualTo: 'active')
           .where('avgRating', isGreaterThan: 0)
           .orderBy('avgRating', descending: true)
           .limit(10)

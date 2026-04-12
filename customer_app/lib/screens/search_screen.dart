@@ -118,7 +118,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   String _buildRestaurantFilterString() {
     List<String> filters = [];
-    filters.add('status:Active');
+    filters.add('status:active');
 
     final restaurantNames = _selectedCategories
         .where((c) => _availableRestaurantCategories.contains(c))
