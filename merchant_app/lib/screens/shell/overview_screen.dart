@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/widgets/designs/order_table_widget.dart';
+import 'package:merchant_app/widgets/orders/order_table_widget.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/widgets/ui/progress_bar.dart';
@@ -175,20 +175,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
           const SizedBox(height: 14),
           OrderTableWidget(
             restaurantID: currentRestaurantUID,
-            filterStatuses: const [
-              'Pending',
-              'In Progress',
-              'Ready',
-              'Delivered'
-            ],
-            workflowStatuses: const [
-              'Pending',
-              'In Progress',
-              'Ready',
-              'Delivered'
-            ],
             limit: 5,
-            readOnly: true,
           ),
         ],
       ),

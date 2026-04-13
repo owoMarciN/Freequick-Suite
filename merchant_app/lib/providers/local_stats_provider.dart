@@ -23,8 +23,8 @@ class LocalStatsProvider extends ChangeNotifier {
 
   // All-time
   int totalOrders = 0;
-  int pendingOrders = 0;     // status == "normal"
-  int completedOrders = 0;   // status == "delivered"
+  int pendingOrders = 0; // status == "normal"
+  int completedOrders = 0; // status == "delivered"
   int processingOrders = 0;
   int cancelledOrders = 0;
   double totalRevenue = 0;
@@ -35,13 +35,15 @@ class LocalStatsProvider extends ChangeNotifier {
   double todayRevenue = 0;
 
   // 7d / 30d
-  int last7dOrders = 0;   double last7dRevenue = 0;
-  int last30dOrders = 0;  double last30dRevenue = 0;
+  int last7dOrders = 0;
+  double last7dRevenue = 0;
+  int last30dOrders = 0;
+  double last30dRevenue = 0;
 
-  Map<String, double> revenueByDay = {};  // "dd.MM" -> revenue, 30 day window
-  Map<String, int> itemCounts = {};       // itemID -> count
-  Map<String, int> statusCounts = {};     // status -> count
-  List<QueryDocumentSnapshot> docs = [];  // sorted by orderTime desc
+  Map<String, double> revenueByDay = {}; // "dd.MM" -> revenue, 30 day window
+  Map<String, int> itemCounts = {}; // itemID -> count
+  Map<String, int> statusCounts = {}; // status -> count
+  List<QueryDocumentSnapshot> docs = []; // sorted by orderTime desc
 
   StreamSubscription<QuerySnapshot>? _sub;
 
@@ -77,27 +79,40 @@ class LocalStatsProvider extends ChangeNotifier {
 
     for (final doc in snap.docs) {
       final d = doc.data() as Map<String, dynamic>;
-      final double amount = double.tryParse(d['totalAmount']?.toString() ?? '0') ?? 0;
+      final double amount =
+          double.tryParse(d['subtotal']?.toString() ?? '0') ?? 0;
       final String status = d['status']?.toString() ?? 'normal';
       final Timestamp? ts = d['orderTime'] as Timestamp?;
       final List itemIDs = (d['itemIDs'] as List?) ?? [];
       final DateTime? date = ts?.toDate();
 
-      tot++; rev += amount;
+      tot++;
+      rev += amount;
 
       switch (status) {
-        case 'Pending':     pending++;
-        case 'processing': proc++;
-        case 'delivered':  completed++;
-        case 'cancelled':  canc++;
+        case 'Pending':
+          pending++;
+        case 'processing':
+          proc++;
+        case 'delivered':
+          completed++;
+        case 'cancelled':
+          canc++;
       }
       statuses[status] = (statuses[status] ?? 0) + 1;
 
       if (date != null) {
-        if (date.isAfter(todayStart)) { todOrd++; todRev += amount; }
-        if (date.isAfter(day7Start))  { ord7++;   rev7   += amount; }
+        if (date.isAfter(todayStart)) {
+          todOrd++;
+          todRev += amount;
+        }
+        if (date.isAfter(day7Start)) {
+          ord7++;
+          rev7 += amount;
+        }
         if (date.isAfter(day30Start)) {
-          ord30++; rev30 += amount;
+          ord30++;
+          rev30 += amount;
           final k = _label(date);
           if (byDay.containsKey(k)) byDay[k] = (byDay[k] ?? 0) + amount;
         }
@@ -109,14 +124,23 @@ class LocalStatsProvider extends ChangeNotifier {
       }
     }
 
-    totalOrders = tot;       pendingOrders = pending;
-    completedOrders = completed; processingOrders = proc; cancelledOrders = canc;
-    totalRevenue = rev;      avgOrderValue = tot > 0 ? rev / tot : 0;
-    todayOrders = todOrd;    todayRevenue = todRev;
-    last7dOrders = ord7;     last7dRevenue = rev7;
-    last30dOrders = ord30;   last30dRevenue = rev30;
-    revenueByDay = byDay;    itemCounts = items;
-    statusCounts = statuses; docs = snap.docs;
+    totalOrders = tot;
+    pendingOrders = pending;
+    completedOrders = completed;
+    processingOrders = proc;
+    cancelledOrders = canc;
+    totalRevenue = rev;
+    avgOrderValue = tot > 0 ? rev / tot : 0;
+    todayOrders = todOrd;
+    todayRevenue = todRev;
+    last7dOrders = ord7;
+    last7dRevenue = rev7;
+    last30dOrders = ord30;
+    last30dRevenue = rev30;
+    revenueByDay = byDay;
+    itemCounts = items;
+    statusCounts = statuses;
+    docs = snap.docs;
     isLoading = false;
 
     notifyListeners();
@@ -132,5 +156,8 @@ class LocalStatsProvider extends ChangeNotifier {
       '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
 
   @override
-  void dispose() { _sub?.cancel(); super.dispose(); }
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 }

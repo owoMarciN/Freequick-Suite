@@ -98,9 +98,9 @@ class AdminOverviewScreen extends StatelessWidget {
         label: context.l10n.admin_overview_stat_revenue,
         value: stats.isLoading
             ? context.l10n.admin_overview_loading
-            : '${stats.totalRevenue.toStringAsFixed(0)} PLN',
+            : '${stats.totalRevenue.toStringAsFixed(2)} PLN',
         sub: context.l10n.admin_overview_stat_revenue_sub(
-            stats.last7dRevenue.toStringAsFixed(0)),
+            stats.last7dRevenue.toStringAsFixed(2)),
         icon: Icons.payments_rounded,
         color: const Color(0xFF8B5CF6),
         scheme: scheme,
@@ -426,19 +426,19 @@ class _StatusBreakdown extends StatelessWidget {
     }
 
     final statuses = [
-      ('normal', context.l10n.admin_overview_status_pending, brand.navy!),
+      ('Pending', context.l10n.admin_overview_status_pending, brand.navy!),
       (
-        'processing',
+        'In Progress',
         context.l10n.admin_overview_status_processing,
         const Color(0xFF8B5CF6)
       ),
       (
-        'delivered',
+        'Delivered',
         context.l10n.admin_overview_status_delivered,
         brand.accentGreen!
       ),
       (
-        'cancelled',
+        'Cancelled',
         context.l10n.admin_overview_status_cancelled,
         const Color(0xFFEF4444)
       ),
