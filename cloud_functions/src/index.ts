@@ -27,7 +27,8 @@ const EMOJI = {
   CHECK:   emoji.get('white_check_mark'), 
   SUCCESS: emoji.get('tada'),           
   BELL:    emoji.get('bell'),             
-  SCOOTER: emoji.get('motor_scooter'),    
+  SCOOTER: emoji.get('motor_scooter'), 
+  STORE: emoji.get('convenience_store'),   
 };
 
 /* ---------------------------------------------- */
@@ -87,12 +88,13 @@ async function getDirections(
 // Write in-app notification
 async function writeNotification(
   uid: string,
+  collectionName: "users" | "riders",
   title: string,
   body: string,
   source: "order" | "admin" | "nearby" | "news" | "welcome"
 ) {
   await db
-    .collection("users")
+    .collection(collectionName)
     .doc(uid)
     .collection("notifications")
     .add({
@@ -103,7 +105,6 @@ async function writeNotification(
       timestamp: FieldValue.serverTimestamp(),
     });
 }
-
 // FCM push + in-app notification
 async function notifyUser(
   uid: string,
@@ -111,9 +112,10 @@ async function notifyUser(
   title: string,
   body: string,
   source: "order" | "admin" | "nearby" | "news" | "welcome",
+  collectionName: "users" | "riders" = "users",
   data?: Record<string, string>
 ) {
-  await writeNotification(uid, title, body, source);
+  await writeNotification(uid, collectionName, title, body, source);
  
   if (fcmToken) {
     try {
@@ -125,7 +127,7 @@ async function notifyUser(
         apns:         { payload: { aps: { sound: "default", badge: 1 } } },
       });
     } catch (e) {
-      console.warn("FCM send failed for", uid, e);
+      console.warn(`FCM failed for ${collectionName} ID: ${uid}`, e);
     }
   }
 }
@@ -164,7 +166,7 @@ export const sendAdminNotification = https.onCall(
   // We use Promise.all to send them all in parallel for speed
   await Promise.all(
     usersToNotify.map(user => 
-      notifyUser(user.uid, user.fcmToken, title, body, "admin")
+      notifyUser(user.uid, user.fcmToken ?? null, title, body, "admin")
     )
   );
 
@@ -292,29 +294,30 @@ async function createOrderAndDispatch({
   await batch.commit();
 
   // Notify restaurant & customer
-  if (restaurant.fcmToken) {
-    try {
-      const cashLabel = paymentMethod === "cash" ? `${EMOJI.CASH} Cash` : "";
-      await admin.messaging().send({
-        token: restaurant.fcmToken,
-        notification: {
-          title: `${EMOJI.BELL} New Order!`,
-          body: `Order #${orderID.slice(0, 8)} received${cashLabel}`,
-        },
-        data: { type: "NEW_ORDER", orderID },
-        android: { priority: "high" },
-      });
-    } catch (e) {
-      console.warn("Restaurant FCM failed", e);
-    }
-  }
+  await notifyUser(
+    restaurantID,
+    restaurant.fcmToken ?? null,
+    `${EMOJI.BELL} New Order!`,
+    `Order #${orderID.slice(0, 8)} received`,
+    "order",
+    "users",
+    { type: "NEW_ORDER", orderID }
+  );
 
-  await writeNotification(
+  await notifyUser(
     userID,
+    user.fcmToken ?? null,
     `Order Placed! ${EMOJI.SUCCESS}`,
     `Your order from ${restaurant.name ?? "the restaurant"} has been received.`,
-    "order"
+    "order",
+    "users",
+    { type: "ORDER_STATUS", orderID, status: "Pending" }
   );
+
+  if (quote.orderType === "pickup") {
+    console.log(`[DISPATCH] Skipping dispatch for pickup order ${orderID}`);
+    return;
+  }
 
   await dispatchToRider(orderID, orderData, restaurant, user);
 
@@ -374,23 +377,17 @@ async function dispatchToRider(
     expiresAt: Timestamp.fromDate(new Date(Date.now() + 30_000)),
   });
 
-  if (rider.fcmToken) {
-    try {
-      const paymentLabel = isCash ? `${EMOJI.CASH} Collect cash` : `${EMOJI.CHECK} Card paid`;
-      await admin.messaging().send({
-        token: rider.fcmToken,
-        notification: {
-          title: `${EMOJI.SCOOTER} New Delivery!`,
-          body: `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
-        },
-        data: { type: "DISPATCH_JOB", orderID },
-        android: { priority: "high" },
-        apns: { payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (e) {
-      console.warn("Rider FCM failed", e);
-    }
-  }
+  const paymentLabel = isCash ? "Collect cash" : "Card paid";
+
+  await notifyUser(
+    riderDoc.id,
+    rider.fcmToken ?? null,
+    `${EMOJI.SCOOTER} New Delivery!`,
+    `${restaurant.name ?? "Restaurant"} · zł${riderEarnings} · ${paymentLabel}`,
+    "order",
+    "riders",
+    { type: "DISPATCH_JOB", orderID }
+  );
 }
 
 /* ---------------------------------------------- */
@@ -681,10 +678,11 @@ export const onDispatchJobAccepted = fsEvents.onDocumentUpdated(
     const user    = userDoc.data()!;
     await notifyUser(
       userID,
-      user.fcmToken,
-      "Rider on the way! 🛵",
+      user.fcmToken ?? null,
+      `Rider on the way! ${EMOJI.SCOOTER}`,
       "Your rider is heading to the restaurant.",
       "order",
+      "users",
       { type: "ORDER_STATUS", orderID, status: "In Progress" }
     );
   }
@@ -694,51 +692,117 @@ export const onOrderStatusChanged = fsEvents.onDocumentUpdated(
   { document: "orders/{orderID}", region: REGION },
   async (event) => {
     const before = event.data?.before.data();
-    const after  = event.data?.after.data();
+    const after = event.data?.after.data();
     if (!before || !after) return;
     if (before.status === after.status) return;
- 
+
     const orderID = event.params.orderID;
-    const userID  = after.userID  as string;
-    const status  = after.status  as string;
- 
-    const messages: Record<string, { title: string; body: string }> = {
-      "In Progress": {
-        title: `Order Accepted ${EMOJI.CHECK}`,
-        body:  "The restaurant is preparing your order.",
-      },
-      "Ready": {
-        title: `On the Way! ${EMOJI.SCOOTER}`,
-        body:  "Your rider has picked up your order.",
-      },
-      "Delivered": {
-        title: `Delivered! ${EMOJI.SUCCESS}`,
-        body:  "Your order has arrived. Enjoy your meal!",
-      },
+    const userID = after.userID as string;
+    const status = after.status as string;
+    const orderType = (after.orderType as string | undefined) ?? "delivery";
+    const isPickup = orderType === "pickup";
+    const riderUID = after.riderUID as string | undefined;
+
+    // Safety: If no userID, we can't notify or mirror.
+    if (!userID) {
+      console.error(`Order ${orderID} is missing userID. Skipping logic.`);
+      return;
+    }
+
+    const userDoc = await db.collection("users").doc(userID).get();
+    const customer = userDoc.data() ?? {};
+
+    // --- 1. UNIFIED MIRRORING ---
+    // This keeps the customer's sub-collection in sync for ALL status changes.
+    const mirrorData: Record<string, any> = {
+      status: status,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
- 
-    const msg = messages[status];
-    if (msg) {
-      const userDoc = await db.collection("users").doc(userID).get();
-      const user    = userDoc.data()!;
+    if (status === "Delivered") mirrorData.deliveredAt = admin.firestore.FieldValue.serverTimestamp();
+
+    await db.collection("users").doc(userID).collection("orders").doc(orderID).set(mirrorData, { merge: true });
+
+    // --- 2. STATUS NOTIFICATIONS ---
+    if (status === "In Progress") {
       await notifyUser(
         userID,
-        user.fcmToken,
-        msg.title,
-        msg.body,
+        customer.fcmToken ?? null,
+        `Order Accepted ${EMOJI.CHECK}`,
+        isPickup
+          ? "The restaurant is preparing your order. We'll notify you when it's ready."
+          : "The restaurant is preparing your order.",
         "order",
+        "users",
         { type: "ORDER_STATUS", orderID, status }
       );
     }
- 
-    // Free up rider on delivery completion
+
+    if (status === "Ready") {
+      if (isPickup) {
+        await notifyUser(
+          userID,
+          customer.fcmToken ?? null,
+          `Ready for Collection! ${EMOJI.STORE}`,
+          "Your order is ready. See you soon!",
+          "order",
+          "users",
+          { type: "ORDER_STATUS", orderID, status }
+        );
+      } else {
+        // For Delivery: Tell customer the kitchen is done
+        await notifyUser(
+          userID,
+          customer.fcmToken ?? null,
+          `Food is Ready!`,
+          "The restaurant has finished your order. Your rider will pick it up shortly.",
+          "order",
+          "users",
+          { type: "ORDER_STATUS", orderID, status }
+        );
+
+        // Notify Rider ONLY if one is assigned (not an empty string)
+        if (riderUID && riderUID.length > 5) {
+          const riderDoc = await db.collection("riders").doc(riderUID).get();
+
+          if (!riderDoc.exists) {
+            console.error(`Rider not found: ${riderUID}`);
+            return;
+          }
+
+          const rider = riderDoc.data();
+
+          await notifyUser(
+            riderUID,
+            rider?.fcmToken ?? null,
+            `Order Ready for Pickup ${EMOJI.STORE}`,
+            `${after.restaurantName ?? "The restaurant"} has the order ready.`,
+            "order",
+            "riders",
+            { type: "ORDER_READY", orderID }
+          );
+        } else {
+          console.log(`Order ${orderID} is Ready but no rider is assigned yet.`);
+        }
+      }
+    }
+
     if (status === "Delivered") {
-      const riderUID = after.riderUID as string | undefined;
-      if (riderUID) {
+      await notifyUser(
+        userID,
+        customer.fcmToken ?? null,
+        isPickup ? `Enjoy! ${EMOJI.SUCCESS}` : `Delivered! ${EMOJI.SUCCESS}`,
+        isPickup ? "Order collected. Enjoy your meal!" : "Your order has arrived!",
+        "order",
+        "users",
+        { type: "ORDER_STATUS", orderID, status }
+      );
+
+      // Free up the rider
+      if (!isPickup && riderUID && riderUID.length > 5) {
         await db.collection("riders").doc(riderUID).update({
-          hasActiveOrder:  false,
-          currentOrderID:  null,
-          lastSeenAt:      FieldValue.serverTimestamp(),
+          hasActiveOrder: false,
+          currentOrderID: null,
+          lastSeenAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
     }

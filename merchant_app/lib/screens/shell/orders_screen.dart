@@ -12,116 +12,111 @@ class OrdersScreen extends StatefulWidget {
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends State<OrdersScreen>
-    with SingleTickerProviderStateMixin {
-  //  Tab controller: Active / Delivered
-  late final TabController _tabs;
-
-  static const List<String> _activeStatuses = [
+class _OrdersScreenState extends State<OrdersScreen> {
+  // The available statuses defined in your Cloud Functions
+  final List<String> _workflowStatuses = [
     'Pending',
     'In Progress',
     'Ready',
-    'Out for Delivery'
+    'Delivered'
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _tabs = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabs.dispose();
-    super.dispose();
-  }
-
-  //  Status update
+  // Users can toggle these to filter the view
+  final List<String> _selectedFilters = ['Pending', 'In Progress', 'Ready'];
 
   Future<void> _updateStatus(String orderID, String newStatus) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('orders')
-          .doc(orderID)
-          .update({
+      final batch = FirebaseFirestore.instance.batch();
+      final orderRef =
+          FirebaseFirestore.instance.collection('orders').doc(orderID);
+
+      // 1. Update main order
+      batch.update(orderRef, {
         'status': newStatus,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Mirror to user's sub-collection
-      final orderDoc = await FirebaseFirestore.instance
-          .collection('orders')
-          .doc(orderID)
-          .get();
+      // 2. Fetch to get userID for mirroring (required by your backend logic)
+      final orderDoc = await orderRef.get();
       final userID = orderDoc.data()?['userID'] as String?;
+
       if (userID != null && userID.isNotEmpty) {
-        await FirebaseFirestore.instance
+        final userOrderRef = FirebaseFirestore.instance
             .collection('users')
             .doc(userID)
             .collection('orders')
-            .doc(orderID)
-            .update({
+            .doc(orderID);
+
+        batch.update(userOrderRef, {
           'status': newStatus,
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
 
-      if (mounted) unifiedSnackBar(context, 'Status updated to $newStatus');
+      await batch.commit();
+      if (mounted) unifiedSnackBar(context, 'Order marked as $newStatus');
     } catch (e) {
-      if (mounted) {
-        unifiedSnackBar(context, 'Failed to update: $e', error: true);
-      }
+      if (mounted) unifiedSnackBar(context, 'Update failed: $e', error: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final brandColors = Theme.of(context).extension<BrandColors>()!;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
-        //  Tab bar
         Container(
-          color: colorScheme.surface,
-          child: TabBar(
-            controller: _tabs,
-            labelColor: brandColors.navy,
-            unselectedLabelColor: brandColors.muted,
-            labelStyle:
-                const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            indicatorColor: brandColors.navy,
-            indicatorWeight: 2,
-            tabs: const [
-              Tab(text: 'Active'),
-              Tab(text: 'Delivered'),
-            ],
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          color: Theme.of(context).colorScheme.surface,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _workflowStatuses.map((status) {
+                final isSelected = _selectedFilters.contains(status);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: FilterChip(
+                    label: Text(status),
+                    selected: isSelected,
+                    selectedColor: brandColors.navy!.withValues(alpha: 0.2),
+                    checkmarkColor: brandColors.navy,
+                    labelStyle: TextStyle(
+                      color: isSelected ? brandColors.navy : brandColors.muted,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    onSelected: (bool value) {
+                      setState(() {
+                        value
+                            ? _selectedFilters.add(status)
+                            : _selectedFilters.remove(status);
+                      });
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ),
 
-        //  Tab views
+        // Unified Table View
         Expanded(
-          child: TabBarView(
-            controller: _tabs,
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(28, 24, 28, 40),
-                child: OrderTableWidget(
-                  restaurantID: currentRestaurantUID,
-                  statuses: _activeStatuses,
-                  onStatusChange: _updateStatus,
+          child: _selectedFilters.isEmpty
+              ? const Center(child: Text("Select a status to view orders"))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(28, 12, 28, 40),
+                  child: OrderTableWidget(
+                    restaurantID: currentRestaurantUID,
+                    filterStatuses: _selectedFilters,
+                    onStatusChange: _updateStatus,
+                    workflowStatuses: _workflowStatuses,
+                    // "Delivered" is usually read-only in your flow,
+                    // but this allows changes if it's not the only status selected.
+                    readOnly: _selectedFilters.length == 1 &&
+                        _selectedFilters.contains('Delivered'),
+                  ),
                 ),
-              ),
-              SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(28, 24, 28, 40),
-                child: OrderTableWidget(
-                  restaurantID: currentRestaurantUID,
-                  statuses: const ['Delivered'],
-                  readOnly: true,
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );

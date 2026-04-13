@@ -175,7 +175,18 @@ class _OverviewScreenState extends State<OverviewScreen> {
           const SizedBox(height: 14),
           OrderTableWidget(
             restaurantID: currentRestaurantUID,
-            statuses: const ['Pending', 'In Progress', 'Ready', 'Delivered'],
+            filterStatuses: const [
+              'Pending',
+              'In Progress',
+              'Ready',
+              'Delivered'
+            ],
+            workflowStatuses: const [
+              'Pending',
+              'In Progress',
+              'Ready',
+              'Delivered'
+            ],
             limit: 5,
             readOnly: true,
           ),

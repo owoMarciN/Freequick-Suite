@@ -5,25 +5,18 @@ import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/widgets/ui/progress_bar.dart';
 
 class OrderTableWidget extends StatelessWidget {
-  /// UID restauracji do filtrowania zamówień.
   final String? restaurantID;
-
-  /// Lista statusów do wyświetlenia, np. ['Pending', 'In Progress', 'Ready', 'Out for Delivery'].
-  final List<String> statuses;
-
-  /// Maksymalna liczba wierszy (null = brak limitu).
+  final List<String> filterStatuses; 
+  final List<String> workflowStatuses;
   final int? limit;
-
-  /// Jeśli true, kolumna statusu jest statyczna (tylko do odczytu).
   final bool readOnly;
-
-  /// Wywoływane przy zmianie statusu przez użytkownika.
   final Future<void> Function(String orderID, String newStatus)? onStatusChange;
 
   const OrderTableWidget({
     super.key,
     required this.restaurantID,
-    required this.statuses,
+    required this.filterStatuses,   
+    required this.workflowStatuses, 
     this.limit,
     this.readOnly = false,
     this.onStatusChange,
@@ -39,7 +32,7 @@ class OrderTableWidget extends StatelessWidget {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance
         .collection('orders')
         .where('restaurantID', isEqualTo: restaurantID)
-        .where('status', whereIn: statuses)
+        .where('status', whereIn: filterStatuses)
         .orderBy('orderTime', descending: true);
 
     if (limit != null) query = query.limit(limit!);
@@ -167,7 +160,7 @@ class OrderTableWidget extends StatelessWidget {
                                   )
                                 : _StatusPicker(
                                     currentStatus: currentStatus,
-                                    availableStatuses: statuses,
+                                    availableStatuses: workflowStatuses,
                                     brandColors: brandColors,
                                     onChanged: (newStatus) =>
                                         onStatusChange!(doc.id, newStatus),
