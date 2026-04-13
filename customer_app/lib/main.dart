@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:user_app/screens/auth/auth_screen.dart';
-import 'package:user_app/screens/main_screen.dart';
+import 'package:user_app/screens/users/main_screen.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,7 +26,7 @@ import 'package:user_app/models/language.dart';
 
 import 'package:user_app/screens/splash_screen.dart';
 
-import 'package:user_app/widgets/unified_snackbar.dart';
+import 'package:user_app/widgets/ui/unified_snackbar.dart';
 
 import 'package:user_app/extensions/extensions_import.dart';
 

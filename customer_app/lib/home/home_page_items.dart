@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/screens/search_screen.dart';
+import 'package:user_app/screens/users/search_screen.dart';
 import 'package:user_app/models/home_page_items.dart';
 
 class HomePageItems extends StatelessWidget {

@@ -4,8 +4,8 @@ import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:rider_app/test/test_function_sheet.dart';
 import 'package:rider_app/utils/app_theme.dart';
-import 'package:rider_app/widgets/job_request_sheet.dart';
-import 'package:rider_app/widgets/rider_stats_widgets.dart';
+import 'package:rider_app/widgets/sheets/job_request_sheet.dart';
+import 'package:rider_app/widgets/stats/rider_stats_widgets.dart';
 import 'package:rider_app/screens/active_delivery_screen.dart';
 
 class HomeScreen extends StatefulWidget {

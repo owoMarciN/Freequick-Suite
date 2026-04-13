@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/global/global.dart';
-import 'package:user_app/widgets/unified_snackbar.dart';
+import 'package:user_app/widgets/ui/unified_snackbar.dart';
 import 'package:user_app/extensions/context_translate_ext.dart';
 import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
 

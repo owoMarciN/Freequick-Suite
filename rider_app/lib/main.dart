@@ -7,7 +7,7 @@ import 'package:rider_app/models/language_model.dart';
 import 'package:rider_app/providers/locale_provider.dart';
 import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/utils/app_constants.dart';
-import 'package:rider_app/widgets/unified_snackbar.dart';
+import 'package:rider_app/widgets/ui/unified_snackbar.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';

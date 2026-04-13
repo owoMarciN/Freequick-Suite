@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rider_app/screens/auth/otp_screen.dart';
 import 'package:rider_app/utils/app_theme.dart';
-import 'package:rider_app/widgets/custom_text_field.dart';
-import 'package:rider_app/widgets/custom_password_field.dart';
-import 'package:rider_app/widgets/custom_phone_field.dart';
+import 'package:rider_app/widgets/text_fields/custom_text_field.dart';
+import 'package:rider_app/widgets/text_fields/custom_password_field.dart';
+import 'package:rider_app/widgets/text_fields/custom_phone_field.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
 class LoginScreen extends StatefulWidget {

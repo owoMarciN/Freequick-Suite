@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/screens/search_screen.dart';
+import 'package:user_app/screens/users/search_screen.dart';
 
 class HomeLargeItems extends StatelessWidget {
   const HomeLargeItems({super.key});

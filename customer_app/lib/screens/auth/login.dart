@@ -7,14 +7,14 @@ import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/global/global.dart';
-import 'package:user_app/screens/main_screen.dart';
+import 'package:user_app/screens/users/main_screen.dart';
 
-import 'package:user_app/widgets/auth_button.dart';
-import 'package:user_app/widgets/error_dialog.dart';
-import 'package:user_app/widgets/loading_dialog.dart';
-import 'package:user_app/widgets/custom_text_field.dart';
-import 'package:user_app/widgets/custom_password_field.dart';
-import 'package:user_app/widgets/unified_snackbar.dart';
+import 'package:user_app/widgets/ui/auth_button.dart';
+import 'package:user_app/widgets/dialogs/error_dialog.dart';
+import 'package:user_app/widgets/dialogs/loading_dialog.dart';
+import 'package:user_app/widgets/text_fields/custom_text_field.dart';
+import 'package:user_app/widgets/text_fields/custom_password_field.dart';
+import 'package:user_app/widgets/ui/unified_snackbar.dart';
 
 import 'package:user_app/extensions/context_translate_ext.dart';
 

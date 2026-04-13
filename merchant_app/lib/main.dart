@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:merchant_app/screens/landing/how_it_works_screen.dart';
+import 'package:merchant_app/screens/restaurant/menus_screen.dart';
+import 'package:merchant_app/screens/shell/orders_screen.dart';
+import 'package:merchant_app/screens/shell/overview_screen.dart';
+import 'package:merchant_app/screens/shell/promotion_screen.dart';
+import 'package:merchant_app/screens/shell/settings_screen.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,17 +25,14 @@ import 'package:go_router/go_router.dart';
 import 'package:merchant_app/screens/auth/auth_screen.dart';
 import 'package:dynamic_path_url_strategy/dynamic_path_url_strategy.dart';
 
-import 'package:merchant_app/screens/landing_page_screen.dart';
+import 'package:merchant_app/screens/landing/landing_page_screen.dart';
 import 'package:merchant_app/screens/splash_screen.dart';
-import 'package:merchant_app/screens/dashboard_shell.dart';
-import 'package:merchant_app/screens/overview_screen.dart';
-import 'package:merchant_app/screens/orders_screen.dart';
-import 'package:merchant_app/screens/menus_screen.dart';
-import 'package:merchant_app/screens/analytics_screen.dart';
-import 'package:merchant_app/screens/settings_screen.dart';
-import 'package:merchant_app/screens/how_it_works_screen.dart';
-import 'package:merchant_app/screens/pricing_screen.dart';
-import 'package:merchant_app/screens/promotion_screen.dart';
+import 'package:merchant_app/screens/shell/dashboard_shell.dart';
+
+import 'package:merchant_app/screens/shell/analytics_screen.dart';
+
+import 'package:merchant_app/screens/landing/pricing_screen.dart';
+
 
 import 'package:merchant_app/screens/admin/admin_import.dart';
 

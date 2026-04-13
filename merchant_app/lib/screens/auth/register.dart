@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/custom_text_field.dart';
-import 'package:merchant_app/widgets/custom_phone_field.dart';
-import 'package:merchant_app/widgets/custom_password_field.dart';
-import 'package:merchant_app/widgets/error_dialog.dart';
-import 'package:merchant_app/widgets/loading_dialog.dart';
+import 'package:merchant_app/widgets/text_fields/custom_text_field.dart';
+import 'package:merchant_app/widgets/text_fields/custom_phone_field.dart';
+import 'package:merchant_app/widgets/text_fields/custom_password_field.dart';
+import 'package:merchant_app/widgets/dialogs/error_dialog.dart';
+import 'package:merchant_app/widgets/dialogs/loading_dialog.dart';
 import 'package:merchant_app/extensions/context_translate_ext.dart';
 import 'package:go_router/go_router.dart';
-import 'package:merchant_app/widgets/unified_snackbar.dart';
+import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

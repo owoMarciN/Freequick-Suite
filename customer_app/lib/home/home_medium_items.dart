@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../screens/search_screen.dart';
+import '../screens/users/search_screen.dart';
 
 class HomeMediumItems extends StatelessWidget {
   const HomeMediumItems({super.key});

@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:user_app/extensions/context_translate_ext.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/providers/cart_provider.dart';
-import 'package:user_app/screens/main_screen.dart';
-import 'package:user_app/widgets/error_dialog.dart';
-import 'package:user_app/widgets/loading_dialog.dart';
+import 'package:user_app/screens/users/main_screen.dart';
+import 'package:user_app/widgets/dialogs/error_dialog.dart';
+import 'package:user_app/widgets/dialogs/loading_dialog.dart';
 
 /// All data collected on the register screen — passed here so account
 /// creation only happens after the phone is verified.

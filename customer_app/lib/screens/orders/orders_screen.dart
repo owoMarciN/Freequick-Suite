@@ -1,0 +1,462 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:user_app/global/global.dart';
+import 'package:user_app/methods/assistant_methods.dart';
+import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:user_app/widgets/ui/unified_app_bar.dart';
+import 'package:user_app/widgets/ui/my_drower.dart';
+import 'package:user_app/screens/orders/order_details_screen.dart';
+
+class OrdersScreen extends StatefulWidget {
+  const OrdersScreen({super.key});
+
+  @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F6FB),
+      appBar: UnifiedAppBar(
+        title: "Your Orders",
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(
+              Icons.menu_open,
+              color: Colors.white,
+              size: 28,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  offset: const Offset(2, 2),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: MyDrawer(),
+      body: Column(
+        children: [
+          Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: Colors.redAccent,
+              unselectedLabelColor: Colors.grey.shade500,
+              labelStyle:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              unselectedLabelStyle:
+                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              indicatorColor: Colors.redAccent,
+              indicatorWeight: 3,
+              indicatorSize: TabBarIndicatorSize.tab,
+              tabs: const [
+                Tab(text: "Active"),
+                Tab(text: "Delivered"),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _OrderList(
+                  statuses: const ["Pending", "In Progress", "Ready"],
+                  emptyMessage: "No active orders",
+                  emptySubtitle: "Your current orders will appear here",
+                ),
+                _OrderList(
+                  statuses: const ["Delivered"],
+                  emptyMessage: "No past orders",
+                  emptySubtitle: "Your delivered orders will appear here",
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderList extends StatelessWidget {
+  final List<String> statuses;
+  final String emptyMessage, emptySubtitle;
+
+  const _OrderList({
+    required this.statuses,
+    required this.emptyMessage,
+    required this.emptySubtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection("orders")
+          .where("userID", isEqualTo: currentUID)
+          .where("status", whereIn: statuses)
+          .orderBy("orderTime", descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: circularProgress());
+        }
+        if (snapshot.data!.docs.isEmpty) {
+          return _EmptyState(message: emptyMessage, subtitle: emptySubtitle);
+        }
+
+        final docs = snapshot.data!.docs;
+
+        return FutureBuilder<List<List<Map<String, dynamic>>>>(
+          future: _fetchAllItems(docs),
+          builder: (context, itemSnap) {
+            if (!itemSnap.hasData) {
+              return Center(child: circularProgress());
+            }
+
+            final allItems = itemSnap.data!;
+
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final orderDoc = docs[index];
+                final orderData = orderDoc.data() as Map<String, dynamic>;
+                final status = orderData["status"]?.toString() ?? "Pending";
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _OrderListItem(
+                    orderID: orderDoc.id,
+                    orderData: orderData,
+                    status: status,
+                    items: allItems[index],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<List<List<Map<String, dynamic>>>> _fetchAllItems(
+      List<QueryDocumentSnapshot> docs) async {
+    List<List<Map<String, dynamic>>> result = [];
+
+    for (final doc in docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final List<dynamic> items = data['items'] ?? [];
+      final List<String> ids = items
+          .map((e) => e['itemID']?.toString() ?? '')
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      final restID = data['restaurantID']?.toString() ?? '';
+
+      if (ids.isEmpty) {
+        result.add([]);
+        continue;
+      }
+
+      final fetched = await fetchItems(ids, restID);
+      result.add(List<Map<String, dynamic>>.from(fetched));
+    }
+
+    return result;
+  }
+}
+
+class _OrderListItem extends StatelessWidget {
+  final String orderID, status;
+  final Map<String, dynamic> orderData;
+  final List<Map<String, dynamic>> items;
+
+  const _OrderListItem({
+    required this.orderID,
+    required this.orderData,
+    required this.status,
+    required this.items,
+  });
+
+  static const List<String> _stepValues = [
+    "Pending",
+    "In Progress",
+    "Ready",
+    "Delivered",
+  ];
+
+  static const List<String> _stepLabels = [
+    "Processing",
+    "In Progress",
+    "On the Way",
+    "Delivered",
+  ];
+
+  int get _currentStep {
+    final idx = _stepValues.indexOf(status);
+    return idx < 0 ? 0 : idx;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final int step = _currentStep;
+    final String total = "${orderData["totalAmount"] ?? "0.00"} zł";
+    final String orderType =
+        orderData["orderType"] == "pickup" ? "Pickup" : "Delivery";
+
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OrderDetailsScreen(orderID: orderID),
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEEEEEE)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "#${orderID.substring(0, 10)}...",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade500,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  _MiniStatusBadge(status: status),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: 48,
+                    child: Row(
+                      children: items.take(3).map((item) {
+                        final url = (item['imageUrl'] ?? '') as String;
+                        return Container(
+                          width: 48,
+                          height: 48,
+                          margin: const EdgeInsets.only(right: 6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.grey.shade100,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: url.isNotEmpty
+                              ? Image.network(url, fit: BoxFit.cover)
+                              : Icon(
+                                  Icons.fastfood_rounded,
+                                  color: Colors.grey.shade300,
+                                  size: 22,
+                                ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  if (items.length > 3) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey.shade100,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "+${items.length - 3}",
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade500),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(total,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.redAccent)),
+                      Text(orderType,
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.grey.shade500)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Divider(height: 1, color: Colors.grey.shade100),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _stepLabels[step],
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.redAccent),
+                  ),
+                  const SizedBox(height: 8),
+                  _MiniProgressBar(currentStep: step, status: status),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniProgressBar extends StatelessWidget {
+  final int currentStep;
+  final String status;
+  const _MiniProgressBar({required this.currentStep, required this.status});
+
+  static const int _total = 4;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(_total, (i) {
+        final bool isDone = (status == "Delivered") ? true : (i < currentStep);
+        final bool isCurrent = (status != "Delivered") && (i == currentStep);
+        final bool isLast = i == _total - 1;
+
+        return Expanded(
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDone || isCurrent
+                      ? Colors.redAccent
+                      : Colors.grey.shade200,
+                  border: isCurrent
+                      ? Border.all(
+                          color: Colors.redAccent.withValues(alpha: 0.3),
+                          width: 3)
+                      : null,
+                ),
+              ),
+              if (!isLast)
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: 2,
+                    color: isDone ? Colors.redAccent : Colors.grey.shade200,
+                  ),
+                ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _MiniStatusBadge extends StatelessWidget {
+  final String status;
+  const _MiniStatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final (Color bg, Color fg) = switch (status) {
+      'Pending' => (const Color(0xFFFEF3C7), const Color(0xFFD97706)),
+      'In Progress' => (
+          Colors.redAccent.withValues(alpha: 0.1),
+          Colors.redAccent
+        ),
+      'Ready' => (Colors.blue.shade50, Colors.blue.shade700),
+      'Delivered' => (
+          const Color(0xFF00C48C).withValues(alpha: 0.1),
+          const Color(0xFF00C48C)
+        ),
+      _ => (Colors.grey.shade100, Colors.grey.shade500),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      child: Text(status,
+          style:
+              TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg)),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String message, subtitle;
+  const _EmptyState({required this.message, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_bag_outlined,
+              size: 72, color: Colors.grey.shade200),
+          const SizedBox(height: 16),
+          Text(message,
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey.shade700)),
+          const SizedBox(height: 6),
+          Text(subtitle,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+        ],
+      ),
+    );
+  }
+}

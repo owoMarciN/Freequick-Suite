@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
-import 'package:merchant_app/widgets/language_button.dart';
+import 'package:merchant_app/widgets/ui/language_button.dart';
 
 class AdminDashboardShell extends StatelessWidget {
   final Widget child;

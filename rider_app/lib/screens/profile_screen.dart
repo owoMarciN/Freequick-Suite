@@ -4,7 +4,7 @@ import 'package:rider_app/models/rider_model.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:rider_app/utils/app_theme.dart';
-import 'package:rider_app/widgets/rider_stats_widgets.dart';
+import 'package:rider_app/widgets/stats/rider_stats_widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

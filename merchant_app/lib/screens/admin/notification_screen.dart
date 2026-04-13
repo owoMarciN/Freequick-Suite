@@ -3,7 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 import 'package:merchant_app/methods/assistant_methods.dart';
-import 'package:merchant_app/widgets/unified_snackbar.dart';
+import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
 
 class AdminNotificationsScreen extends StatefulWidget {
   const AdminNotificationsScreen({super.key});

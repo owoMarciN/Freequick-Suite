@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:merchant_app/extensions/extensions_import.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/error_dialog.dart';
-import 'package:merchant_app/widgets/loading_dialog.dart';
-import 'package:merchant_app/widgets/custom_text_field.dart';
-import 'package:merchant_app/widgets/custom_password_field.dart';
+import 'package:merchant_app/widgets/dialogs/error_dialog.dart';
+import 'package:merchant_app/widgets/dialogs/loading_dialog.dart';
+import 'package:merchant_app/widgets/text_fields/custom_text_field.dart';
+import 'package:merchant_app/widgets/text_fields/custom_password_field.dart';
 import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
