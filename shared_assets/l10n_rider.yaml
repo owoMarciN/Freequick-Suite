@@ -1,0 +1,14 @@
+arb-dir: lib/l10n/rider
+template-arb-file: app_en.arb
+output-localization-file: rider_localizations.dart
+output-class: RiderLocalizations
+output-dir: lib/l10n/generated/rider
+
+translator:
+  service: Google
+  key_file: ../secrets.json 
+  targets:
+    - ko
+    - pl
+    - de
+    - uk

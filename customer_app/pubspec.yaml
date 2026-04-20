@@ -10,15 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # --- Shared Assets Package ---
-  shared_assets:
-    path: ../shared_assets
-
   flutter_localizations:
     sdk: flutter
-    
+  shared_assets:
+    path: ../shared_assets
   intl: ^0.20.2
+  
   easy_localization: ^3.0.1
 
   cupertino_icons: ^1.0.2
@@ -44,14 +41,13 @@ dependencies:
   latlong2: ^0.9.1
   country_flags: ^4.1.2
   google_maps_flutter: ^2.14.0
-  auto_translator: ^2.3.5
-  translator: ^1.0.4+1
   permission_handler: ^12.0.1
   algoliasearch: ^1.44.0
   infinite_scroll_pagination: ^5.1.1
-  phone_form_field: ^10.0.17
-  path_provider: ^2.1.5
   fancy_password_field: ^2.0.8
+  phone_form_field: ^10.0.17
+  translator: ^1.0.4+1
+  path_provider: ^2.1.5
   firebase_app_check: ^0.4.1+4
   cloud_functions: ^6.0.6
   image_cropper: ^11.0.0

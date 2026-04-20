@@ -1,0 +1,14 @@
+arb-dir: lib/l10n/merchant
+template-arb-file: app_en.arb
+output-localization-file: merchant_localizations.dart
+output-class: MerchantLocalizations
+output-dir: lib/l10n/generated/merchant
+
+translator:
+  service: Google
+  key_file: ../secrets.json 
+  targets:
+    - ko
+    - pl
+    - de
+    - uk

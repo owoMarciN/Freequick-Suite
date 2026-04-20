@@ -139,32 +139,32 @@ async function notifyUser(uid, fcmToken, title, body, source, collectionName = "
     }
 }
 exports.sendAdminNotification = https.onCall({ region: REGION, enforceAppCheck: APP_CHECK }, async (req) => {
-    // Security Check
-    if (!req.auth || req.auth.token.role !== 'admin') {
-        throw new https.HttpsError("permission-denied", "Unauthorized");
+    if (!req.auth) {
+        throw new https.HttpsError("unauthenticated", "Must be signed in.");
+    }
+    const db = admin.firestore();
+    const callerDoc = await db.collection("users").doc(req.auth.uid).get();
+    if (!callerDoc.exists || callerDoc.data()?.role !== "admin") {
+        throw new https.HttpsError("permission-denied", "The admin role is required.");
     }
     const { title, body, audience, targetUIDs } = req.data;
-    const db = admin.firestore();
-    // 1. Get the list of people to notify
     let usersToNotify = [];
     if (audience === "specific") {
-        // For specific users, we need to fetch their FCM tokens first
         const snaps = await Promise.all(targetUIDs.map((uid) => db.collection("users").doc(uid).get()));
         usersToNotify = snaps.map(s => ({ uid: s.id, fcmToken: s.data()?.fcmToken }));
     }
     else {
-        // For "all" or "restaurants"
         let query = db.collection("users");
         if (audience === "restaurants") {
             query = query.where("role", "==", "restaurant");
         }
         const snap = await query.get();
-        usersToNotify = snap.docs.map((d) => ({ uid: d.id, fcmToken: d.data()?.fcmToken }));
+        usersToNotify = snap.docs.map((d) => ({
+            uid: d.id,
+            fcmToken: d.data()?.fcmToken,
+        }));
     }
-    // 2. Loop through and use your existing helper!
-    // We use Promise.all to send them all in parallel for speed
     await Promise.all(usersToNotify.map(user => notifyUser(user.uid, user.fcmToken ?? null, title, body, "admin")));
-    // 3. Log to History
     await db.collection("adminNotificationHistory").add({
         title,
         body,

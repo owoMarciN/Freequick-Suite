@@ -7,13 +7,13 @@ import 'package:user_app/services/image_picker_service.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
 import 'package:user_app/widgets/ui/auth_button.dart';
-import 'package:user_app/widgets/text_fields/custom_text_field.dart';
-import 'package:user_app/widgets/dialogs/error_dialog.dart';
-import 'package:user_app/widgets/dialogs/loading_dialog.dart';
-import 'package:user_app/widgets/text_fields/custom_phone_field.dart';
-import 'package:user_app/widgets/text_fields/custom_password_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
 
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -61,7 +61,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_croppedImage == null) {
       showDialog(
           context: context,
-          builder: (_) => ErrorDialog(message: context.l10n.errorSelectImage));
+          builder: (_) =>
+              ErrorDialog(message: context.l10nCommon.errorNoImageSelected));
       return;
     }
 
@@ -70,8 +71,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_passwordController.text != _confirmePasswordController.text) {
       showDialog(
           context: context,
-          builder: (_) =>
-              ErrorDialog(message: context.l10n.errorNoMatchPasswords));
+          builder: (_) => ErrorDialog(
+              message: context.l10nCommon.errorPasswordMismatch));
       return;
     }
 
@@ -79,11 +80,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) =>
-          LoadingDialog(message: context.l10n.registeringAccount)
-      );
+          context: context,
+          barrierDismissible: false,
+          builder: (_) =>
+              LoadingDialog(message: context.l10nCommon.registeringAccount));
       return;
     }
 
@@ -101,11 +101,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       MaterialPageRoute(
         builder: (_) => OtpScreen(
           args: OtpScreenArgs(
-            name:     _nameController.text.trim(),
-            email:    _emailController.text.trim(),
+            name: _nameController.text.trim(),
+            email: _emailController.text.trim(),
             password: _passwordController.text,
-            phone:    _phoneController.value.international,
-            photo:    _croppedImage!,
+            phone: _phoneController.value.international,
+            photo: _croppedImage!,
           ),
         ),
       ),
@@ -120,6 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.white,
         body: SafeArea(
           child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -173,28 +174,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         CustomTextField(
                           data: Icons.person,
                           controller: _nameController,
-                          hintText: context.l10n.hintName,
+                          hintText: context.l10nCommon.name,
                           isObsecure: false,
                         ),
                         CustomPhoneField(
                           controller: _phoneController,
-                          label: context.l10n.hintPhone,
+                          label: context.l10nCommon.phone,
                         ),
                         CustomTextField(
                           data: Icons.email,
                           controller: _emailController,
-                          hintText: context.l10n.hintEmail,
+                          hintText: context.l10nCommon.email,
                           isObsecure: false,
                         ),
                         CustomPasswordField(
                           controller: _passwordController,
-                          label: context.l10n.hintPassword,
+                          label: context.l10nCommon.password,
                           isRequired: true,
                           isConfirmation: false,
                         ),
                         CustomPasswordField(
                           controller: _confirmePasswordController,
-                          label: context.l10n.hintConfPassword,
+                          label: context.l10nCommon.confPassword,
                           isRequired: true,
                           isConfirmation: true,
                         ),
@@ -205,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 10),
                 AuthButton(
-                  label: context.l10n.signUp,
+                  label: context.l10nCommon.signUp,
                   onPressed: () async => await _submit(),
                 ),
                 const SizedBox(height: 30),

@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/text_fields/custom_text_field.dart';
-import 'package:merchant_app/widgets/text_fields/custom_phone_field.dart';
-import 'package:merchant_app/widgets/text_fields/custom_password_field.dart';
-import 'package:merchant_app/widgets/dialogs/error_dialog.dart';
-import 'package:merchant_app/widgets/dialogs/loading_dialog.dart';
-import 'package:merchant_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:go_router/go_router.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -81,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       showDialog(
         context: context,
         builder: (_) =>
-            ErrorDialog(message: context.l10n.errorNoMatchPasswords),
+            ErrorDialog(message: context.l10nMerchant.errorNoMatchPasswords),
       );
       return;
     }
@@ -89,7 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadingDialog(message: context.l10n.creating_partner_account),
+      builder: (_) =>
+          LoadingDialog(message: context.l10nMerchant.creating_partner_account),
     );
 
     try {
@@ -110,8 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Navigator.pop(context);
         context.go('/');
 
-        unifiedSnackBar(context,
-            context.l10n.account_is_pending_approval);
+        unifiedSnackBar(context.l10nMerchant.account_is_pending_approval);
       }
     } catch (error) {
       if (!mounted) return;
@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         _StepDot(
             number: 1,
-            label: context.l10n.business,
+            label: context.l10nMerchant.business,
             active: _currentStep == 0,
             done: _currentStep > 0),
         Expanded(
@@ -216,7 +216,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _currentStep > 0 ? Colors.blueAccent : Colors.grey[300])),
         _StepDot(
             number: 2,
-            label: context.l10n.admin_profile,
+            label: context.l10nMerchant.admin_profile,
             active: _currentStep == 1,
             done: false),
       ],
@@ -232,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           CustomTextField(
             data: Icons.business_rounded,
             controller: _businessNameController,
-            hintText: context.l10n.business_name,
+            hintText: context.l10nMerchant.business_name,
           ),
           CustomTextField(
             data: Icons.numbers_rounded,
@@ -248,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           CustomPhoneField(
             controller: _businessMobileController,
-            label: context.l10n.business_phone,
+            label: context.l10nMerchant.business_phone,
           ),
           const SizedBox(height: 24),
           SizedBox(
@@ -264,12 +264,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(context.l10n.info_continue,
+                  Text(
+                    context.l10nMerchant.info_continue,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14
-                    ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
                   ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward_rounded,
@@ -292,28 +292,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
           CustomTextField(
             data: Icons.person_rounded,
             controller: _ownerNameController,
-            hintText: context.l10n.owner_full_name,
+            hintText: context.l10nMerchant.owner_full_name,
             isObsecure: false,
           ),
           CustomPhoneField(
             controller: _ownerPhoneController,
-            label: context.l10n.owner_phone,
+            label: context.l10nMerchant.owner_phone,
           ),
           CustomTextField(
             data: Icons.email_rounded,
             controller: _emailController,
-            hintText: context.l10n.hintEmail,
+            hintText: context.l10nMerchant.hintEmail,
             isObsecure: false,
           ),
           CustomPasswordField(
             controller: _passwordController,
-            label: context.l10n.hintPassword,
+            label: context.l10nMerchant.hintPassword,
             isRequired: true,
             isConfirmation: false,
           ),
           CustomPasswordField(
             controller: _confirmPasswordController,
-            label: context.l10n.hintConfPassword,
+            label: context.l10nMerchant.hintConfPassword,
             isRequired: true,
             isConfirmation: true,
           ),
@@ -334,7 +334,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         Icon(Icons.arrow_back_rounded, size: 18),
                         SizedBox(width: 8),
-                        Text(context.l10n.back,
+                        Text(context.l10nCommon.back,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
@@ -353,7 +353,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text(context.l10n.sign_up,
+                    child: Text(context.l10nMerchant.sign_up,
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

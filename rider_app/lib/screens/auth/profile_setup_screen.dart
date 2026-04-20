@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/services/auth_service.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -33,8 +33,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: scheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -59,11 +62,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               // Name field
               TextField(
                 controller: _nameController,
-                style: const TextStyle(color: AppTheme.textPrimary),
-                decoration: const InputDecoration(
+                style: TextStyle(color: brand.primary),
+                decoration: InputDecoration(
                   labelText: 'Full Name',
                   prefixIcon:
-                      Icon(Icons.person_outline, color: AppTheme.textSecondary),
+                      Icon(Icons.person_outline, color: brand.primary),
                 ),
               ),
 
@@ -74,7 +77,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(fontSize: 15, color: AppTheme.textSecondary),
+                    ?.copyWith(fontSize: 15, color: brand.primary),
               ),
               const SizedBox(height: 12),
 
@@ -92,12 +95,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.primary.withValues(alpha: 0.15)
-                                : AppTheme.surfaceLight,
+                                ? brand.primary!.withValues(alpha: 0.15)
+                                : scheme.surfaceBright,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
-                                  ? AppTheme.primary
+                                  ? brand.primary!
                                   : Colors.transparent,
                               width: 1.5,
                             ),
@@ -107,8 +110,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               Icon(
                                 v['icon'] as IconData,
                                 color: isSelected
-                                    ? AppTheme.primary
-                                    : AppTheme.textSecondary,
+                                    ? brand.primary
+                                    : brand.primaryDark,
                                 size: 28,
                               ),
                               const SizedBox(height: 6),
@@ -116,8 +119,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 v['label'] as String,
                                 style: TextStyle(
                                   color: isSelected
-                                      ? AppTheme.primary
-                                      : AppTheme.textSecondary,
+                                      ? brand.primary
+                                      : brand.primaryDark,
                                   fontSize: 12,
                                   fontWeight: isSelected
                                       ? FontWeight.w700
@@ -137,7 +140,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 16),
                 Text(
                   _error!,
-                  style: const TextStyle(color: AppTheme.danger, fontSize: 13),
+                  style: TextStyle(color: brand.danger, fontSize: 13),
                 ),
               ],
 

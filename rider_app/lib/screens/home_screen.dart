@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/providers/rider_stats_provider.dart';
 import 'package:rider_app/test/test_function_sheet.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:rider_app/widgets/sheets/job_request_sheet.dart';
 import 'package:rider_app/widgets/stats/rider_stats_widgets.dart';
 import 'package:rider_app/screens/active_delivery_screen.dart';
@@ -21,8 +21,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: scheme.surface,
       // Using MultiProvider local to this builder to access both providers easily
       body: Consumer2<RiderProvider, RiderStatsProvider>(
         builder: (context, riderProvider, statsProvider, _) {
@@ -89,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: const Text("Test Cloud Functions",
+                        child: Text(context.l10nCommon.testCloudFunctions,
                             style: TextStyle(color: Colors.white)),
                       ),
                     ),
@@ -115,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showJobRequest(BuildContext context, RiderProvider provider) {
-    // 2. Add the 'return' keyword here!
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -148,6 +149,8 @@ class _ActiveOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -155,12 +158,12 @@ class _ActiveOrderCard extends StatelessWidget {
         decoration: BoxDecoration(
           // Using a gradient or distinct color to make it pop
           gradient: LinearGradient(
-            colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.8)],
+            colors: [brand.primary!, brand.primary!.withValues(alpha: 0.8)],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primary.withValues(alpha: 0.3),
+              color: brand.primary!.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -178,12 +181,12 @@ class _ActiveOrderCard extends StatelessWidget {
                   color: Colors.white),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Active Delivery',
+                    context.l10nRider.activeDelivery,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -191,7 +194,7 @@ class _ActiveOrderCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Tap to return to map & navigation',
+                    context.l10nRider.tapToReturnToMap,
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -215,17 +218,20 @@ class _StatusToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final deviderColor = Theme.of(context).dividerColor;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: provider.isOnline
-            ? AppTheme.primary.withValues(alpha: 0.1)
-            : AppTheme.cardBg,
+            ? brand.primary!.withValues(alpha: 0.1)
+            : brand.cardSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: provider.isOnline
-              ? AppTheme.primary.withValues(alpha: 0.3)
-              : AppTheme.divider,
+              ? brand.primary!.withValues(alpha: 0.3)
+              : deviderColor,
         ),
       ),
       child: Row(
@@ -234,11 +240,11 @@ class _StatusToggle extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                provider.isOnline ? 'You\'re Online' : 'You\'re Offline',
+                provider.isOnline
+                    ? context.l10nRider.youAreOnline
+                    : context.l10nRider.youAreOffline,
                 style: TextStyle(
-                  color: provider.isOnline
-                      ? AppTheme.primary
-                      : AppTheme.textPrimary,
+                  color: provider.isOnline ? brand.primary : brand.primaryDark,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
@@ -248,8 +254,7 @@ class _StatusToggle extends StatelessWidget {
                 provider.isOnline
                     ? 'Ready to receive orders'
                     : 'Go online to receive orders',
-                style: const TextStyle(
-                    color: AppTheme.textSecondary, fontSize: 13),
+                style: TextStyle(color: brand.primaryDark, fontSize: 13),
               ),
             ],
           ),
@@ -260,7 +265,7 @@ class _StatusToggle extends StatelessWidget {
               value: provider.isOnline,
               onChanged:
                   provider.isLoading ? null : (_) => provider.toggleOnline(),
-              activeThumbColor: AppTheme.primary,
+              activeThumbColor: Colors.white,
             ),
           ),
         ],
@@ -276,6 +281,8 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Row(
       children: [
         // Rating from Stats Provider
@@ -284,7 +291,7 @@ class _StatsRow extends StatelessWidget {
           value: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: AppTheme.warning, size: 18),
+              Icon(Icons.star_rounded, color: brand.warning, size: 18),
               const SizedBox(width: 4),
               Text(
                 stats.totalRatings > 0
@@ -293,7 +300,7 @@ class _StatsRow extends StatelessWidget {
               ),
             ],
           ),
-          color: AppTheme.warning,
+          color: brand.warning!,
         ),
         const SizedBox(width: 12),
 
@@ -301,7 +308,7 @@ class _StatsRow extends StatelessWidget {
         StatCard(
           label: 'Vehicle',
           value: buildVehicleWidget(provider.rider?.vehicleType ?? 'SCOOTER'),
-          color: AppTheme.info,
+          color: brand.primary!,
         ),
         const SizedBox(width: 12),
 
@@ -309,7 +316,7 @@ class _StatsRow extends StatelessWidget {
         StatCard(
           label: 'Status',
           value: _buildStatusIndicator(provider.isOnline),
-          color: provider.isOnline ? AppTheme.primary : AppTheme.textSecondary,
+          color: provider.isOnline ? brand.success! : brand.danger!,
         ),
       ],
     );
@@ -337,6 +344,8 @@ class _StatsRow extends StatelessWidget {
 class _RecentActivity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -349,21 +358,19 @@ class _RecentActivity extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.cardBg,
+            color: brand.cardSurface,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Center(
+          child: Center(
             child: Column(
               children: [
-                Icon(Icons.history, color: AppTheme.textSecondary, size: 36),
+                Icon(Icons.history, color: brand.primaryDark, size: 36),
                 SizedBox(height: 8),
                 Text('No recent deliveries',
-                    style:
-                        TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                    style: TextStyle(color: brand.primaryDark, fontSize: 14)),
                 SizedBox(height: 4),
                 Text('Go online to start receiving jobs',
-                    style:
-                        TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    style: TextStyle(color: brand.primaryDark, fontSize: 12)),
               ],
             ),
           ),

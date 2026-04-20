@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
-import 'package:merchant_app/methods/assistant_methods.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class AdminNotificationsScreen extends StatefulWidget {
   const AdminNotificationsScreen({super.key});
@@ -55,15 +56,15 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen>
                   ),
                   child: TabBar(
                     controller: _tabController,
-                    labelColor: const Color(0xFFEF4444),
+                    labelColor: brand.danger,
                     unselectedLabelColor: brand.muted,
-                    indicatorColor: const Color(0xFFEF4444),
+                    indicatorColor: brand.danger,
                     indicatorWeight: 2,
                     labelStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                     tabs: [
-                      Tab(text: context.l10n.admin_notifications_tab_send),
-                      Tab(text: context.l10n.admin_notifications_tab_history),
+                      Tab(text: context.l10nMerchant.admin_notifications_tab_send),
+                      Tab(text: context.l10nMerchant.admin_notifications_tab_history),
                     ],
                   ),
                 ),
@@ -71,8 +72,8 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _SendTab(brand: brand, scheme: scheme),
-                      _HistoryTab(brand: brand, scheme: scheme),
+                      _SendTab(),
+                      _HistoryTab(),
                     ],
                   ),
                 ),
@@ -87,13 +88,7 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen>
 
 enum _Audience { all, restaurants, specific }
 
-// -- Send tab ------------------------------------------------------------------
-
 class _SendTab extends StatefulWidget {
-  final BrandColors brand;
-  final ColorScheme scheme;
-  const _SendTab({required this.brand, required this.scheme});
-
   @override
   State<_SendTab> createState() => _SendTabState();
 }
@@ -108,11 +103,8 @@ class _SendTabState extends State<_SendTab> {
   bool _isLoading = false;
 
   List<Map<String, dynamic>> _searchResults = [];
-  // Multiple selected users
   final List<Map<String, dynamic>> _selectedUsers = [];
   bool _searching = false;
-
-  static const Color _red = Color(0xFFEF4444);
 
   @override
   void dispose() {
@@ -131,7 +123,6 @@ class _SendTabState extends State<_SendTab> {
     try {
       final snap = await FirebaseFirestore.instance.collection('users').get();
       final q = query.toLowerCase();
-      // Exclude already selected
       final selectedUIDs =
           _selectedUsers.map((u) => u['uid'] as String).toSet();
       final results = snap.docs
@@ -151,8 +142,6 @@ class _SendTabState extends State<_SendTab> {
   void _addUser(Map<String, dynamic> user) {
     setState(() {
       _selectedUsers.add(user);
-      // Remove the chosen user from results but keep the list open
-      // so the admin can keep selecting more without re-typing.
       _searchResults.removeWhere((u) => u['uid'] == user['uid']);
     });
   }
@@ -162,16 +151,19 @@ class _SendTabState extends State<_SendTab> {
   }
 
   Future<void> _send() async {
+    await FirebaseAuth.instance.currentUser?.getIdToken(true);
+
     if (!_formKey.currentState!.validate()) return;
     if (_audience == _Audience.specific && _selectedUsers.isEmpty) {
-      unifiedSnackBar(context, context.l10n.admin_notifications_select_user, error: true);
+      if (!mounted) return;
+      unifiedSnackBar(context.l10nMerchant.admin_notifications_select_user,
+          error: true);
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      // 1. Prepare data for the Cloud Function
       final Map<String, dynamic> data = {
         'title': _titleController.text.trim(),
         'body': _bodyController.text.trim(),
@@ -179,7 +171,6 @@ class _SendTabState extends State<_SendTab> {
         'targetUIDs': _selectedUsers.map((u) => u['uid'] as String).toList(),
       };
 
-      // 2. Call the Cloud Function (Ensure region matches your deployment)
       final result = await FirebaseFunctions.instanceFor(region: 'europe-west1')
           .httpsCallable('sendAdminNotification')
           .call(data);
@@ -191,13 +182,10 @@ class _SendTabState extends State<_SendTab> {
 
       if (success) {
         unifiedSnackBar(
-          context,
           count == 1
-              ? context.l10n.admin_notifications_sent_one
-              : context.l10n.admin_notifications_sent_many(count),
+              ? context.l10nMerchant.admin_notifications_sent_one
+              : context.l10nMerchant.admin_notifications_sent_many(count),
         );
-
-        // Reset UI
         _titleController.clear();
         _bodyController.clear();
         _searchController.clear();
@@ -207,10 +195,10 @@ class _SendTabState extends State<_SendTab> {
           _searchResults = [];
         });
       } else {
-        unifiedSnackBar(context, "Cloud Function failed to process request.", error: true);
+        unifiedSnackBar("Cloud Function failed to process request.", error: true);
       }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, "Error: ${e.toString()}", error: true);
+      if (mounted) unifiedSnackBar("Error: ${e.toString()}", error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -218,6 +206,9 @@ class _SendTabState extends State<_SendTab> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Form(
@@ -225,18 +216,15 @@ class _SendTabState extends State<_SendTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // -- Audience selector -----------------------------------------
-            Text(context.l10n.admin_notifications_target_audience,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+            Text(context.l10nMerchant.admin_notifications_target_audience,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
             const SizedBox(height: 10),
             Row(
               children: _Audience.values.map((a) {
                 final selected = _audience == a;
                 return Expanded(
                   child: Padding(
-                    padding:
-                        EdgeInsets.only(right: a != _Audience.specific ? 8 : 0),
+                    padding: EdgeInsets.only(right: a != _Audience.specific ? 8 : 0),
                     child: GestureDetector(
                       onTap: () => setState(() {
                         _audience = a;
@@ -248,13 +236,13 @@ class _SendTabState extends State<_SendTab> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: selected
-                              ? _red.withValues(alpha: 0.08)
+                              ? brand.danger!.withValues(alpha: 0.08)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: selected
-                                ? _red.withValues(alpha: 0.5)
-                                : widget.scheme.outline,
+                                ? brand.danger!.withValues(alpha: 0.5)
+                                : scheme.outline,
                           ),
                         ),
                         child: Column(
@@ -262,30 +250,26 @@ class _SendTabState extends State<_SendTab> {
                             Icon(
                               switch (a) {
                                 _Audience.all => Icons.groups_rounded,
-                                _Audience.restaurants =>
-                                  Icons.storefront_rounded,
-                                _Audience.specific =>
-                                  Icons.person_search_rounded,
+                                _Audience.restaurants => Icons.storefront_rounded,
+                                _Audience.specific => Icons.person_search_rounded,
                               },
                               size: 20,
-                              color: selected ? _red : widget.brand.muted,
+                              color: selected ? brand.danger : brand.muted,
                             ),
                             const SizedBox(height: 5),
                             Text(
                               switch (a) {
                                 _Audience.all =>
-                                  context.l10n.admin_notifications_audience_all,
-                                _Audience.restaurants => context.l10n
+                                  context.l10nMerchant.admin_notifications_audience_all,
+                                _Audience.restaurants => context.l10nMerchant
                                     .admin_notifications_audience_restaurants,
-                                _Audience.specific => context
-                                    .l10n.admin_notifications_audience_specific,
+                                _Audience.specific => context.l10nMerchant
+                                    .admin_notifications_audience_specific,
                               },
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: selected
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                                color: selected ? _red : widget.brand.muted,
+                                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                                color: selected ? brand.danger : brand.muted,
                               ),
                             ),
                           ],
@@ -297,11 +281,9 @@ class _SendTabState extends State<_SendTab> {
               }).toList(),
             ),
 
-            // -- Specific user search --------------------------------------
             if (_audience == _Audience.specific) ...[
               const SizedBox(height: 16),
 
-              // Selected users chips
               if (_selectedUsers.isNotEmpty) ...[
                 Wrap(
                   spacing: 8,
@@ -310,12 +292,11 @@ class _SendTabState extends State<_SendTab> {
                     final name = user['name']?.toString() ?? 'Unknown';
                     final photo = user['photoUrl']?.toString();
                     return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 9),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                       decoration: BoxDecoration(
-                        color: _red.withValues(alpha: 0.07),
+                        color: brand.danger!.withValues(alpha: 0.07),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: _red.withValues(alpha: 0.3)),
+                        border: Border.all(color: brand.danger!.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -325,15 +306,11 @@ class _SendTabState extends State<_SendTab> {
                             backgroundImage: photo?.isNotEmpty == true
                                 ? NetworkImage(photo!)
                                 : null,
-                            backgroundColor:
-                                widget.brand.navy?.withValues(alpha: 0.15),
+                            backgroundColor: brand.muted?.withValues(alpha: 0.15),
                             child: photo?.isNotEmpty != true
                                 ? Text(
-                                    name.isNotEmpty
-                                        ? name[0].toUpperCase()
-                                        : '?',
-                                    style: TextStyle(
-                                        fontSize: 11, color: widget.brand.navy),
+                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                    style: TextStyle(fontSize: 11, color: brand.muted),
                                   )
                                 : null,
                           ),
@@ -345,7 +322,7 @@ class _SendTabState extends State<_SendTab> {
                           GestureDetector(
                             onTap: () => _removeUser(user['uid'] as String),
                             child: Icon(Icons.close_rounded,
-                                size: 15, color: widget.brand.muted),
+                                size: 15, color: brand.muted),
                           ),
                         ],
                       ),
@@ -355,31 +332,30 @@ class _SendTabState extends State<_SendTab> {
                 const SizedBox(height: 10),
               ],
 
-              // Search field
               TextField(
                 controller: _searchController,
                 onChanged: _searchUsers,
-                style: const TextStyle(fontSize: 13),
+                style: TextStyle(fontSize: 13, color: scheme.onSurface),
                 decoration: InputDecoration(
                   hintText: _selectedUsers.isEmpty
-                      ? context.l10n.admin_notifications_search_hint
-                      : context.l10n.admin_notifications_search_hint_more,
-                  hintStyle: TextStyle(fontSize: 13, color: widget.brand.muted),
-                  prefixIcon: Icon(Icons.search_rounded,
-                      size: 18, color: widget.brand.muted),
+                      ? context.l10nMerchant.admin_notifications_search_hint
+                      : context.l10nMerchant.admin_notifications_search_hint_more,
+                  hintStyle: TextStyle(fontSize: 13, color: brand.muted),
+                  prefixIcon: Icon(Icons.search_rounded, size: 18, color: brand.muted),
                   suffixIcon: _searching
-                      ? const Padding(
-                          padding: EdgeInsets.all(12),
+                      ? Padding(
+                          padding: const EdgeInsets.all(12),
                           child: SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: brand.primary),
                           ),
                         )
                       : _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: Icon(Icons.close_rounded,
-                                  size: 16, color: widget.brand.muted),
+                                  size: 16, color: brand.muted),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() => _searchResults = []);
@@ -388,28 +364,27 @@ class _SendTabState extends State<_SendTab> {
                           : null,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  filled: true,
+                  fillColor: scheme.surfaceBright,
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: widget.scheme.outline)),
+                      borderSide: BorderSide(color: scheme.outline)),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: widget.scheme.outline)),
-                  filled: true,
-                  fillColor: widget.scheme.surfaceContainerLow,
+                      borderSide: BorderSide(color: scheme.outline)),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide:
-                          const BorderSide(color: Colors.white, width: 1.5)),
+                      borderSide: BorderSide(color: brand.primary!, width: 1.5)),
                 ),
               ),
 
-              // Dropdown results
               if (_searchResults.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Container(
                   decoration: BoxDecoration(
+                    color: scheme.surface,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: widget.scheme.outline),
+                    border: Border.all(color: scheme.outline),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
@@ -425,15 +400,11 @@ class _SendTabState extends State<_SendTab> {
                             backgroundImage: photo?.isNotEmpty == true
                                 ? NetworkImage(photo!)
                                 : null,
-                            backgroundColor:
-                                widget.brand.navy?.withValues(alpha: 0.1),
+                            backgroundColor: brand.muted?.withValues(alpha: 0.1),
                             child: photo?.isNotEmpty != true
                                 ? Text(
-                                    name.isNotEmpty
-                                        ? name[0].toUpperCase()
-                                        : '?',
-                                    style: TextStyle(
-                                        fontSize: 12, color: widget.brand.navy),
+                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                    style: TextStyle(fontSize: 12, color: brand.muted),
                                   )
                                 : null,
                           ),
@@ -441,10 +412,9 @@ class _SendTabState extends State<_SendTab> {
                               style: const TextStyle(
                                   fontSize: 13, fontWeight: FontWeight.w600)),
                           subtitle: Text(email,
-                              style: TextStyle(
-                                  fontSize: 11, color: widget.brand.muted)),
+                              style: TextStyle(fontSize: 11, color: brand.muted)),
                           trailing: Icon(Icons.add_circle_outline_rounded,
-                              size: 18, color: widget.brand.navy),
+                              size: 18, color: brand.muted),
                           onTap: () => _addUser(user),
                         );
                       }).toList(),
@@ -456,67 +426,62 @@ class _SendTabState extends State<_SendTab> {
 
             const SizedBox(height: 20),
 
-            // -- Title -----------------------------------------------------
             TextFormField(
               controller: _titleController,
+              style: TextStyle(fontSize: 13, color: scheme.onSurface),
               decoration: InputDecoration(
-                labelText: context.l10n.admin_notifications_title_label,
-                hintText: context.l10n.admin_notifications_title_hint,
+                labelText: context.l10nMerchant.admin_notifications_title_label,
+                hintText: context.l10nMerchant.admin_notifications_title_hint,
                 filled: true,
-                fillColor: widget.scheme.surfaceContainerLow,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                fillColor: scheme.surfaceBright,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: widget.scheme.outline)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    borderSide: BorderSide(color: scheme.outline)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        const BorderSide(color: Colors.white, width: 1.5)),
+                    borderSide: BorderSide(color: brand.primary!, width: 1.5)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (v) => v == null || v.trim().isEmpty
-                  ? context.l10n.admin_notifications_required
+                  ? context.l10nMerchant.admin_notifications_required
                   : null,
             ),
             const SizedBox(height: 14),
 
-            // -- Body ------------------------------------------------------
             TextFormField(
               controller: _bodyController,
               maxLines: 4,
+              style: TextStyle(fontSize: 13, color: scheme.onSurface),
               decoration: InputDecoration(
-                labelText: context.l10n.admin_notifications_body_label,
-                hintText: context.l10n.admin_notifications_body_hint,
+                labelText: context.l10nMerchant.admin_notifications_body_label,
+                hintText: context.l10nMerchant.admin_notifications_body_hint,
                 filled: true,
-                fillColor: widget.scheme.surfaceContainerLow,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                fillColor: scheme.surfaceBright,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: widget.scheme.outline)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    borderSide: BorderSide(color: scheme.outline)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        const BorderSide(color: Colors.white, width: 1.5)),
+                    borderSide: BorderSide(color: brand.primary!, width: 1.5)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (v) => v == null || v.trim().isEmpty
-                  ? context.l10n.admin_notifications_required
+                  ? context.l10nMerchant.admin_notifications_required
                   : null,
             ),
             const SizedBox(height: 24),
 
-            // -- Send button -----------------------------------------------
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _send,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _red,
+                  backgroundColor: brand.danger,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -531,10 +496,9 @@ class _SendTabState extends State<_SendTab> {
                     : const Icon(Icons.send_rounded, size: 18),
                 label: Text(
                   _isLoading
-                      ? context.l10n.admin_notifications_sending
-                      : context.l10n.admin_notifications_send_button,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 15),
+                      ? context.l10nMerchant.admin_notifications_sending
+                      : context.l10nMerchant.admin_notifications_send_button,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                 ),
               ),
             ),
@@ -545,15 +509,11 @@ class _SendTabState extends State<_SendTab> {
   }
 }
 
-// -- History tab ---------------------------------------------------------------
-
 class _HistoryTab extends StatelessWidget {
-  final BrandColors brand;
-  final ColorScheme scheme;
-  const _HistoryTab({required this.brand, required this.scheme});
-
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('adminNotificationHistory')
@@ -567,7 +527,8 @@ class _HistoryTab extends StatelessWidget {
                   style: TextStyle(color: brand.muted)));
         }
         if (!snap.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+              child: CircularProgressIndicator(color: brand.primary));
         }
         final docs = snap.data!.docs;
         if (docs.isEmpty) {
@@ -578,7 +539,7 @@ class _HistoryTab extends StatelessWidget {
                 Icon(Icons.notifications_none_rounded,
                     size: 48, color: brand.muted),
                 const SizedBox(height: 12),
-                Text(context.l10n.admin_notifications_history_empty,
+                Text(context.l10nMerchant.admin_notifications_history_empty,
                     style: TextStyle(fontSize: 14, color: brand.muted)),
               ],
             ),
@@ -590,7 +551,7 @@ class _HistoryTab extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (_, i) {
             final data = docs[i].data() as Map<String, dynamic>;
-            return _HistoryCard(data: data, brand: brand, scheme: scheme);
+            return _HistoryCard(data: data);
           },
         );
       },
@@ -600,14 +561,13 @@ class _HistoryTab extends StatelessWidget {
 
 class _HistoryCard extends StatelessWidget {
   final Map<String, dynamic> data;
-  final BrandColors brand;
-  final ColorScheme scheme;
-
-  const _HistoryCard(
-      {required this.data, required this.brand, required this.scheme});
+  const _HistoryCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     final title = data['title']?.toString() ?? '—';
     final body = data['body']?.toString() ?? '';
     final targetName = data['targetName']?.toString() ?? '—';
@@ -637,16 +597,17 @@ class _HistoryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: brand.success!.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
-                  border:
-                      Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                  border: Border.all(color: brand.success!.withValues(alpha: 0.4)),
                 ),
-                child: Text(context.l10n.admin_notifications_history_sent_badge,
-                    style: const TextStyle(
+                child: Text(
+                    context.l10nMerchant
+                        .admin_notifications_history_sent_badge,
+                    style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.green)),
+                        color: brand.success)),
               ),
             ],
           ),
@@ -670,12 +631,12 @@ class _HistoryCard extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Icon(Icons.check_circle_outline_rounded,
-                  size: 13, color: Colors.green),
+                  size: 13, color: brand.success),
               const SizedBox(width: 4),
               Text(
-                  context.l10n
+                  context.l10nMerchant
                       .admin_notifications_history_sent_count(sentCount),
-                  style: const TextStyle(fontSize: 11, color: Colors.green)),
+                  style: TextStyle(fontSize: 11, color: brand.success)),
               const SizedBox(width: 14),
               Text(time, style: TextStyle(fontSize: 11, color: brand.muted)),
             ],

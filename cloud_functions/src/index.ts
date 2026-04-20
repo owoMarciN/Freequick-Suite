@@ -135,52 +135,55 @@ async function notifyUser(
 export const sendAdminNotification = https.onCall(
   { region: REGION, enforceAppCheck: APP_CHECK },
   async (req) => {
-  // Security Check
-  if (!req.auth || req.auth.token.role !== 'admin') {
-    throw new https.HttpsError("permission-denied", "Unauthorized");
-  }
-
-  const { title, body, audience, targetUIDs } = req.data;
-  const db = admin.firestore();
-
-  // 1. Get the list of people to notify
-  let usersToNotify: { uid: string, fcmToken?: string }[] = [];
-
-  if (audience === "specific") {
-    // For specific users, we need to fetch their FCM tokens first
-    const snaps = await Promise.all(
-      targetUIDs.map((uid: string) => db.collection("users").doc(uid).get())
-    );
-    usersToNotify = snaps.map(s => ({ uid: s.id, fcmToken: s.data()?.fcmToken }));
-  } else {
-    // For "all" or "restaurants"
-    let query: any = db.collection("users");
-    if (audience === "restaurants") {
-      query = query.where("role", "==", "restaurant");
+    if (!req.auth) {
+      throw new https.HttpsError("unauthenticated", "Must be signed in.");
     }
-    const snap = await query.get();
-    usersToNotify = snap.docs.map((d: any) => ({ uid: d.id, fcmToken: d.data()?.fcmToken }));
+
+    const db = admin.firestore();
+
+    const callerDoc = await db.collection("users").doc(req.auth.uid).get();
+    if (!callerDoc.exists || callerDoc.data()?.role !== "admin") {
+      throw new https.HttpsError("permission-denied", "The admin role is required.");
+    }
+
+    const { title, body, audience, targetUIDs } = req.data;
+
+    let usersToNotify: { uid: string; fcmToken?: string }[] = [];
+
+    if (audience === "specific") {
+      const snaps = await Promise.all(
+        targetUIDs.map((uid: string) => db.collection("users").doc(uid).get())
+      );
+      usersToNotify = snaps.map(s => ({ uid: s.id, fcmToken: s.data()?.fcmToken }));
+    } else {
+      let query: any = db.collection("users");
+      if (audience === "restaurants") {
+        query = query.where("role", "==", "restaurant");
+      }
+      const snap = await query.get();
+      usersToNotify = snap.docs.map((d: any) => ({
+        uid: d.id,
+        fcmToken: d.data()?.fcmToken,
+      }));
+    }
+
+    await Promise.all(
+      usersToNotify.map(user =>
+        notifyUser(user.uid, user.fcmToken ?? null, title, body, "admin")
+      )
+    );
+
+    await db.collection("adminNotificationHistory").add({
+      title,
+      body,
+      audience,
+      sentCount: usersToNotify.length,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, sentCount: usersToNotify.length };
   }
-
-  // 2. Loop through and use your existing helper!
-  // We use Promise.all to send them all in parallel for speed
-  await Promise.all(
-    usersToNotify.map(user => 
-      notifyUser(user.uid, user.fcmToken ?? null, title, body, "admin")
-    )
-  );
-
-  // 3. Log to History
-  await db.collection("adminNotificationHistory").add({
-    title,
-    body,
-    audience,
-    sentCount: usersToNotify.length,
-    timestamp: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
-  return { success: true, sentCount: usersToNotify.length };
-});
+);
 
 async function createOrderAndDispatch({
   quoteID,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:merchant_app/screens/auth/login.dart';
 import 'package:merchant_app/screens/auth/register.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:go_router/go_router.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -34,7 +35,7 @@ class _AuthScreenState extends State<AuthScreen> {
             Expanded(
               flex: 1,
               child: Container(
-                color: brandColors.navyDark,
+                color: brandColors.muted,
                 padding: const EdgeInsets.all(60),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +44,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     const FlutterLogo(size: 40),
                     const SizedBox(height: 40),
                     Text(
-                      context.l10n.build_user_experience,
+                      context.l10nMerchant.build_user_experience,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -53,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      context.l10n.join_thousands,
+                      context.l10nMerchant.join_thousands,
                       style: TextStyle(color: Colors.blue[100], fontSize: 18),
                     ),
                   ],
@@ -72,8 +73,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       Text(
                         showLogin
-                            ? context.l10n.sign_in_to_dashboard
-                            : context.l10n.create_your_account,
+                            ? context.l10nMerchant.sign_in_to_dashboard
+                            : context.l10nMerchant.create_your_account,
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
@@ -85,8 +86,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           Text(
                             showLogin
-                                ? context.l10n.new_to_the_platform
-                                : context.l10n.already_have_an_account,
+                                ? context.l10nMerchant.new_to_the_platform
+                                : context.l10nMerchant.already_have_an_account,
                             style: TextStyle(color: Colors.black),
                           ),
                           const SizedBox(width: 5),
@@ -94,8 +95,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             onPressed: toggleView,
                             child: Text(
                               showLogin
-                                  ? context.l10n.sign_up
-                                  : context.l10n.log_in,
+                                  ? context.l10nMerchant.sign_up
+                                  : context.l10nMerchant.log_in,
                               style: const TextStyle(
                                   color: Colors.blueAccent,
                                   fontWeight: FontWeight.bold),
@@ -109,7 +110,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           Expanded(child: Divider()),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(context.l10n.or,
+                            child: Text(context.l10nCommon.or,
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 12)),
                           ),
@@ -120,11 +121,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       _SocialButton(
                           icon: Icons.g_mobiledata,
                           label:
-                              "${showLogin ? context.l10n.sign_in : context.l10n.sign_up} ${context.l10n.with_google}"),
+                              "${showLogin ? context.l10nMerchant.sign_in : context.l10nMerchant.sign_up} ${context.l10nMerchant.with_google}"),
                       const SizedBox(height: 25),
                       Center(
                         child: Text(
-                          context.l10n.terms_of_service,
+                          context.l10nMerchant.terms_of_service,
                           style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ),

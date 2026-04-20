@@ -19,7 +19,7 @@ import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/utils/app_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ActiveDeliveryScreen extends StatefulWidget {
   const ActiveDeliveryScreen({super.key});
@@ -38,12 +38,13 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
     return Consumer<RiderProvider>(
       builder: (context, provider, _) {
         final order = provider.activeOrder;
+        final brand = Theme.of(context).extension<BrandColors>()!;
 
         if (order == null) {
-          return const Scaffold(
-            backgroundColor: AppTheme.background,
+          return Scaffold(
+            backgroundColor: brand.muted,
             body: Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
+              child: CircularProgressIndicator(color: brand.primary),
             ),
           );
         }
@@ -72,8 +73,8 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
                 snapSizes: const [0.12, 0.25, 0.5, 0.6],
                 builder: (context, scrollController) {
                   return Container(
-                    decoration: const BoxDecoration(
-                      color: AppTheme.background,
+                    decoration: BoxDecoration(
+                      color: brand.muted,
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(20)),
                       boxShadow: [
@@ -198,6 +199,9 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final textBrand = Theme.of(context).textTheme.bodyLarge!;
+
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 8,
@@ -205,11 +209,11 @@ class _TopBar extends StatelessWidget {
         right: 12,
         bottom: 8,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [AppTheme.background, Colors.transparent],
+          colors: [brand.muted!, Colors.transparent],
         ),
       ),
       child: Row(
@@ -219,16 +223,16 @@ class _TopBar extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const MainScreen()),
               (route) => false, // This removes ALL previous routes
             ),
-            child: const Icon(Icons.arrow_back_rounded,
-                color: AppTheme.textPrimary, size: 20),
+            child: Icon(Icons.arrow_back_rounded,
+                color: textBrand.color, size: 20),
           ),
           const SizedBox(width: 8),
           _GlassButton(
             onTap: null,
             child: Text(
               '#${orderID.length >= 8 ? orderID.substring(0, 8).toUpperCase() : orderID}',
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              style: TextStyle(
+                color: textBrand.color,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
@@ -243,16 +247,16 @@ class _TopBar extends StatelessWidget {
                 Container(
                   width: 7,
                   height: 7,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.primary,
+                  decoration: BoxDecoration(
+                    color: brand.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   status,
-                  style: const TextStyle(
-                    color: AppTheme.primary,
+                  style: TextStyle(
+                    color: brand.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -273,12 +277,14 @@ class _GlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppTheme.surface.withValues(alpha: 0.92),
+          color: brand.cardSurface!.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(10),
         ),
         child: child,
@@ -306,6 +312,8 @@ class _BottomPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return ListView(
       controller: scrollController,
       padding: EdgeInsets.zero,
@@ -327,7 +335,7 @@ class _BottomPanel extends StatelessWidget {
         // Status stepper
         _StatusStepper(status: status),
 
-        const Divider(color: AppTheme.divider, height: 30),
+        Divider(color: brand.primaryDark, height: 30),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -380,6 +388,8 @@ class _StatusStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final cur = _currentIndex(status);
 
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -388,7 +398,7 @@ class _StatusStepper extends StatelessWidget {
             return Expanded(
               child: Container(
                 height: 2,
-                color: i ~/ 2 < cur ? AppTheme.primary : AppTheme.divider,
+                color: i ~/ 2 < cur ? brand.primary : brand.primaryDark,
               ),
             );
           }
@@ -403,10 +413,10 @@ class _StatusStepper extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: done ? AppTheme.primary : AppTheme.surfaceLight,
+                  color: done ? brand.primary : brand.primarySoft,
                   shape: BoxShape.circle,
                   border: active
-                      ? Border.all(color: AppTheme.primary, width: 2)
+                      ? Border.all(color: brand.primary!, width: 2)
                       : null,
                 ),
                 child: Center(
@@ -416,9 +426,7 @@ class _StatusStepper extends StatelessWidget {
                       : Text(
                           '${si + 1}',
                           style: TextStyle(
-                            color: active
-                                ? AppTheme.primary
-                                : AppTheme.textSecondary,
+                            color: active ? brand.primary : brand.primaryDark,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -430,7 +438,7 @@ class _StatusStepper extends StatelessWidget {
                 _steps[si]['label']!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: done ? AppTheme.textPrimary : AppTheme.textSecondary,
+                  color: done ? brand.primary : brand.primaryDark,
                   fontSize: 10,
                   fontWeight: active ? FontWeight.w700 : FontWeight.normal,
                 ),
@@ -460,6 +468,7 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cfg = _config(status);
     final color = cfg['color'] as Color;
+    final brand = Theme.of(context).extension<BrandColors>()!;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -486,8 +495,8 @@ class _ActionCard extends StatelessWidget {
                 ),
                 Text(
                   cfg['subtitle'] as String,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
+                  style: TextStyle(
+                    color: brand.primaryDark,
                     fontSize: 12,
                   ),
                 ),
@@ -533,7 +542,6 @@ class _ActionCard extends StatelessWidget {
       case 'In Progress':
         return {
           'icon': Icons.directions_bike_rounded,
-          'color': AppTheme.info,
           'title': 'Head to Restaurant',
           'subtitle': 'Navigate to pick up the order',
           'nextStatus': AppConstants.statusReady,
@@ -542,7 +550,6 @@ class _ActionCard extends StatelessWidget {
       case 'Ready':
         return {
           'icon': Icons.delivery_dining_rounded,
-          'color': AppTheme.primary,
           'title': 'Delivering',
           'subtitle': 'Head to the customer location',
           'nextStatus': AppConstants.statusDelivered,
@@ -551,7 +558,6 @@ class _ActionCard extends StatelessWidget {
       case 'Delivered':
         return {
           'icon': Icons.check_circle_rounded,
-          'color': AppTheme.accent,
           'title': 'Order Delivered',
           'subtitle': 'Great work!',
           'nextStatus': null,
@@ -560,7 +566,6 @@ class _ActionCard extends StatelessWidget {
       default:
         return {
           'icon': Icons.schedule_rounded,
-          'color': AppTheme.textSecondary,
           'title': 'Processing',
           'subtitle': 'Please wait...',
           'nextStatus': null,
@@ -570,24 +575,26 @@ class _ActionCard extends StatelessWidget {
   }
 
   void _onTap(BuildContext context, String nextStatus) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     if (nextStatus == AppConstants.statusDelivered) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          backgroundColor: AppTheme.surface,
+          backgroundColor: scheme.surface,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Confirm Delivery',
-              style: TextStyle(color: AppTheme.textPrimary)),
-          content: const Text(
+          title:
+              Text('Confirm Delivery', style: TextStyle(color: brand.primary)),
+          content: Text(
             'Did you hand the order to the customer?',
-            style: TextStyle(color: AppTheme.textSecondary),
+            style: TextStyle(color: brand.primaryDark),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel',
-                  style: TextStyle(color: AppTheme.textSecondary)),
+              child: Text('Cancel', style: TextStyle(color: brand.primaryDark)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -620,6 +627,9 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final dividerColor = Theme.of(context).dividerColor;
+
     final order = widget.order;
     final String restaurantName =
         order['restaurantName']?.toString() ?? 'Restaurant';
@@ -639,7 +649,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.cardBg,
+        color: brand.cardSurface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -652,12 +662,12 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  const Icon(Icons.receipt_long_outlined,
-                      color: AppTheme.textSecondary, size: 18),
+                  Icon(Icons.receipt_long_outlined,
+                      color: brand.primaryDark, size: 18),
                   const SizedBox(width: 8),
-                  const Text('Order Details',
+                  Text('Order Details',
                       style: TextStyle(
-                          color: AppTheme.textPrimary,
+                          color: brand.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 14)),
                   const Spacer(),
@@ -666,7 +676,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: (isCash ? AppTheme.warning : AppTheme.primary)
+                      color: (isCash ? brand.warning : brand.primary)!
                           .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -678,13 +688,13 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                               ? Icons.payments_outlined
                               : Icons.credit_card_rounded,
                           size: 12,
-                          color: isCash ? AppTheme.warning : AppTheme.primary,
+                          color: isCash ? brand.warning : brand.primary,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isCash ? 'Cash: $total' : 'Card Paid',
                           style: TextStyle(
-                            color: isCash ? AppTheme.warning : AppTheme.primary,
+                            color: isCash ? brand.warning : brand.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -697,7 +707,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                     _expanded
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
-                    color: AppTheme.textSecondary,
+                    color: brand.primaryDark,
                     size: 18,
                   ),
                 ],
@@ -706,7 +716,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
           ),
 
           if (_expanded) ...[
-            const Divider(color: AppTheme.divider, height: 1),
+            Divider(color: dividerColor, height: 1),
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -714,7 +724,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                   // Restaurant row
                   _InfoRow(
                     icon: Icons.store_outlined,
-                    iconColor: AppTheme.info,
+                    iconColor: brand.primarySoft!,
                     label: restaurantName,
                     subtitle: orderType == 'pickup'
                         ? 'Pickup order'
@@ -726,32 +736,32 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                   if (orderType != 'pickup')
                     _InfoRow(
                       icon: Icons.location_on_outlined,
-                      iconColor: AppTheme.primary,
+                      iconColor: brand.primary!,
                       label: 'Delivery Address',
                       subtitle: deliveryAddress,
                     ),
 
                   if (orderType == 'pickup')
-                    const _InfoRow(
+                    _InfoRow(
                       icon: Icons.storefront_rounded,
-                      iconColor: AppTheme.primary,
+                      iconColor: brand.primary!,
                       label: 'Pickup',
                       subtitle: 'Customer collects from store',
                     ),
 
-                  const Divider(color: AppTheme.divider, height: 20),
+                  Divider(color: dividerColor, height: 20),
 
                   // Total
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Order Total',
+                      Text('Order Total',
                           style: TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 13)),
+                              color: brand.primaryDark, fontSize: 13)),
                       Text(
                         total,
-                        style: const TextStyle(
-                          color: AppTheme.primary,
+                        style: TextStyle(
+                          color: brand.primary,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                         ),
@@ -783,6 +793,8 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -793,13 +805,13 @@ class _InfoRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style: const TextStyle(
-                      color: AppTheme.textPrimary,
+                  style: TextStyle(
+                      color: brand.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 13)),
               Text(subtitle,
-                  style: const TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 12),
+                  style:
+                      TextStyle(color: brand.primaryDark, fontSize: 12),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ],
@@ -820,6 +832,7 @@ class _NavigateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
     // Before pickup → navigate to restaurant
     // After pickup → navigate to customer
     final bool toRestaurant = status == 'In Progress';
@@ -849,8 +862,8 @@ class _NavigateButton extends StatelessWidget {
         icon: const Icon(Icons.navigation_rounded, size: 18),
         label: Text(label),
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.primary,
-          side: const BorderSide(color: AppTheme.primary),
+          foregroundColor: brand.primary,
+          side: BorderSide(color: brand.primary!),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

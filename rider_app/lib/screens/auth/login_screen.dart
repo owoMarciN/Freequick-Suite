@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rider_app/screens/auth/otp_screen.dart';
-import 'package:rider_app/utils/app_theme.dart';
-import 'package:rider_app/widgets/text_fields/custom_text_field.dart';
-import 'package:rider_app/widgets/text_fields/custom_password_field.dart';
-import 'package:rider_app/widgets/text_fields/custom_phone_field.dart';
 import 'package:phone_form_field/phone_form_field.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,10 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: scheme.surface,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
@@ -102,17 +105,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Text(
-                    'Welcome\nBack',
+                    'Welcome Back',
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         fontSize: 36,
                         height: 1.15,
-                        color: AppTheme.textPrimary),
+                        color: brand.primary,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Sign in to continue delivering',
-                    style:
-                        TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                    style: TextStyle(fontSize: 14, color: brand.primary, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 48),
                   CustomTextField(
@@ -141,21 +144,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.danger.withValues(alpha: 0.1),
+                        color: brand.danger!.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: AppTheme.danger.withValues(alpha: 0.3)),
+                            color: brand.danger!.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              color: AppTheme.danger, size: 16),
+                          Icon(Icons.error_outline_rounded,
+                              color: brand.danger, size: 16),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               _error!,
-                              style: const TextStyle(
-                                  color: AppTheme.danger, fontSize: 13),
+                              style:
+                                  TextStyle(color: brand.danger, fontSize: 13),
                             ),
                           ),
                         ],
@@ -163,23 +166,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submit,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text(
-                              'Continue',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w700),
+                  Center(
+                    child: SizedBox(
+                      width: 240,
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shadowColor: Colors.black.withValues(alpha: 0.8)),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : Text(
+                                context.l10nCommon.word_continue,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    letterSpacing: 1.4,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                      ),
                     ),
                   ),
                 ],

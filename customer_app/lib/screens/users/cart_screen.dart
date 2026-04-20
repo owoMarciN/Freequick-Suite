@@ -10,12 +10,12 @@ import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/providers/cart_provider.dart';
 
 import 'package:user_app/widgets/designs/cart_item_design.dart';
-import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 
 import 'package:user_app/global/global.dart';
-import 'package:user_app/extensions/context_translate_ext.dart';
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -44,7 +44,7 @@ class _CartScreenState extends State<CartScreen> {
     if (!mounted) return;
     Provider.of<AmountProvider>(context, listen: false).reset();
     Navigator.pop(context);
-    unifiedSnackBar(context.l10n.cartCleared);
+    unifiedSnackBar(context.l10nCustomer.cartCleared);
   }
 
   void _proceedToCheckout() {
@@ -58,12 +58,12 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.l10n;
+    final t = context.l10nCommon;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: UnifiedAppBar(
-        title: t.myCart,
+        title: t.shoppingCart,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -127,7 +127,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "Your cart is empty!",
+                  context.l10nCustomer.cartAlreadyEmpty,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.grey[700],

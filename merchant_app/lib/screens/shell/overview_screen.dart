@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:merchant_app/widgets/orders/order_table_widget.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/ui/progress_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:merchant_app/providers/local_stats_provider.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -99,43 +99,43 @@ class _OverviewScreenState extends State<OverviewScreen> {
     final List<_SetupTask> tasks = [
       _SetupTask(
         icon: Icons.add_a_photo_rounded,
-        title: context.l10n.overview_task_logo_title,
-        description: context.l10n.overview_task_logo_desc,
+        title: context.l10nMerchant.overview_task_logo_title,
+        description: context.l10nMerchant.overview_task_logo_desc,
         done: hasLogo,
         route: '/dashboard/settings',
       ),
       _SetupTask(
         icon: Icons.panorama_rounded,
-        title: context.l10n.overview_task_banner_title,
-        description: context.l10n.overview_task_banner_desc,
+        title: context.l10nMerchant.overview_task_banner_title,
+        description: context.l10nMerchant.overview_task_banner_desc,
         done: hasBanner,
         route: '/dashboard/settings',
       ),
       _SetupTask(
         icon: Icons.location_on_rounded,
-        title: context.l10n.overview_task_address_title,
-        description: context.l10n.overview_task_address_desc,
+        title: context.l10nMerchant.overview_task_address_title,
+        description: context.l10nMerchant.overview_task_address_desc,
         done: hasAddress,
         route: '/dashboard/settings',
       ),
       _SetupTask(
         icon: Icons.person_rounded,
-        title: context.l10n.overview_task_photo_title,
-        description: context.l10n.overview_task_photo_desc,
+        title: context.l10nMerchant.overview_task_photo_title,
+        description: context.l10nMerchant.overview_task_photo_desc,
         done: hasProfilePhoto,
         route: '/dashboard/settings',
       ),
       _SetupTask(
         icon: Icons.restaurant_menu_rounded,
-        title: context.l10n.overview_task_menu_title,
-        description: context.l10n.overview_task_menu_desc,
+        title: context.l10nMerchant.overview_task_menu_title,
+        description: context.l10nMerchant.overview_task_menu_desc,
         done: _hasMenus,
         route: '/dashboard/menus',
       ),
       _SetupTask(
         icon: Icons.account_balance_rounded,
-        title: context.l10n.overview_task_iban_title,
-        description: context.l10n.overview_task_iban_desc,
+        title: context.l10nMerchant.overview_task_iban_title,
+        description: context.l10nMerchant.overview_task_iban_desc,
         done: hasIban,
         route: '/dashboard/settings',
       ),
@@ -152,13 +152,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.l10n.overview_welcome(getUserPref<String>("accountName") ??
-                context.l10n.overview_chef_fallback),
+            context.l10nMerchant.overview_welcome(
+                getUserPref<String>("accountName") ??
+                    context.l10nMerchant.overview_chef_fallback),
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            context.l10n.overview_subtitle,
+            context.l10nMerchant.overview_subtitle,
             style: TextStyle(fontSize: 14, color: brandColors.muted),
           ),
           const SizedBox(height: 28),
@@ -167,11 +168,13 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 brandColors, colorScheme),
             const SizedBox(height: 32),
           ],
-          _sectionLabel(context.l10n.overview_section_glance, brandColors),
+          _sectionLabel(
+              context.l10nMerchant.overview_section_glance, brandColors),
           const SizedBox(height: 14),
           _buildStatGrid(brandColors, colorScheme),
           const SizedBox(height: 32),
-          _sectionLabel(context.l10n.overview_section_orders, brandColors),
+          _sectionLabel(
+              context.l10nMerchant.overview_section_orders, brandColors),
           const SizedBox(height: 14),
           OrderTableWidget(
             restaurantID: currentRestaurantUID,
@@ -205,23 +208,23 @@ class _OverviewScreenState extends State<OverviewScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: brandColors.navy?.withValues(alpha: 0.1),
+                  color: brandColors.primary?.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.rocket_launch_rounded,
-                    size: 20, color: brandColors.navy),
+                    size: 20, color: brandColors.primary),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.l10n.overview_setup_title,
+                    Text(context.l10nMerchant.overview_setup_title,
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text(
-                        context.l10n.overview_setup_progress(
+                        context.l10nMerchant.overview_setup_progress(
                             completedCount, tasks.length),
                         style:
                             TextStyle(fontSize: 12, color: brandColors.muted)),
@@ -233,7 +236,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: brandColors.navy),
+                    color: brandColors.primary),
               ),
             ],
           ),
@@ -243,7 +246,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: colorScheme.outline,
-              valueColor: AlwaysStoppedAnimation<Color>(brandColors.navy!),
+              valueColor: AlwaysStoppedAnimation<Color>(brandColors.primary!),
               minHeight: 6,
             ),
           ),
@@ -279,12 +282,12 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   height: 36,
                   decoration: BoxDecoration(
                     color: task.done
-                        ? brandColors.accentGreen?.withValues(alpha: 0.12)
-                        : brandColors.navy?.withValues(alpha: 0.08),
+                        ? brandColors.success?.withValues(alpha: 0.12)
+                        : brandColors.primary?.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: task.done
-                          ? brandColors.accentGreen?.withValues(alpha: 0.4) ??
+                          ? brandColors.success?.withValues(alpha: 0.4) ??
                               colorScheme.outline
                           : colorScheme.outline,
                     ),
@@ -293,7 +296,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     task.done ? Icons.check_rounded : task.icon,
                     size: 18,
                     color:
-                        task.done ? brandColors.accentGreen : brandColors.navy,
+                        task.done ? brandColors.success : brandColors.primary,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -327,28 +330,27 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color:
-                              brandColors.accentGreen?.withValues(alpha: 0.1),
+                          color: brandColors.success?.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(context.l10n.overview_task_done,
+                        child: Text(context.l10nMerchant.overview_task_done,
                             style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: brandColors.accentGreen)),
+                                color: brandColors.success)),
                       )
                     : Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: brandColors.navy?.withValues(alpha: 0.08),
+                          color: brandColors.primary?.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(context.l10n.overview_task_setup,
+                        child: Text(context.l10nMerchant.overview_task_setup,
                             style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: brandColors.navy)),
+                                color: brandColors.primary)),
                       ),
               ],
             ),
@@ -386,25 +388,25 @@ class _OverviewScreenState extends State<OverviewScreen> {
         ),
         children: [
           _StatCard(
-              label: context.l10n.overview_stat_total_orders,
+              label: context.l10nMerchant.overview_stat_total_orders,
               value: '${stats.totalOrders}',
               icon: Icons.shopping_bag_rounded,
-              color: brandColors.navy!,
+              color: brandColors.primary!,
               colorScheme: colorScheme),
           _StatCard(
-              label: context.l10n.overview_stat_pending,
+              label: context.l10nMerchant.overview_stat_pending,
               value: '${stats.pendingOrders}',
               icon: Icons.pending_actions_rounded,
               color: const Color(0xFFD97706),
               colorScheme: colorScheme),
           _StatCard(
-              label: context.l10n.overview_stat_completed,
+              label: context.l10nMerchant.overview_stat_completed,
               value: '${stats.completedOrders}',
               icon: Icons.check_circle_rounded,
-              color: brandColors.accentGreen!,
+              color: brandColors.success!,
               colorScheme: colorScheme),
           _StatCard(
-              label: context.l10n.overview_stat_revenue,
+              label: context.l10nMerchant.overview_stat_revenue,
               value: '${stats.totalRevenue.toStringAsFixed(2)} PLN',
               icon: Icons.payments_rounded,
               color: const Color(0xFF8B5CF6),

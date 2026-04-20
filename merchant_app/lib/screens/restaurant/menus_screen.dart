@@ -4,12 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/models/menus.dart';
 import 'package:merchant_app/widgets/designs/menus_design.dart';
-import 'package:merchant_app/widgets/ui/progress_bar.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class MenusScreen extends StatefulWidget {
   const MenusScreen({super.key});
@@ -55,7 +56,7 @@ class _MenusScreenState extends State<MenusScreen> {
                   return SliverToBoxAdapter(
                     child: Center(
                       child: Text(
-                          context.l10n.menus_error(snapshot.error.toString()),
+                          context.l10nMerchant.menus_error(snapshot.error.toString()),
                           style: TextStyle(color: brandColors.muted)),
                     ),
                   );
@@ -79,13 +80,13 @@ class _MenusScreenState extends State<MenusScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            context.l10n.menus_empty_title,
+                            context.l10nMerchant.menus_empty_title,
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            context.l10n.menus_empty_subtitle,
+                            context.l10nMerchant.menus_empty_subtitle,
                             style: TextStyle(
                                 fontSize: 14, color: brandColors.muted),
                             textAlign: TextAlign.center,
@@ -122,9 +123,9 @@ class _MenusScreenState extends State<MenusScreen> {
           right: 28,
           child: FloatingActionButton.extended(
             onPressed: _openAddMenuSheet,
-            backgroundColor: brandColors.navy,
+            backgroundColor: brandColors.primary,
             icon: const Icon(Icons.add_rounded, color: Colors.white),
-            label: Text(context.l10n.menus_fab,
+            label: Text(context.l10nMerchant.menus_fab,
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.w600)),
           ),
@@ -166,7 +167,7 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_imageBytes == null) {
-      unifiedSnackBar(context, context.l10n.menus_no_image, error: true);
+      unifiedSnackBar(context.l10nMerchant.menus_no_image, error: true);
       return;
     }
 
@@ -202,11 +203,11 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
       await docRef.update({'menuID': docRef.id});
 
       if (!mounted) return;
-      unifiedSnackBar(context, context.l10n.menus_created);
+      unifiedSnackBar(context.l10nMerchant.menus_created);
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -240,7 +241,7 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(context.l10n.menus_sheet_title,
+                Text(context.l10nMerchant.menus_sheet_title,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w700)),
                 IconButton(
@@ -258,11 +259,11 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
                 height: 160,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: brandColors.navy?.withValues(alpha: 0.05),
+                  color: brandColors.primary?.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _imageBytes != null
-                        ? brandColors.navy!
+                        ? brandColors.primary!
                         : colorScheme.outline,
                     width: _imageBytes != null ? 2 : 1,
                   ),
@@ -278,13 +279,13 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
                           Icon(Icons.add_photo_alternate_outlined,
                               size: 40, color: brandColors.muted),
                           const SizedBox(height: 8),
-                          Text(context.l10n.menus_image_upload_label,
+                          Text(context.l10nMerchant.menus_image_upload_label,
                               style: TextStyle(
                                   fontSize: 13,
                                   color: brandColors.muted,
                                   fontWeight: FontWeight.w500)),
                           const SizedBox(height: 4),
-                          Text(context.l10n.menus_image_browse,
+                          Text(context.l10nMerchant.menus_image_browse,
                               style: TextStyle(
                                   fontSize: 11, color: brandColors.muted)),
                         ],
@@ -298,15 +299,15 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: context.l10n.menus_field_title_label,
-                hintText: context.l10n.menus_field_title_hint,
+                labelText: context.l10nMerchant.menus_field_title_label,
+                hintText: context.l10nMerchant.menus_field_title_hint,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (v) => v == null || v.trim().isEmpty
-                  ? context.l10n.menus_field_title_required
+                  ? context.l10nMerchant.menus_field_title_required
                   : null,
             ),
 
@@ -317,15 +318,15 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
               controller: _descriptionController,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: context.l10n.menus_field_desc_label,
-                hintText: context.l10n.menus_field_desc_hint,
+                labelText: context.l10nMerchant.menus_field_desc_label,
+                hintText: context.l10nMerchant.menus_field_desc_hint,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (v) => v == null || v.trim().isEmpty
-                  ? context.l10n.menus_field_desc_required
+                  ? context.l10nMerchant.menus_field_desc_required
                   : null,
             ),
 
@@ -337,7 +338,7 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: brandColors.navy,
+                  backgroundColor: brandColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -349,7 +350,7 @@ class _AddMenuSheetState extends State<_AddMenuSheet> {
                         height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : Text(context.l10n.menus_submit,
+                    : Text(context.l10nMerchant.menus_submit,
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 15)),
               ),

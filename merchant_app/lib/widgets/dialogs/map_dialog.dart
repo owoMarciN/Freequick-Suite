@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:merchant_app/services/location_service.dart';
-import 'package:merchant_app/extensions/context_translate_ext.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class MapDialog extends StatefulWidget {
   final double? initialLat;
@@ -77,14 +76,13 @@ class _MapScreenState extends State<MapDialog> {
         location.latitude,
         location.longitude,
       );
-
       setState(() {
         _currentAddress = result['fullAddress'];
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _currentAddress = context.l10n.map_address_not_found;
+        _currentAddress = context.l10nCommon.errorAddressNotFound;
         _isLoading = false;
       });
     }
@@ -102,6 +100,9 @@ class _MapScreenState extends State<MapDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -110,6 +111,7 @@ class _MapScreenState extends State<MapDialog> {
         constraints: const BoxConstraints(maxWidth: 600),
         child: Stack(
           children: [
+            // -- Map --------------------------------------------------------
             GoogleMap(
               initialCameraPosition:
                   CameraPosition(target: _pickedLocation, zoom: 15),
@@ -119,12 +121,16 @@ class _MapScreenState extends State<MapDialog> {
               myLocationEnabled: true,
               zoomControlsEnabled: false,
             ),
-            const Center(
+
+            // -- Center pin -------------------------------------------------
+            Center(
               child: Padding(
-                padding: EdgeInsets.only(bottom: 35),
-                child: Icon(Icons.location_on, size: 45, color: Colors.red),
+                padding: const EdgeInsets.only(bottom: 35),
+                child: Icon(Icons.location_on, size: 45, color: brand.danger),
               ),
             ),
+
+            // -- Search bar -------------------------------------------------
             Positioned(
               top: 70,
               left: 15,
@@ -132,43 +138,67 @@ class _MapScreenState extends State<MapDialog> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: scheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: scheme.outline),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: TextField(
+                      style: TextStyle(fontSize: 14, color: scheme.onSurface),
                       decoration: InputDecoration(
-                        hintText: context.l10n.searchAddress,
-                        prefixIcon: const Icon(Icons.search),
+                        hintText: context.l10nCommon.searchAddress,
+                        hintStyle:
+                            TextStyle(fontSize: 14, color: brand.muted),
+                        prefixIcon:
+                            Icon(Icons.search_rounded, color: brand.muted),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(15),
                       ),
-                      onChanged: (value) => _getSuggestions(value),
+                      onChanged: _getSuggestions,
                     ),
                   ),
                   if (_suggestions.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Material(
-                        elevation: 8,
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
-                        child: Container(
-                          constraints: const BoxConstraints(maxHeight: 250),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: scheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: scheme.outline),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        constraints: const BoxConstraints(maxHeight: 250),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
                           child: ListView.separated(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             itemCount: _suggestions.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(height: 1),
+                            separatorBuilder: (_, __) =>
+                                Divider(height: 1, color: scheme.outline),
                             itemBuilder: (context, index) {
                               return ListTile(
-                                leading: const Icon(Icons.location_on,
-                                    color: Colors.blueGrey),
+                                leading: Icon(Icons.location_on_rounded,
+                                    color: brand.muted, size: 20),
                                 title: Text(
                                   _suggestions[index]['description'],
-                                  style: const TextStyle(
-                                      fontSize: 14, color: Colors.black),
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: scheme.onSurface),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -187,6 +217,8 @@ class _MapScreenState extends State<MapDialog> {
                 ],
               ),
             ),
+
+            // -- Bottom panel -----------------------------------------------
             Positioned(
               bottom: 30,
               left: 20,
@@ -199,32 +231,46 @@ class _MapScreenState extends State<MapDialog> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: scheme.outline),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10)
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 10,
+                        ),
                       ],
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.map, color: Colors.blueGrey, size: 20),
+                        Icon(Icons.map_rounded, color: brand.muted, size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _isLoading
-                                ? context.l10n.map_fetching_address
+                                ? context.l10nCommon.map_fetching_address
                                 : _currentAddress,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                              color: scheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (_isLoading)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: brand.primary,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -233,13 +279,16 @@ class _MapScreenState extends State<MapDialog> {
                     height: 55,
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.check_circle_outline, size: 24),
+                      icon: const Icon(Icons.check_circle_outline_rounded,
+                          size: 22),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
+                        backgroundColor: brand.primary,
                         foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            brand.primary!.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
-                        elevation: 2,
+                        elevation: 0,
                       ),
                       onPressed: _isLoading
                           ? null
@@ -249,11 +298,11 @@ class _MapScreenState extends State<MapDialog> {
                                 "longitude": _pickedLocation.longitude,
                               }),
                       label: Text(
-                        context.l10n.map_confirm_button,
+                        context.l10nCommon.confirm,
                         style: const TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.1),
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3),
                       ),
                     ),
                   ),

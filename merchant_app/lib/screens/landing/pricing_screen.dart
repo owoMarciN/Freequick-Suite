@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/widgets/ui/landing_widgets.dart';
 
 class PricingScreen extends StatefulWidget {
@@ -18,26 +19,26 @@ class _PricingScreenState extends State<PricingScreen> {
     if (monthlyOrders <= 100) {
       return (
         rate: 0.10,
-        tierName: context.l10n.pricing_tier_name_starter,
+        tierName: context.l10nMerchant.pricing_tier_starter_desc,
         tierColor: brand.muted!
       );
     } else if (monthlyOrders <= 500) {
       return (
         rate: 0.08,
-        tierName: context.l10n.pricing_tier_name_growing,
-        tierColor: brand.navy!
+        tierName: context.l10nMerchant.pricing_tier_growing_label,
+        tierColor: brand.primary!
       );
     } else if (monthlyOrders <= 1500) {
       return (
         rate: 0.06,
-        tierName: context.l10n.pricing_tier_name_established,
+        tierName: context.l10nMerchant.pricing_tier_growing_label,
         tierColor: const Color(0xFF8B5CF6),
       );
     } else {
       return (
         rate: 0.04,
-        tierName: context.l10n.pricing_tier_name_partner,
-        tierColor: brand.accentGreen!
+        tierName: context.l10nMerchant.pricing_tier_partner_label,
+        tierColor: brand.success!
       );
     }
   }
@@ -60,9 +61,9 @@ class _PricingScreenState extends State<PricingScreen> {
             _buildTiers(context, brand, scheme, isWide, h),
             _buildFaq(context, brand, scheme, isWide, h),
             LandingCta(
-              title: context.l10n.pricing_cta_title,
-              subtitle: context.l10n.pricing_cta_subtitle,
-              primaryLabel: context.l10n.pricing_cta_primary,
+              title: context.l10nMerchant.pricing_cta_title,
+              subtitle: context.l10nMerchant.pricing_cta_subtitle,
+              primaryLabel: context.l10nMerchant.pricing_cta_primary,
               primaryRoute: '/auth/register',
             ),
             const LandingFooter(),
@@ -84,23 +85,23 @@ class _PricingScreenState extends State<PricingScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: brand.accentGreen?.withValues(alpha: 0.12),
+              color: brand.success?.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
-                  color: brand.accentGreen?.withValues(alpha: 0.3) ??
+                  color: brand.success?.withValues(alpha: 0.3) ??
                       Colors.transparent),
             ),
-            child: Text(context.l10n.pricing_hero_badge,
+            child: Text(context.l10nMerchant.pricing_hero_badge,
                 style: TextStyle(
                     fontSize: 12,
-                    color: brand.accentGreen,
+                    color: brand.success,
                     fontWeight: FontWeight.w600)),
           ),
           const SizedBox(height: 28),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: Text(
-              context.l10n.pricing_hero_title,
+              context.l10nMerchant.pricing_hero_title,
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: isWide ? 58 : 34,
@@ -112,7 +113,7 @@ class _PricingScreenState extends State<PricingScreen> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: Text(
-              context.l10n.pricing_hero_subtitle,
+              context.l10nMerchant.pricing_hero_subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: brand.muted, height: 1.6),
             ),
@@ -129,24 +130,24 @@ class _PricingScreenState extends State<PricingScreen> {
     final steps = [
       _CommissionStepData(
         number: '1',
-        title: context.l10n.pricing_step1_title,
-        description: context.l10n.pricing_step1_desc,
+        title: context.l10nMerchant.pricing_step1_title,
+        description: context.l10nMerchant.pricing_step1_desc,
         icon: Icons.shopping_bag_rounded,
-        color: brand.navy!,
+        color: brand.primary!,
       ),
       _CommissionStepData(
         number: '2',
-        title: context.l10n.pricing_step2_title,
-        description: context.l10n.pricing_step2_desc,
+        title: context.l10nMerchant.pricing_step2_title,
+        description: context.l10nMerchant.pricing_step2_desc,
         icon: Icons.restaurant_rounded,
         color: const Color(0xFF8B5CF6),
       ),
       _CommissionStepData(
         number: '3',
-        title: context.l10n.pricing_step3_title,
-        description: context.l10n.pricing_step3_desc,
+        title: context.l10nMerchant.pricing_step3_title,
+        description: context.l10nMerchant.pricing_step3_desc,
         icon: Icons.payments_rounded,
-        color: brand.accentGreen!,
+        color: brand.success!,
       ),
     ];
 
@@ -155,7 +156,7 @@ class _PricingScreenState extends State<PricingScreen> {
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 72 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.pricing_section_fee),
+          LandingSectionLabel(context.l10nMerchant.pricing_calc_fee_sub),
           const SizedBox(height: 48),
           LayoutBuilder(builder: (context, constraints) {
             final isThreeCol = constraints.maxWidth > 700;
@@ -217,9 +218,9 @@ class _PricingScreenState extends State<PricingScreen> {
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 72 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.pricing_section_calculator),
+          LandingSectionLabel(context.l10nMerchant.pricing_calc_fee_sub),
           const SizedBox(height: 16),
-          Text(context.l10n.pricing_calculator_title,
+          Text(context.l10nMerchant.pricing_calculator_title,
               style: TextStyle(
                   fontSize: isWide ? 32 : 22, fontWeight: FontWeight.w700)),
           const SizedBox(height: 48),
@@ -235,25 +236,26 @@ class _PricingScreenState extends State<PricingScreen> {
               child: Column(
                 children: [
                   _SliderRow(
-                    label: context.l10n.pricing_slider_orders_label,
+                    label: context.l10nMerchant.pricing_slider_orders_label,
                     value: _ordersPerDay.toDouble(),
                     min: 5,
                     max: 200,
                     divisions: 195,
-                    displayValue: context.l10n.pricing_slider_orders_value(
-                        _ordersPerDay, monthlyOrders),
+                    displayValue: context.l10nMerchant
+                        .pricing_slider_orders_value(
+                            _ordersPerDay, monthlyOrders),
                     onChanged: (v) => setState(() => _ordersPerDay = v.round()),
                     brand: brand,
-                    color: brand.navy!,
+                    color: brand.primary!,
                   ),
                   const SizedBox(height: 28),
                   _SliderRow(
-                    label: context.l10n.pricing_slider_avg_label,
+                    label: context.l10nMerchant.pricing_slider_avg_label,
                     value: _avgOrderValue,
                     min: 15,
                     max: 200,
                     divisions: 37,
-                    displayValue: context.l10n.pricing_slider_avg_value(
+                    displayValue: context.l10nMerchant.pricing_calc_fee_label(
                         _avgOrderValue.toStringAsFixed(0)),
                     onChanged: (v) => setState(() => _avgOrderValue = v),
                     brand: brand,
@@ -284,7 +286,7 @@ class _PricingScreenState extends State<PricingScreen> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          context.l10n
+                          context.l10nMerchant
                               .pricing_tier_badge(tier.tierName, pctLabel),
                           style: TextStyle(
                               fontSize: 13,
@@ -293,7 +295,8 @@ class _PricingScreenState extends State<PricingScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          context.l10n.pricing_tier_monthly(monthlyOrders),
+                          context.l10nMerchant
+                              .pricing_tier_monthly(monthlyOrders),
                           style: TextStyle(fontSize: 11, color: tier.tierColor),
                         ),
                       ],
@@ -308,28 +311,29 @@ class _PricingScreenState extends State<PricingScreen> {
                     children: [
                       Expanded(
                           child: _CalcResult(
-                        label: context.l10n.pricing_calc_revenue_label,
+                        label: context.l10nMerchant.pricing_calc_revenue_label,
                         value: '${dailyRevenue.toStringAsFixed(0)} PLN',
-                        sub: context.l10n.pricing_calc_revenue_sub,
+                        sub: context.l10nMerchant.pricing_calc_revenue_sub,
                         color: brand.muted!,
                         brand: brand,
                         scheme: scheme,
                       )),
                       Expanded(
                           child: _CalcResult(
-                        label: context.l10n.pricing_calc_fee_label(pctLabel),
+                        label: context.l10nMerchant
+                            .pricing_calc_fee_label(pctLabel),
                         value: '− ${dailyFee.toStringAsFixed(0)} PLN',
-                        sub: context.l10n.pricing_calc_fee_sub,
+                        sub: context.l10nMerchant.pricing_calc_fee_sub,
                         color: const Color(0xFFEF4444),
                         brand: brand,
                         scheme: scheme,
                       )),
                       Expanded(
                           child: _CalcResult(
-                        label: context.l10n.pricing_calc_keep_label,
+                        label: context.l10nMerchant.pricing_calc_keep_label,
                         value: '${dailyNet.toStringAsFixed(0)} PLN/day',
                         sub: '≈ ${monthlyNet.toStringAsFixed(0)} PLN/month',
-                        color: brand.accentGreen!,
+                        color: brand.success!,
                         brand: brand,
                         scheme: scheme,
                         highlight: true,
@@ -338,7 +342,7 @@ class _PricingScreenState extends State<PricingScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    context.l10n.pricing_calc_disclaimer,
+                    context.l10nMerchant.pricing_calc_disclaimer,
                     style: TextStyle(fontSize: 11, color: brand.muted),
                     textAlign: TextAlign.center,
                   ),
@@ -358,32 +362,32 @@ class _PricingScreenState extends State<PricingScreen> {
     final brand = Theme.of(context).extension<BrandColors>()!;
     final tiers = [
       _TierData(
-        label: context.l10n.pricing_tier_starter_label,
-        range: context.l10n.pricing_tier_starter_range,
+        label: context.l10nMerchant.pricing_tier_starter_label,
+        range: context.l10nMerchant.pricing_tier_starter_range,
         rate: '10%',
-        description: context.l10n.pricing_tier_starter_desc,
+        description: context.l10nMerchant.pricing_tier_starter_desc,
         color: brand.muted!,
       ),
       _TierData(
-        label: context.l10n.pricing_tier_growing_label,
-        range: context.l10n.pricing_tier_growing_range,
+        label: context.l10nMerchant.pricing_tier_growing_label,
+        range: context.l10nMerchant.pricing_tier_growing_range,
         rate: '8%',
-        description: context.l10n.pricing_tier_growing_desc,
-        color: brand.navy!,
+        description: context.l10nMerchant.pricing_tier_growing_desc,
+        color: brand.primary!,
       ),
       _TierData(
-        label: context.l10n.pricing_tier_established_label,
-        range: context.l10n.pricing_tier_established_range,
+        label: context.l10nMerchant.pricing_tier_established_label,
+        range: context.l10nMerchant.pricing_tier_established_range,
         rate: '6%',
-        description: context.l10n.pricing_tier_established_desc,
+        description: context.l10nMerchant.pricing_tier_established_desc,
         color: const Color(0xFF8B5CF6),
       ),
       _TierData(
-        label: context.l10n.pricing_tier_partner_label,
-        range: context.l10n.pricing_tier_partner_range,
+        label: context.l10nMerchant.pricing_tier_partner_label,
+        range: context.l10nMerchant.pricing_tier_partner_range,
         rate: '4%',
-        description: context.l10n.pricing_tier_partner_desc,
-        color: brand.accentGreen!,
+        description: context.l10nMerchant.pricing_tier_partner_desc,
+        color: brand.success!,
       ),
     ];
 
@@ -392,14 +396,14 @@ class _PricingScreenState extends State<PricingScreen> {
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 72 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.pricing_section_tiers),
+          LandingSectionLabel(context.l10nMerchant.pricing_tier_starter_label),
           const SizedBox(height: 16),
-          Text(context.l10n.pricing_tiers_title,
+          Text(context.l10nMerchant.pricing_tiers_title,
               style: TextStyle(
                   fontSize: isWide ? 32 : 22, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Text(
-            context.l10n.pricing_tiers_subtitle,
+            context.l10nMerchant.pricing_tiers_subtitle,
             style: TextStyle(fontSize: 14, color: brand.muted),
             textAlign: TextAlign.center,
           ),
@@ -429,20 +433,25 @@ class _PricingScreenState extends State<PricingScreen> {
   Widget _buildFaq(BuildContext context, BrandColors brand, ColorScheme scheme,
       bool isWide, double h) {
     final faqs = [
-      _Faq(context.l10n.pricing_faq1_q, context.l10n.pricing_faq1_a),
-      _Faq(context.l10n.pricing_faq2_q, context.l10n.pricing_faq2_a),
-      _Faq(context.l10n.pricing_faq3_q, context.l10n.pricing_faq3_a),
-      _Faq(context.l10n.pricing_faq4_q, context.l10n.pricing_faq4_a),
-      _Faq(context.l10n.pricing_faq5_q, context.l10n.pricing_faq5_a),
+      _Faq(context.l10nMerchant.pricing_faq1_q,
+          context.l10nMerchant.pricing_faq1_a),
+      _Faq(context.l10nMerchant.pricing_faq2_q,
+          context.l10nMerchant.pricing_faq2_a),
+      _Faq(context.l10nMerchant.pricing_faq3_q,
+          context.l10nMerchant.pricing_faq3_a),
+      _Faq(context.l10nMerchant.pricing_faq4_q,
+          context.l10nMerchant.pricing_faq4_a),
+      _Faq(context.l10nMerchant.pricing_faq5_q,
+          context.l10nMerchant.pricing_faq5_a),
     ];
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 72 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.pricing_section_faq),
+          LandingSectionLabel(context.l10nMerchant.pricing_hero_badge),
           const SizedBox(height: 16),
-          Text(context.l10n.pricing_faq_title,
+          Text(context.l10nMerchant.pricing,
               style: TextStyle(
                   fontSize: isWide ? 32 : 22, fontWeight: FontWeight.w700)),
           const SizedBox(height: 48),
@@ -731,7 +740,7 @@ class _FaqTileState extends State<_FaqTile> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
             color: _open
-                ? widget.brand.navy?.withValues(alpha: 0.4) ??
+                ? widget.brand.primary?.withValues(alpha: 0.4) ??
                     widget.scheme.outline
                 : widget.scheme.outline),
       ),

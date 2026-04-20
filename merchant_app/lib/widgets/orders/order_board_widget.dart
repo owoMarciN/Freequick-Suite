@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
-import 'package:merchant_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 
 class OrderBoardWidget extends StatelessWidget {
   final String? restaurantID;

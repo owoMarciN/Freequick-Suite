@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:user_app/global/global.dart';
-import 'package:user_app/providers/theme_provider.dart';
-import 'package:user_app/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/providers/theme_provider.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:user_app/widgets/dialogs/error_dialog.dart';
-import 'package:user_app/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart' as fstorage;
 import 'package:phone_form_field/phone_form_field.dart';
-import 'package:user_app/widgets/text_fields/custom_phone_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/services/image_picker_service.dart';
 

@@ -4,15 +4,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/methods/validators.dart';
 import 'package:merchant_app/widgets/dialogs/map_dialog.dart';
-import 'package:merchant_app/widgets/text_fields/custom_text_field.dart';
-import 'package:merchant_app/widgets/text_fields/custom_phone_field.dart';
-import 'package:merchant_app/widgets/ui/progress_bar.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             if (restaurantSnap.hasError || userSnap.hasError) {
               return Center(
-                child: Text(context.l10n.settings_error,
+                child: Text(context.l10nMerchant.settings_error,
                     style: TextStyle(color: brandColors.muted)),
               );
             }
@@ -69,9 +69,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           _SectionHeader(
                             icon: Icons.storefront_rounded,
-                            title: context.l10n.settings_section_business,
-                            subtitle:
-                                context.l10n.settings_section_business_sub,
+                            title:
+                                context.l10nMerchant.settings_section_business,
+                            subtitle: context
+                                .l10nMerchant.settings_section_business_sub,
                             brandColors: brandColors,
                           ),
                           const SizedBox(height: 16),
@@ -98,8 +99,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(height: 36),
                           _SectionHeader(
                             icon: Icons.person_rounded,
-                            title: context.l10n.settings_section_profile,
-                            subtitle: context.l10n.settings_section_profile_sub,
+                            title:
+                                context.l10nMerchant.settings_section_profile,
+                            subtitle: context
+                                .l10nMerchant.settings_section_profile_sub,
                             brandColors: brandColors,
                           ),
                           const SizedBox(height: 16),
@@ -112,8 +115,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(height: 36),
                           _SectionHeader(
                             icon: Icons.warning_amber_rounded,
-                            title: context.l10n.settings_section_danger,
-                            subtitle: context.l10n.settings_section_danger_sub,
+                            title: context.l10nMerchant.settings_section_danger,
+                            subtitle: context
+                                .l10nMerchant.settings_section_danger_sub,
                             brandColors: brandColors,
                             danger: true,
                           ),
@@ -153,7 +157,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = danger ? Colors.redAccent : brandColors.navy!;
+    final Color color = danger ? Colors.redAccent : brandColors.primary!;
     return Row(
       children: [
         Container(
@@ -239,10 +243,10 @@ class _LogoCardState extends State<_LogoCard> {
           _stagedBytes = null;
           _stagedName = null;
         });
-        unifiedSnackBar(context, context.l10n.settings_logo_success);
+        unifiedSnackBar(context.l10nMerchant.settings_logo_success);
       }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, e.toString(), error: true);
+      if (mounted) unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _uploading = false);
     }
@@ -259,20 +263,21 @@ class _LogoCardState extends State<_LogoCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardTitle(
-              title: context.l10n.settings_logo_title,
+              title: context.l10nMerchant.settings_logo_title,
               brandColors: widget.brandColors),
           const SizedBox(height: 16),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: widget.brandColors.navy?.withValues(alpha: 0.05),
+                  color: widget.brandColors.primary?.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: hasStaged
-                        ? widget.brandColors.navy?.withValues(alpha: 0.4) ??
+                        ? widget.brandColors.primary?.withValues(alpha: 0.4) ??
                             widget.colorScheme.outline
                         : widget.colorScheme.outline,
                     width: hasStaged ? 2 : 1,
@@ -293,28 +298,29 @@ class _LogoCardState extends State<_LogoCard> {
                   children: [
                     Text(
                       hasStaged
-                          ? context.l10n.settings_logo_status_staged
+                          ? context.l10nMerchant.settings_logo_status_staged
                           : hasLogo
-                              ? context.l10n.settings_logo_status_exists
-                              : context.l10n.settings_logo_status_none,
+                              ? context.l10nMerchant.settings_logo_status_exists
+                              : context.l10nMerchant.settings_logo_status_none,
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
-                    Text(context.l10n.settings_logo_recommended,
+                    Text(context.l10nMerchant.settings_logo_recommended,
                         style: TextStyle(
                             fontSize: 11, color: widget.brandColors.muted)),
                     const SizedBox(height: 10),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
                           height: 34,
-                          child: OutlinedButton.icon(
+                          child: TextButton.icon(
                             onPressed: _uploading ? null : _stageImage,
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: widget.brandColors.navy,
+                              foregroundColor: widget.brandColors.primary,
                               side: BorderSide(
-                                  color: widget.brandColors.navy
+                                  color: widget.brandColors.primary
                                           ?.withValues(alpha: 0.4) ??
                                       Colors.grey),
                               shape: RoundedRectangleBorder(
@@ -323,7 +329,8 @@ class _LogoCardState extends State<_LogoCard> {
                                   const EdgeInsets.symmetric(horizontal: 12),
                             ),
                             icon: const Icon(Icons.image_rounded, size: 14),
-                            label: Text(context.l10n.settings_logo_choose,
+                            label: Text(
+                                context.l10nMerchant.settings_logo_choose,
                                 style: const TextStyle(fontSize: 12)),
                           ),
                         ),
@@ -334,7 +341,7 @@ class _LogoCardState extends State<_LogoCard> {
                             child: ElevatedButton.icon(
                               onPressed: _uploading ? null : _upload,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.brandColors.navy,
+                                backgroundColor: widget.brandColors.primary,
                                 foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -351,8 +358,10 @@ class _LogoCardState extends State<_LogoCard> {
                                   : const Icon(Icons.upload_rounded, size: 14),
                               label: Text(
                                   _uploading
-                                      ? context.l10n.settings_logo_uploading
-                                      : context.l10n.settings_logo_upload,
+                                      ? context
+                                          .l10nMerchant.settings_logo_uploading
+                                      : context
+                                          .l10nMerchant.settings_logo_upload,
                                   style: const TextStyle(fontSize: 12)),
                             ),
                           ),
@@ -429,10 +438,10 @@ class _BannerCardState extends State<_BannerCard> {
           _stagedBytes = null;
           _stagedName = null;
         });
-        unifiedSnackBar(context, context.l10n.settings_banner_success);
+        unifiedSnackBar(context.l10nMerchant.settings_banner_success);
       }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, e.toString(), error: true);
+      if (mounted) unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _uploading = false);
     }
@@ -449,7 +458,7 @@ class _BannerCardState extends State<_BannerCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardTitle(
-              title: context.l10n.settings_banner_title,
+              title: context.l10nMerchant.settings_banner_title,
               brandColors: widget.brandColors),
           const SizedBox(height: 16),
           GestureDetector(
@@ -458,11 +467,11 @@ class _BannerCardState extends State<_BannerCard> {
               height: 160,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: widget.brandColors.navy?.withValues(alpha: 0.05),
+                color: widget.brandColors.primary?.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: hasStaged
-                      ? widget.brandColors.navy?.withValues(alpha: 0.4) ??
+                      ? widget.brandColors.primary?.withValues(alpha: 0.4) ??
                           widget.colorScheme.outline
                       : widget.colorScheme.outline,
                   width: hasStaged ? 2 : 1,
@@ -500,12 +509,14 @@ class _BannerCardState extends State<_BannerCard> {
                             Icon(Icons.add_photo_alternate_outlined,
                                 size: 32, color: widget.brandColors.muted),
                             const SizedBox(height: 8),
-                            Text(context.l10n.settings_banner_choose,
+                            Text(context.l10nMerchant.settings_banner_choose,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: widget.brandColors.muted)),
                             const SizedBox(height: 4),
-                            Text(context.l10n.settings_banner_recommended,
+                            Text(
+                                context
+                                    .l10nMerchant.settings_banner_recommended,
                                 style: TextStyle(
                                     fontSize: 10,
                                     color: widget.brandColors.muted)),
@@ -521,7 +532,7 @@ class _BannerCardState extends State<_BannerCard> {
               child: ElevatedButton.icon(
                 onPressed: _uploading ? null : _upload,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.brandColors.navy,
+                  backgroundColor: widget.brandColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -536,8 +547,8 @@ class _BannerCardState extends State<_BannerCard> {
                     : const Icon(Icons.upload_rounded, size: 16),
                 label: Text(
                     _uploading
-                        ? context.l10n.settings_banner_uploading
-                        : context.l10n.settings_banner_upload,
+                        ? context.l10nMerchant.settings_logo_uploading
+                        : context.l10nMerchant.settings_banner_upload,
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600)),
               ),
@@ -707,10 +718,10 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
 
       if (mounted) {
         setState(() => _edited = false);
-        unifiedSnackBar(context, context.l10n.settings_business_saved);
+        unifiedSnackBar(context.l10nMerchant.settings_business_saved);
       }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, e.toString(), error: true);
+      if (mounted) unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -728,7 +739,7 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _CardTitle(
-                  title: context.l10n.settings_business_title,
+                  title: context.l10nMerchant.settings_business_title,
                   brandColors: widget.brandColors),
               const SizedBox(height: 16),
               Padding(
@@ -765,7 +776,7 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: _address.isNotEmpty
-                                ? widget.brandColors.navy
+                                ? widget.brandColors.primary
                                         ?.withValues(alpha: 0.4) ??
                                     widget.colorScheme.outline
                                 : widget.colorScheme.outline,
@@ -776,7 +787,7 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
                             Icon(Icons.location_on_rounded,
                                 size: 18,
                                 color: _address.isNotEmpty
-                                    ? widget.brandColors.navy
+                                    ? widget.brandColors.primary
                                     : widget.brandColors.muted),
                             const SizedBox(width: 12),
                             Expanded(
@@ -786,7 +797,8 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
                                           fontSize: 13, color: Colors.black),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis)
-                                  : Text(context.l10n.settings_address_set,
+                                  : Text(
+                                      context.l10nMerchant.settings_address_set,
                                       style: TextStyle(
                                           fontSize: 13,
                                           color: widget.brandColors.muted)),
@@ -796,18 +808,20 @@ class _BusinessInfoCardState extends State<_BusinessInfoCard> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: widget.brandColors.navy
+                                color: widget.brandColors.primary
                                     ?.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 _address.isNotEmpty
-                                    ? context.l10n.settings_address_change
-                                    : context.l10n.settings_address_pick,
+                                    ? context
+                                        .l10nMerchant.settings_address_change
+                                    : context
+                                        .l10nMerchant.settings_address_pick,
                                 style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: widget.brandColors.navy),
+                                    color: widget.brandColors.primary),
                               ),
                             ),
                           ],
@@ -972,10 +986,10 @@ class _UserProfileCardState extends State<_UserProfileCard> {
           _stagedBytes = null;
           _stagedName = null;
         });
-        unifiedSnackBar(context, context.l10n.settings_profile_saved);
+        unifiedSnackBar(context.l10nMerchant.settings_profile_saved);
       }
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, e.toString(), error: true);
+      if (mounted) unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -995,7 +1009,7 @@ class _UserProfileCardState extends State<_UserProfileCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CardTitle(
-                title: context.l10n.settings_profile_title,
+                title: context.l10nMerchant.settings_profile_title,
                 brandColors: widget.brandColors),
             const SizedBox(height: 16),
             Row(
@@ -1009,11 +1023,11 @@ class _UserProfileCardState extends State<_UserProfileCard> {
                         height: 72,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color:
-                              widget.brandColors.navy?.withValues(alpha: 0.08),
+                          color: widget.brandColors.primary
+                              ?.withValues(alpha: 0.08),
                           border: Border.all(
                             color: hasStaged
-                                ? widget.brandColors.navy
+                                ? widget.brandColors.primary
                                         ?.withValues(alpha: 0.5) ??
                                     widget.colorScheme.outline
                                 : widget.colorScheme.outline,
@@ -1036,8 +1050,8 @@ class _UserProfileCardState extends State<_UserProfileCard> {
                           height: 24,
                           decoration: BoxDecoration(
                             color: hasStaged
-                                ? widget.brandColors.accentGreen
-                                : widget.brandColors.navy,
+                                ? widget.brandColors.success
+                                : widget.brandColors.primary,
                             shape: BoxShape.circle,
                             border: Border.all(
                                 color: widget.colorScheme.surface, width: 2),
@@ -1069,10 +1083,10 @@ class _UserProfileCardState extends State<_UserProfileCard> {
                       const SizedBox(height: 4),
                       if (hasStaged)
                         Text(
-                          context.l10n.settings_profile_photo_ready,
+                          context.l10nMerchant.settings_profile_photo_ready,
                           style: TextStyle(
                               fontSize: 11,
-                              color: widget.brandColors.accentGreen,
+                              color: widget.brandColors.success,
                               fontWeight: FontWeight.w600),
                         )
                       else
@@ -1080,7 +1094,7 @@ class _UserProfileCardState extends State<_UserProfileCard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: widget.brandColors.navy
+                            color: widget.brandColors.primary
                                 ?.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -1089,7 +1103,7 @@ class _UserProfileCardState extends State<_UserProfileCard> {
                             style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: widget.brandColors.navy),
+                                color: widget.brandColors.primary),
                           ),
                         ),
                     ],
@@ -1103,14 +1117,14 @@ class _UserProfileCardState extends State<_UserProfileCard> {
               child: Column(
                 children: [
                   CustomTextField(
-                    hintText: context.l10n.settings_profile_name_hint,
+                    hintText: context.l10nMerchant.settings_profile_name_hint,
                     controller: _nameController,
                     data: Icons.person_rounded,
                     validator: FieldValidator.required,
                   ),
                   const SizedBox(height: 12),
                   CustomPhoneField(
-                    label: context.l10n.settings_profile_phone_label,
+                    label: context.l10nMerchant.settings_profile_phone_label,
                     controller: _phoneController,
                   ),
                 ],
@@ -1144,31 +1158,34 @@ class _DangerCard extends StatelessWidget {
           _buildRow(
             context,
             icon: Icons.lock_reset_rounded,
-            title: context.l10n.settings_danger_reset_title,
-            subtitle: context.l10n.settings_danger_reset_sub,
-            buttonLabel: context.l10n.settings_danger_reset_button,
+            title: context.l10nMerchant.settings_danger_reset_title,
+            subtitle: context.l10nMerchant.settings_danger_reset_sub,
+            buttonLabel: context.l10nMerchant.settings_danger_reset_button,
             onTap: () => unifiedSnackBar(
-                context, context.l10n.settings_danger_reset_sent),
+                context.l10nMerchant.settings_danger_reset_sent),
           ),
           Divider(height: 24, color: colorScheme.outline),
           _buildRow(
             context,
             icon: Icons.delete_forever_rounded,
-            title: context.l10n.settings_danger_delete_title,
-            subtitle: context.l10n.settings_danger_delete_sub,
-            buttonLabel: context.l10n.settings_danger_delete_button,
+            title: context.l10nMerchant.settings_danger_delete_title,
+            subtitle: context.l10nMerchant.settings_danger_delete_sub,
+            buttonLabel: context.l10nMerchant.settings_danger_delete_button,
             onTap: () => showDialog(
               context: context,
               builder: (dialogContext) => AlertDialog(
-                title: Text(context.l10n.settings_danger_delete_dialog_title),
-                content: Text(context.l10n.settings_danger_delete_dialog_body),
+                title: Text(
+                    context.l10nMerchant.settings_danger_delete_dialog_title),
+                content: Text(
+                    context.l10nMerchant.settings_danger_delete_dialog_body),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: Text(context.l10n.settings_cancel)),
+                      child: Text(context.l10nMerchant.settings_cancel)),
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    child: Text(context.l10n.settings_danger_delete_button,
+                    child: Text(
+                        context.l10nMerchant.settings_danger_delete_button,
                         style: const TextStyle(color: Colors.redAccent)),
                   ),
                 ],
@@ -1194,6 +1211,7 @@ class _DangerCard extends StatelessWidget {
         const SizedBox(width: 14),
         Expanded(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title,
@@ -1206,18 +1224,21 @@ class _DangerCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        OutlinedButton(
-          onPressed: onTap,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.redAccent,
-            side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        SizedBox(
+          height: 36,
+          child: TextButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.redAccent,
+              side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            ),
+            child: Text(buttonLabel,
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           ),
-          child: Text(buttonLabel,
-              style:
-                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ),
       ],
     );
@@ -1270,7 +1291,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
 
   void _confirm() {
     if (_address.isEmpty) {
-      unifiedSnackBar(context, context.l10n.settings_map_no_pick);
+      unifiedSnackBar(context.l10nMerchant.settings_map_no_pick);
       return;
     }
     Navigator.pop(context, {'address': _address, 'lat': _lat, 'lng': _lng});
@@ -1299,10 +1320,10 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
               child: Row(
                 children: [
                   Icon(Icons.location_on_rounded,
-                      size: 20, color: widget.brandColors.navy),
+                      size: 20, color: widget.brandColors.primary),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(context.l10n.settings_map_dialog_title,
+                    child: Text(context.l10nMerchant.settings_map_dialog_title,
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
@@ -1325,13 +1346,12 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: hasPicked
-                          ? widget.brandColors.accentGreen
-                              ?.withValues(alpha: 0.06)
-                          : widget.brandColors.navy?.withValues(alpha: 0.04),
+                          ? widget.brandColors.success?.withValues(alpha: 0.06)
+                          : widget.brandColors.primary?.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: hasPicked
-                            ? widget.brandColors.accentGreen
+                            ? widget.brandColors.success
                                     ?.withValues(alpha: 0.3) ??
                                 widget.colorScheme.outline
                             : widget.colorScheme.outline,
@@ -1346,7 +1366,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                               : Icons.location_off_rounded,
                           size: 18,
                           color: hasPicked
-                              ? widget.brandColors.accentGreen
+                              ? widget.brandColors.success
                               : widget.brandColors.muted,
                         ),
                         const SizedBox(width: 10),
@@ -1354,7 +1374,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                           child: Text(
                             hasPicked
                                 ? _address
-                                : context.l10n.settings_map_no_location,
+                                : context.l10nMerchant.settings_map_no_location,
                             style: TextStyle(
                                 fontSize: 13,
                                 color:
@@ -1372,9 +1392,9 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     child: OutlinedButton.icon(
                       onPressed: _openMap,
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: widget.brandColors.navy,
+                        foregroundColor: widget.brandColors.primary,
                         side: BorderSide(
-                            color: widget.brandColors.navy
+                            color: widget.brandColors.primary
                                     ?.withValues(alpha: 0.4) ??
                                 Colors.grey),
                         shape: RoundedRectangleBorder(
@@ -1383,8 +1403,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       icon: const Icon(Icons.map_rounded, size: 18),
                       label: Text(
                           hasPicked
-                              ? context.l10n.settings_map_change
-                              : context.l10n.settings_map_open,
+                              ? context.l10nMerchant.settings_map_change
+                              : context.l10nMerchant.settings_map_open,
                           style: const TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w600)),
                     ),
@@ -1396,16 +1416,16 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     child: ElevatedButton.icon(
                       onPressed: hasPicked ? _confirm : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.brandColors.navy,
+                        backgroundColor: widget.brandColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         disabledBackgroundColor:
-                            widget.brandColors.navy?.withValues(alpha: 0.3),
+                            widget.brandColors.primary?.withValues(alpha: 0.3),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.check_rounded, size: 18),
-                      label: Text(context.l10n.settings_map_confirm,
+                      label: Text(context.l10nMerchant.settings_map_confirm,
                           style: const TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w700)),
                     ),
@@ -1470,7 +1490,7 @@ class _SaveButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: saving ? null : onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: brandColors.navy,
+            backgroundColor: brandColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
             shape:
@@ -1483,7 +1503,7 @@ class _SaveButton extends StatelessWidget {
                   height: 16,
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: Colors.white))
-              : Text(context.l10n.settings_save_changes,
+              : Text(context.l10nMerchant.settings_save_changes,
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600)),
         ),

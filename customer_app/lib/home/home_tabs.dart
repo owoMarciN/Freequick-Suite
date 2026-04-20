@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class HomeCategoryItem {
   final IconData icon;
@@ -15,7 +15,7 @@ class HomeTab {
 }
 
 List<HomeTab> getHomeTabs(BuildContext context) {
-  final t = context.l10n;
+  final t = context.l10nCustomer;
   return [
     // Food Delivery Tab
     HomeTab(

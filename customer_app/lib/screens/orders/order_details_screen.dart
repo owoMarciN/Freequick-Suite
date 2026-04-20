@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:user_app/methods/assistant_methods.dart';
 import 'package:user_app/models/address.dart';
-import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:user_app/widgets/designs/shipment_address_design.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/widgets/ratings/rate_order_sheet.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final String? orderID;
@@ -17,7 +18,6 @@ class OrderDetailsScreen extends StatefulWidget {
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
-  // Ensures the rating sheet is only shown once per screen session
   bool _ratingPrompted = false;
 
   void _maybeShowRatingPrompt(Map<String, dynamic> data) {
@@ -29,7 +29,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
     _ratingPrompted = true;
 
-    // Delay slightly so the screen finishes building first
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       showRateOrderSheet(
@@ -43,13 +42,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final common = context.l10nCommon;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6FB),
       appBar: UnifiedAppBar(
-        title: "Order Details",
+        title: common.orderDetails,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: Colors.white, size: 22),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -68,7 +68,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           final data = snapshot.data!.data()! as Map<String, dynamic>;
           final status = data["status"]?.toString() ?? "Pending";
 
-          // Check if we should prompt for rating
           _maybeShowRatingPrompt(data);
 
           return SingleChildScrollView(
@@ -76,34 +75,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //  Status progress
                 _OrderProgressCard(status: status),
-
                 const SizedBox(height: 20),
-
-                //  Summary
-                _SectionLabel("Order Summary"),
+                _SectionLabel(common.orderSummary),
                 const SizedBox(height: 10),
                 _SummaryCard(data: data, orderID: widget.orderID),
-
                 const SizedBox(height: 20),
-
-                //  Rating badge if already rated
                 if (data['rating'] != null)
                   _RatedBadge(
                     foodRating: (data['rating'] as num).toInt(),
                     driverRating: (data['driverRating'] as num?)?.toInt() ?? 0,
                   ),
-
                 if (data['rating'] != null) const SizedBox(height: 20),
-
-                //  Address / pickup
                 if (data["orderType"] != "pickup") ...[
-                  _SectionLabel("Delivery Address"),
+                  _SectionLabel(common.deliveryAddress),
                   const SizedBox(height: 10),
                   _AddressSection(data: data),
                 ] else ...[
-                  _SectionLabel("Pickup Location"),
+                  _SectionLabel(common.pickupLocation),
                   const SizedBox(height: 10),
                   _PickupCard(),
                 ],
@@ -116,49 +105,50 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 }
 
-//  Order progress card
-
 class _OrderProgressCard extends StatelessWidget {
   final String status;
   const _OrderProgressCard({required this.status});
 
-  static const List<_Step> _steps = [
-    _Step(
-      label: "Processing",
-      sublabel: "We received your order",
-      icon: Icons.receipt_long_rounded,
-      value: "Pending",
-    ),
-    _Step(
-      label: "Accepted",
-      sublabel: "Restaurant confirmed",
-      icon: Icons.restaurant_rounded,
-      value: "In Progress",
-    ),
-    _Step(
-      label: "On the Way",
-      sublabel: "Driver is heading to you",
-      icon: Icons.delivery_dining_rounded,
-      value: "Ready",
-    ),
-    _Step(
-      label: "Delivered",
-      sublabel: "Enjoy your meal!",
-      icon: Icons.check_circle_rounded,
-      value: "Delivered",
-    ),
-  ];
-
-  int get _currentIndex {
-    for (int i = _steps.length - 1; i >= 0; i--) {
-      if (status == _steps[i].value) return i;
-    }
-    return 0;
+  List<_Step> _getSteps(BuildContext context) {
+    final common = context.l10nCommon;
+    return [
+      _Step(
+        label: common.labelProcessing,
+        sublabel: common.sublabelProcessing,
+        icon: Icons.receipt_long_rounded,
+        value: "Pending",
+      ),
+      _Step(
+        label: common.labelAccepted,
+        sublabel: common.sublabelAccepted,
+        icon: Icons.restaurant_rounded,
+        value: "In Progress",
+      ),
+      _Step(
+        label: common.labelOnWay,
+        sublabel: common.sublabelOnWay,
+        icon: Icons.delivery_dining_rounded,
+        value: "Ready",
+      ),
+      _Step(
+        label: common.statusDelivered,
+        sublabel: common.labelEnjoy,
+        icon: Icons.check_circle_rounded,
+        value: "Delivered",
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final int current = _currentIndex;
+    final steps = _getSteps(context);
+    int currentIndex = 0;
+    for (int i = steps.length - 1; i >= 0; i--) {
+      if (status == steps[i].value) {
+        currentIndex = i;
+        break;
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -178,30 +168,24 @@ class _OrderProgressCard extends StatelessWidget {
                   color: Colors.redAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.local_shipping_rounded,
-                    size: 16, color: Colors.redAccent),
+                child: const Icon(Icons.local_shipping_rounded, size: 16, color: Colors.redAccent),
               ),
               const SizedBox(width: 10),
-              const Text(
-                "Order Status",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              Text(
+                context.l10nCommon.orderStatus,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
               const Spacer(),
               _StatusBadge(status: status),
             ],
           ),
           const SizedBox(height: 24),
-          ...List.generate(_steps.length, (i) {
-            final step = _steps[i];
-            final isDone = i <= current;
-            final isActive = i == current;
-            final isLast = i == _steps.length - 1;
-
+          ...List.generate(steps.length, (i) {
             return _TimelineRow(
-              step: step,
-              isDone: isDone,
-              isActive: isActive,
-              isLast: isLast,
+              step: steps[i],
+              isDone: i <= currentIndex,
+              isActive: i == currentIndex,
+              isLast: i == steps.length - 1,
             );
           }),
         ],
@@ -213,44 +197,31 @@ class _OrderProgressCard extends StatelessWidget {
 class _Step {
   final String label, sublabel, value;
   final IconData icon;
-  const _Step({
-    required this.label,
-    required this.sublabel,
-    required this.icon,
-    required this.value,
-  });
+  const _Step({required this.label, required this.sublabel, required this.icon, required this.value});
 }
 
 class _TimelineRow extends StatelessWidget {
   final _Step step;
   final bool isDone, isActive, isLast;
 
-  const _TimelineRow({
-    required this.step,
-    required this.isDone,
-    required this.isActive,
-    required this.isLast,
-  });
+  const _TimelineRow({required this.step, required this.isDone, required this.isActive, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = Colors.redAccent;
-    final Color doneColor = const Color(0xFF00C48C);
+    const Color activeColor = Colors.redAccent;
+    const Color doneColor = Color(0xFF00C48C);
     final Color pendingColor = Colors.grey.shade200;
 
-    final Color dotColor =
-        isDone ? (isActive ? activeColor : doneColor) : pendingColor;
+    final Color dotColor = isDone ? (isActive ? activeColor : doneColor) : pendingColor;
     final Color lineColor = isDone && !isActive ? doneColor : pendingColor;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        //  Dot + line column
         SizedBox(
           width: 36,
           child: Column(
             children: [
-              // Dot
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: 36,
@@ -258,17 +229,10 @@ class _TimelineRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: dotColor.withValues(alpha: isDone ? 1 : 0.3),
                   shape: BoxShape.circle,
-                  border: isActive
-                      ? Border.all(color: activeColor, width: 2)
-                      : null,
+                  border: isActive ? Border.all(color: activeColor, width: 2) : null,
                 ),
-                child: Icon(
-                  step.icon,
-                  size: 18,
-                  color: isDone ? Colors.white : Colors.grey.shade400,
-                ),
+                child: Icon(step.icon, size: 18, color: isDone ? Colors.white : Colors.grey.shade400),
               ),
-              // Connector line
               if (!isLast)
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -279,10 +243,7 @@ class _TimelineRow extends StatelessWidget {
             ],
           ),
         ),
-
         const SizedBox(width: 14),
-
-        //  Label
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(top: 6, bottom: isLast ? 0 : 36),
@@ -294,11 +255,7 @@ class _TimelineRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-                    color: isActive
-                        ? Colors.black87
-                        : isDone
-                            ? const Color(0xFF00C48C)
-                            : Colors.grey.shade400,
+                    color: isActive ? Colors.black87 : isDone ? const Color(0xFF00C48C) : Colors.grey.shade400,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -306,21 +263,17 @@ class _TimelineRow extends StatelessWidget {
                   step.sublabel,
                   style: TextStyle(
                     fontSize: 12,
-                    color:
-                        isActive ? Colors.grey.shade600 : Colors.grey.shade400,
+                    color: isActive ? Colors.grey.shade600 : Colors.grey.shade400,
                   ),
                 ),
               ],
             ),
           ),
         ),
-
-        //  Check
         if (isDone && !isActive)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Icon(Icons.check_rounded,
-                size: 16, color: const Color(0xFF00C48C)),
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Icon(Icons.check_rounded, size: 16, color: Color(0xFF00C48C)),
           ),
       ],
     );
@@ -333,35 +286,25 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (Color bg, Color fg) = switch (status) {
-      'Pending' => (const Color(0xFFFEF3C7), const Color(0xFFD97706)),
-      'In Progress' => (
-          Colors.redAccent.withValues(alpha: 0.1),
-          Colors.redAccent
-        ),
-      'Ready' => (Colors.blue.shade50, Colors.blue.shade700),
-      'Delivered' => (
-          const Color(0xFF00C48C).withValues(alpha: 0.1),
-          const Color(0xFF00C48C)
-        ),
-      _ => (Colors.grey.shade100, Colors.grey.shade600),
+    final common = context.l10nCommon;
+    final (Color bg, Color fg, String label) = switch (status) {
+      'Pending' => (const Color(0xFFFEF3C7), const Color(0xFFD97706), common.statusPending),
+      'In Progress' => (Colors.redAccent.withValues(alpha: 0.1), Colors.redAccent, common.statusInProgress),
+      'Ready' => (Colors.blue.shade50, Colors.blue.shade700, common.statusReady),
+      'Delivered' => (const Color(0xFF00C48C).withValues(alpha: 0.1), const Color(0xFF00C48C), common.statusDelivered),
+      _ => (Colors.grey.shade100, Colors.grey.shade600, status),
     };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
       child: Text(
-        status,
+        label,
         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg),
       ),
     );
   }
 }
-
-//  Summary card
 
 class _SummaryCard extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -370,6 +313,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final common = context.l10nCommon;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -380,18 +324,13 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Total
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total",
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+              Text(common.total, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
               Text(
-                "${data["totalAmount"] ?? '0.00'} zł",
-                style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.redAccent),
+                common.currency_pl(data["totalAmount"]?.toString() ?? '0.00'),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.redAccent),
               ),
             ],
           ),
@@ -400,11 +339,8 @@ class _SummaryCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Delivery Fee",
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey.shade500)),
-                Text("${data["deliveryFee"]} zł",
-                    style: const TextStyle(fontSize: 12)),
+                Text(common.deliveryFee, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                Text(common.currency_pl(data["deliveryFee"].toString()), style: const TextStyle(fontSize: 12)),
               ],
             ),
           ],
@@ -414,28 +350,26 @@ class _SummaryCard extends StatelessWidget {
           ),
           _InfoRow(
             icon: Icons.receipt_long_rounded,
-            label: "Order ID",
+            label: common.orderId,
             value: "#${orderID?.substring(0, 12) ?? ''}...",
           ),
           const SizedBox(height: 10),
           _InfoRow(
-            icon: data["orderType"] == "pickup"
-                ? Icons.storefront_rounded
-                : Icons.delivery_dining_rounded,
-            label: "Order Type",
-            value: data["orderType"] == "pickup" ? "Pickup" : "Delivery",
+            icon: data["orderType"] == "pickup" ? Icons.storefront_rounded : Icons.delivery_dining_rounded,
+            label: common.orderType,
+            value: data["orderType"] == "pickup" ? context.l10nCommon.pickup : context.l10nCommon.foodDelivery,
           ),
           const SizedBox(height: 10),
           _InfoRow(
             icon: Icons.schedule_rounded,
-            label: "Ordered At",
+            label: common.orderedAt,
             value: dateTimeToString(context, data["orderTime"].toDate()),
           ),
           const SizedBox(height: 10),
           _InfoRow(
             icon: Icons.payments_rounded,
-            label: "Payment",
-            value: formatPayment(data["paymentDetails"]),
+            label: common.payment,
+            value: formatPayment(context, data["paymentDetails"]),
           ),
         ],
       ),
@@ -446,8 +380,7 @@ class _SummaryCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label, value;
-  const _InfoRow(
-      {required this.icon, required this.label, required this.value});
+  const _InfoRow({required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -459,12 +392,9 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+              Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               const SizedBox(height: 1),
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -473,53 +403,38 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-//  Address section
-
 class _AddressSection extends StatelessWidget {
   final Map<String, dynamic> data;
   const _AddressSection({required this.data});
 
   @override
   Widget build(BuildContext context) {
-    // New model — address embedded directly on the order
+    final common = context.l10nCommon;
+
     if (data["address"] is Map) {
-      final addr =
-          Address.fromJson(Map<String, dynamic>.from(data["address"] as Map));
+      final addr = Address.fromJson(Map<String, dynamic>.from(data["address"] as Map));
       return ShipmentAddressDesign(model: addr);
     }
 
-    // Legacy model — address stored by ID
     final addressID = data["addressID"] as String?;
     if (addressID == null || addressID.isEmpty || addressID == "pickup") {
-      return _InfoTile(
-          icon: Icons.location_off_rounded, text: "Address not available");
+      return _InfoTile(icon: Icons.location_off_rounded, text: common.errorAddressNotAvailable);
     }
 
     return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection("users")
-          .doc(currentUID)
-          .collection("addresses")
-          .doc(addressID)
-          .get(),
+      future: FirebaseFirestore.instance.collection("users").doc(currentUID).collection("addresses").doc(addressID).get(),
       builder: (context, snap) {
         if (!snap.hasData) {
           return Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: Center(child: circularProgress()),
           );
         }
         if (!snap.data!.exists) {
-          return _InfoTile(
-              icon: Icons.location_off_rounded, text: "Address not found");
+          return _InfoTile(icon: Icons.location_off_rounded, text: common.errorAddressNotFound);
         }
-        return ShipmentAddressDesign(
-          model: Address.fromJson(snap.data!.data()! as Map<String, dynamic>),
-        );
+        return ShipmentAddressDesign(model: Address.fromJson(snap.data!.data()! as Map<String, dynamic>));
       },
     );
   }
@@ -530,6 +445,7 @@ class _PickupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.l10nCommon;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -545,20 +461,16 @@ class _PickupCard extends StatelessWidget {
               color: Colors.redAccent.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.storefront_rounded,
-                color: Colors.redAccent, size: 24),
+            child: const Icon(Icons.storefront_rounded, color: Colors.redAccent, size: 24),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Pick up from store",
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                SizedBox(height: 2),
-                Text("Show this order at the counter",
-                    style: TextStyle(fontSize: 12, color: Color(0xFFAAAAAA))),
+                Text(t.pickupFromStore, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 2),
+                Text(t.pickupCounterHint, style: const TextStyle(fontSize: 12, color: Color(0xFFAAAAAA))),
               ],
             ),
           ),
@@ -586,15 +498,12 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, color: Colors.grey.shade400, size: 18),
           const SizedBox(width: 12),
-          Text(text,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+          Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
         ],
       ),
     );
   }
 }
-
-//  Section label
 
 class _SectionLabel extends StatelessWidget {
   final String text;
@@ -604,16 +513,10 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w800,
-        color: Colors.black87,
-      ),
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
     );
   }
 }
-
-//  Rated badge — shown when order has already been rated
 
 class _RatedBadge extends StatelessWidget {
   final int foodRating;
@@ -622,29 +525,25 @@ class _RatedBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.l10nCommon;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF00C48C).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: const Color(0xFF00C48C).withValues(alpha: 0.2)),
+        border: Border.all(color: const Color(0xFF00C48C).withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded,
-              color: Color(0xFF00C48C), size: 20),
+          const Icon(Icons.check_circle_rounded, color: Color(0xFF00C48C), size: 20),
           const SizedBox(width: 10),
-          const Text('You rated this order',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF00C48C))),
+          Text(t.youRatedOrder,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF00C48C))),
           const Spacer(),
-          _MiniStars(label: 'Food', rating: foodRating),
+          _MiniStars(label: t.ratingFood, rating: foodRating),
           const SizedBox(width: 12),
-          _MiniStars(label: 'Driver', rating: driverRating),
+          _MiniStars(label: t.ratingDriver, rating: driverRating),
         ],
       ),
     );
@@ -661,11 +560,7 @@ class _MiniStars extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: 9,
-                color: Colors.grey.shade500,
-                fontWeight: FontWeight.w500)),
+        Text(label, style: TextStyle(fontSize: 9, color: Colors.grey.shade500, fontWeight: FontWeight.w500)),
         const SizedBox(height: 2),
         Row(
           mainAxisSize: MainAxisSize.min,

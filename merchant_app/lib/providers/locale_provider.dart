@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import "package:merchant_app/models/language.dart";
-import "package:merchant_app/global/global.dart";
+import 'package:merchant_app/global/global.dart';
+import 'package:shared_assets/models/language.dart';
 
 class LocaleProvider with ChangeNotifier {
   Locale _locale = Locale('en');

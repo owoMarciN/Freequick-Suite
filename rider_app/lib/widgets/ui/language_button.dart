@@ -1,9 +1,9 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rider_app/extensions/brand_color_ext.dart';
-import 'package:rider_app/models/language_model.dart';
 import 'package:rider_app/providers/locale_provider.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/models/language.dart';
 
 // -----------------------------------------------------------------------------
 // LANGUAGE BUTTON
@@ -61,12 +61,12 @@ class LanguageButton extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                    color: isSelected ? brandColors.navy : null,
+                    color: isSelected ? brandColors.muted : null,
                   ),
                 ),
               ),
               if (isSelected)
-                Icon(Icons.check_rounded, size: 15, color: brandColors.navy),
+                Icon(Icons.check_rounded, size: 15, color: brandColors.muted),
             ],
           ),
         );

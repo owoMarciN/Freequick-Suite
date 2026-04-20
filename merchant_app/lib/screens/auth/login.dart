@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/dialogs/error_dialog.dart';
-import 'package:merchant_app/widgets/dialogs/loading_dialog.dart';
-import 'package:merchant_app/widgets/text_fields/custom_text_field.dart';
-import 'package:merchant_app/widgets/text_fields/custom_password_field.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
 import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (_) =>
-            ErrorDialog(message: context.l10n.errorEnterEmailOrPassword),
+            ErrorDialog(message: context.l10nMerchant.errorEnterEmailOrPassword),
       );
     }
   }
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadingDialog(message: context.l10n.checkingCredentials),
+      builder: (_) => LoadingDialog(message: context.l10nCommon.checkingCredentials),
     );
 
     try {
@@ -57,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (_) => ErrorDialog(
-            message: error.message ?? context.l10n.errorLoginFailed),
+            message: error.message ?? context.l10nMerchant.errorLoginFailed),
       );
     }
   }
@@ -71,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!userSnap.exists) {
         if (!mounted) return;
-        return _failWith(context.l10n.error_no_user_record_found);
+        return _failWith(context.l10nMerchant.error_no_user_record_found);
       }
 
       final userData = userSnap.data()!;
@@ -90,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (role.toLowerCase() != "restaurant") {
         if (!mounted) return;
-        return _failWith(context.l10n.permission_restaurant_accounts_only);
+        return _failWith(context.l10nMerchant.permission_restaurant_accounts_only);
       }
 
       final restaurantSnap = await FirebaseFirestore.instance
@@ -100,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!restaurantSnap.exists) {
         if (!mounted) return;
-        return _failWith(context.l10n.error_no_restaurant_record_found);
+        return _failWith(context.l10nMerchant.error_no_restaurant_record_found);
       }
 
       final restaurantData = restaurantSnap.data()!;
@@ -185,12 +186,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     CustomTextField(
                       data: Icons.email,
                       controller: _emailController,
-                      hintText: context.l10n.hintEmail,
+                      hintText: context.l10nMerchant.hintEmail,
                       isObsecure: false,
                     ),
                     CustomPasswordField(
                       controller: _passwordController,
-                      label: context.l10n.hintPassword,
+                      label: context.l10nMerchant.hintPassword,
                       isRequired: true,
                       isConfirmation: true,
                     ),
@@ -207,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         child: Text(
-                          context.l10n.login,
+                          context.l10nCommon.login,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

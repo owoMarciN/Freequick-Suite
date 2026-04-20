@@ -100,7 +100,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             .collection('users')
             .doc(currentUID)
             .collection('notifications')
-            .orderBy('createdAt', descending: true)
+            .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -252,7 +252,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          _formatTime(data['createdAt']),
+                                          _formatTime(data['timestamp']),
                                           style: TextStyle(
                                               fontSize: 10,
                                               color: Colors.grey.shade400),

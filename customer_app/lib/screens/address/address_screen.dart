@@ -6,7 +6,7 @@ import 'package:user_app/screens/address/save_address_screen.dart';
 import 'package:user_app/models/address.dart';
 import 'package:user_app/widgets/address/address_design.dart';
 import 'package:user_app/providers/address_provider.dart';
-import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:merchant_app/global/global.dart';
@@ -20,27 +21,27 @@ class _DashboardShellState extends State<DashboardShell> {
   List<_NavItem> _navItems(BuildContext context) => [
         _NavItem(
             icon: Icons.grid_view_rounded,
-            label: context.l10n.shell_nav_overview,
+            label: context.l10nMerchant.shell_nav_overview,
             path: '/dashboard'),
         _NavItem(
             icon: Icons.receipt_long_rounded,
-            label: context.l10n.shell_nav_orders,
+            label: context.l10nMerchant.shell_nav_orders,
             path: '/dashboard/orders'),
         _NavItem(
             icon: Icons.restaurant_menu_rounded,
-            label: context.l10n.shell_nav_menus,
+            label: context.l10nMerchant.shell_nav_menus,
             path: '/dashboard/menus'),
         _NavItem(
             icon: Icons.campaign_rounded,
-            label: context.l10n.shell_nav_promotions,
+            label: context.l10nMerchant.shell_nav_promotions,
             path: '/dashboard/promotions'),
         _NavItem(
             icon: Icons.bar_chart_rounded,
-            label: context.l10n.shell_nav_analytics,
+            label: context.l10nMerchant.shell_nav_analytics,
             path: '/dashboard/analytics'),
         _NavItem(
             icon: Icons.settings_rounded,
-            label: context.l10n.shell_nav_settings,
+            label: context.l10nMerchant.shell_nav_settings,
             path: '/dashboard/settings'),
       ];
 
@@ -87,7 +88,7 @@ class _DashboardShellState extends State<DashboardShell> {
             return Scaffold(
               body: Center(
                 child: Text(
-                  context.l10n.shell_restaurant_not_found,
+                  context.l10nMerchant.shell_restaurant_not_found,
                   style: TextStyle(color: brandColors.muted),
                 ),
               ),
@@ -211,7 +212,7 @@ class _DashboardShellState extends State<DashboardShell> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: brandColors.navy,
+                            color: brandColors.primary,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -246,25 +247,25 @@ class _DashboardShellState extends State<DashboardShell> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: brandColors.navy?.withValues(alpha: 0.08),
+                    color: brandColors.primary?.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: brandColors.navy?.withValues(alpha: 0.2) ??
+                      color: brandColors.primary?.withValues(alpha: 0.2) ??
                           Colors.transparent,
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.rocket_launch_rounded,
-                          size: 14, color: brandColors.navy),
+                          size: 14, color: brandColors.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          context.l10n.shell_finish_setup,
+                          context.l10nMerchant.shell_finish_setup,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: brandColors.navy,
+                            color: brandColors.primary,
                           ),
                         ),
                       ),
@@ -306,20 +307,20 @@ class _DashboardShellState extends State<DashboardShell> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: brandColors.navy?.withValues(alpha: 0.1),
+                  backgroundColor: brandColors.primary?.withValues(alpha: 0.1),
                   backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                       ? NetworkImage(photoUrl)
                       : null,
                   child: photoUrl == null || photoUrl.isEmpty
                       ? Icon(Icons.person_rounded,
-                          size: 24, color: brandColors.navy)
+                          size: 24, color: brandColors.primary)
                       : null,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     getUserPref<String>('accountName') ??
-                        context.l10n.shell_my_account,
+                        context.l10nMerchant.shell_my_account,
                     style: TextStyle(fontSize: 13, color: brandColors.muted),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -352,7 +353,7 @@ class _DashboardShellState extends State<DashboardShell> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? brandColors.navy?.withValues(alpha: 0.15)
+                ? brandColors.primary?.withValues(alpha: 0.15)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
@@ -361,7 +362,7 @@ class _DashboardShellState extends State<DashboardShell> {
               Icon(
                 item.icon,
                 size: 18,
-                color: isSelected ? brandColors.navy : brandColors.muted,
+                color: isSelected ? brandColors.primary : brandColors.muted,
               ),
               const SizedBox(width: 10),
               Text(
@@ -400,7 +401,8 @@ class _DashboardShellState extends State<DashboardShell> {
       child: Row(
         children: [
           if (!isWide) ...[
-            Icon(Icons.restaurant_rounded, color: brandColors.navy, size: 22),
+            Icon(Icons.restaurant_rounded,
+                color: brandColors.primary, size: 22),
             const SizedBox(width: 8),
             Text(
               getUserPref<String>('businessName') ?? 'RestaurantOS',
@@ -429,7 +431,7 @@ class _DashboardShellState extends State<DashboardShell> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                color: brandColors.accentGreen!,
+                color: brandColors.success!,
                 width: 1.2,
               ),
             ),
@@ -444,14 +446,14 @@ class _DashboardShellState extends State<DashboardShell> {
                       CircleAvatar(
                         radius: 32,
                         backgroundColor:
-                            brandColors.navy?.withValues(alpha: 0.1) ??
+                            brandColors.primary?.withValues(alpha: 0.1) ??
                                 Colors.grey.shade200,
                         backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                             ? NetworkImage(photoUrl)
                             : null,
                         child: photoUrl == null || photoUrl.isEmpty
                             ? Icon(Icons.restaurant_rounded,
-                                size: 32, color: brandColors.navy)
+                                size: 32, color: brandColors.primary)
                             : null,
                       ),
                       const SizedBox(height: 12),
@@ -480,7 +482,7 @@ class _DashboardShellState extends State<DashboardShell> {
                 child: Row(children: [
                   const Icon(Icons.headset_mic_outlined, size: 16),
                   const SizedBox(width: 12),
-                  Text(context.l10n.shell_menu_support,
+                  Text(context.l10nMerchant.shell_menu_support,
                       style: const TextStyle(fontSize: 13)),
                 ]),
               ),
@@ -489,7 +491,7 @@ class _DashboardShellState extends State<DashboardShell> {
                 child: Row(children: [
                   const Icon(Icons.storefront_outlined, size: 16),
                   const SizedBox(width: 12),
-                  Text(context.l10n.shell_menu_sales,
+                  Text(context.l10nMerchant.shell_menu_sales,
                       style: const TextStyle(fontSize: 13)),
                 ]),
               ),
@@ -498,7 +500,7 @@ class _DashboardShellState extends State<DashboardShell> {
                 child: Row(children: [
                   const Icon(Icons.cookie_outlined, size: 16),
                   const SizedBox(width: 12),
-                  Text(context.l10n.shell_menu_cookies,
+                  Text(context.l10nMerchant.shell_menu_cookies,
                       style: const TextStyle(fontSize: 13)),
                 ]),
               ),
@@ -508,7 +510,7 @@ class _DashboardShellState extends State<DashboardShell> {
                 child: Row(children: [
                   const Icon(Icons.settings_outlined, size: 16),
                   const SizedBox(width: 12),
-                  Text(context.l10n.shell_menu_settings,
+                  Text(context.l10nMerchant.shell_menu_settings,
                       style: const TextStyle(fontSize: 13)),
                 ]),
               ),
@@ -524,7 +526,7 @@ class _DashboardShellState extends State<DashboardShell> {
                       size: 16, color: Colors.redAccent),
                   const SizedBox(width: 12),
                   Text(
-                    context.l10n.shell_menu_logout,
+                    context.l10nMerchant.shell_menu_logout,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -536,13 +538,13 @@ class _DashboardShellState extends State<DashboardShell> {
             ],
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: brandColors.navy?.withValues(alpha: 0.3),
+              backgroundColor: brandColors.primary?.withValues(alpha: 0.3),
               backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                   ? NetworkImage(photoUrl)
                   : null,
               child: photoUrl == null || photoUrl.isEmpty
                   ? Icon(Icons.person_rounded,
-                      size: 16, color: brandColors.accentGreen)
+                      size: 16, color: brandColors.success)
                   : null,
             ),
           ),
@@ -563,11 +565,11 @@ class _DashboardShellState extends State<DashboardShell> {
       selectedIndex: selected,
       onDestinationSelected: (i) => _onNavTap(context, i),
       backgroundColor: colorScheme.surface,
-      indicatorColor: brandColors.navy?.withValues(alpha: 0.1),
+      indicatorColor: brandColors.primary?.withValues(alpha: 0.1),
       destinations: _navItems(context)
           .map((e) => NavigationDestination(
                 icon: Icon(e.icon, color: brandColors.muted),
-                selectedIcon: Icon(e.icon, color: brandColors.navy),
+                selectedIcon: Icon(e.icon, color: brandColors.primary),
                 label: e.label,
               ))
           .toList(),
@@ -616,7 +618,7 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
           existing.data()?['status']?.toString() == 'pending') {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.shell_already_pending)),
+          SnackBar(content: Text(context.l10nMerchant.shell_already_pending)),
         );
         return;
       }
@@ -630,12 +632,12 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.shell_go_live_submitted)),
+        SnackBar(content: Text(context.l10nMerchant.shell_go_live_submitted)),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.shell_error(e.toString()))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.l10nMerchant.shell_error(e.toString()))));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -646,16 +648,16 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(context.l10n.shell_go_offline_title,
+        title: Text(context.l10nMerchant.shell_go_offline_title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          context.l10n.shell_go_offline_body,
+          context.l10nMerchant.shell_go_offline_body,
           style: const TextStyle(fontSize: 13),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(context.l10n.shell_confirm_cancel)),
+              child: Text(context.l10nMerchant.shell_confirm_cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
@@ -665,7 +667,7 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text(context.l10n.shell_go_offline_confirm),
+            child: Text(context.l10nMerchant.shell_go_offline_confirm),
           ),
         ],
       ),
@@ -681,8 +683,8 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
           .update({'status': 'approved'});
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.shell_error(e.toString()))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.l10nMerchant.shell_error(e.toString()))));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -698,7 +700,8 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: brand.navy?.withValues(alpha: 0.2) ?? Colors.transparent),
+              color:
+                  brand.primary?.withValues(alpha: 0.2) ?? Colors.transparent),
         ),
         child: const Center(
           child: SizedBox(
@@ -717,10 +720,10 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: brand.accentGreen?.withValues(alpha: 0.1),
+            color: brand.success?.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-                color: brand.accentGreen?.withValues(alpha: 0.3) ??
+                color: brand.success?.withValues(alpha: 0.3) ??
                     Colors.transparent),
           ),
           child: Row(
@@ -728,17 +731,17 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                    color: brand.accentGreen, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: brand.success, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  context.l10n.shell_live_go_offline,
+                  context.l10nMerchant.shell_live_go_offline,
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: brand.accentGreen),
+                      color: brand.success),
                 ),
               ),
             ],
@@ -780,7 +783,7 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      context.l10n.shell_go_live_pending,
+                      context.l10nMerchant.shell_go_live_pending,
                       style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -815,7 +818,7 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        context.l10n.shell_go_live_declined,
+                        context.l10nMerchant.shell_go_live_declined,
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -837,24 +840,24 @@ class _GoLiveButtonState extends State<_GoLiveButton> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: brand.navy?.withValues(alpha: 0.08),
+                color: brand.primary?.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: brand.navy?.withValues(alpha: 0.2) ??
+                    color: brand.primary?.withValues(alpha: 0.2) ??
                         Colors.transparent),
               ),
               child: Row(
                 children: [
                   Icon(Icons.rocket_launch_rounded,
-                      size: 14, color: brand.navy),
+                      size: 14, color: brand.primary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      context.l10n.shell_request_go_live,
+                      context.l10nMerchant.shell_request_go_live,
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: brand.navy),
+                          color: brand.primary),
                     ),
                   ),
                 ],
@@ -883,20 +886,20 @@ class _StatusGate extends StatelessWidget {
       'pending': _GateConfig(
         icon: Icons.hourglass_top_rounded,
         color: const Color(0xFFD97706),
-        title: context.l10n.gate_pending_title,
-        message: context.l10n.gate_pending_message,
+        title: context.l10nMerchant.gate_pending_title,
+        message: context.l10nMerchant.gate_pending_message,
       ),
       'rejected': _GateConfig(
         icon: Icons.cancel_rounded,
         color: const Color(0xFFEF4444),
-        title: context.l10n.gate_rejected_title,
-        message: context.l10n.gate_rejected_message,
+        title: context.l10nMerchant.gate_rejected_title,
+        message: context.l10nMerchant.gate_rejected_message,
       ),
       'suspended': _GateConfig(
         icon: Icons.block_rounded,
         color: const Color(0xFFEF4444),
-        title: context.l10n.gate_suspended_title,
-        message: context.l10n.gate_suspended_message,
+        title: context.l10nMerchant.gate_suspended_title,
+        message: context.l10nMerchant.gate_suspended_message,
       ),
     };
 
@@ -904,8 +907,8 @@ class _StatusGate extends StatelessWidget {
         _GateConfig(
           icon: Icons.info_outline_rounded,
           color: brandColors.muted ?? Colors.grey,
-          title: context.l10n.gate_default_title,
-          message: context.l10n.gate_default_message,
+          title: context.l10nMerchant.gate_default_title,
+          message: context.l10nMerchant.gate_default_message,
         );
 
     return Center(
@@ -946,7 +949,7 @@ class _StatusGate extends StatelessWidget {
                   Router.neglect(context, () => context.go('/auth/login'));
                 },
                 icon: const Icon(Icons.logout_rounded, size: 16),
-                label: Text(context.l10n.gate_sign_out),
+                label: Text(context.l10nCommon.signOut),
               ),
             ],
           ),

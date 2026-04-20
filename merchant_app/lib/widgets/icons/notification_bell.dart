@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class NotificationBell extends StatefulWidget {
   final String? uid;
@@ -109,7 +109,7 @@ class _NotificationBellState extends State<NotificationBell>
                           : Icons.notifications_none_rounded,
                       size: 24,
                       color: unread > 0
-                          ? widget.brandColors.navy
+                          ? widget.brandColors.primarySoft
                           : widget.brandColors.muted,
                     ),
                   ),
@@ -199,7 +199,7 @@ class _NotificationSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                Text(context.l10n.notif_sheet_title,
+                Text(context.l10nCommon.notifications,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w700)),
                 const Spacer(),
@@ -224,7 +224,7 @@ class _NotificationSheet extends StatelessWidget {
                         border: Border.all(
                             color: Colors.redAccent.withValues(alpha: 0.3)),
                       ),
-                      child: Text(context.l10n.notif_unread_count(count),
+                      child: Text(context.l10nCommon.notif_unread_count(count),
                           style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -239,9 +239,9 @@ class _NotificationSheet extends StatelessWidget {
                           horizontal: 8, vertical: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  child: Text(context.l10n.notif_mark_all_read,
+                  child: Text(context.l10nCommon.notifications_all_read,
                       style: TextStyle(
-                          fontSize: 13, color: brandColors.accentGreen)),
+                          fontSize: 13, color: brandColors.success)),
                 ),
               ],
             ),
@@ -275,11 +275,11 @@ class _NotificationSheet extends StatelessWidget {
                         Icon(Icons.notifications_none_rounded,
                             size: 48, color: brandColors.muted),
                         const SizedBox(height: 12),
-                        Text(context.l10n.notif_empty_title,
+                        Text(context.l10nCommon.notif_empty_title,
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
-                        Text(context.l10n.notif_empty_subtitle,
+                        Text(context.l10nCommon.notif_empty_subtitle,
                             style: TextStyle(
                                 fontSize: 12, color: brandColors.muted)),
                       ],
@@ -359,13 +359,13 @@ class _NotificationTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: isRead
                 ? colorScheme.surface
-                : brandColors.navy?.withValues(alpha: 0.05) ??
+                : brandColors.primarySoft?.withValues(alpha: 0.05) ??
                     colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isRead
                   ? colorScheme.outline
-                  : brandColors.navy?.withValues(alpha: 0.2) ??
+                  : brandColors.primarySoft?.withValues(alpha: 0.2) ??
                       colorScheme.outline,
             ),
           ),
@@ -378,7 +378,7 @@ class _NotificationTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isRead
                       ? colorScheme.surfaceBright
-                      : brandColors.navy?.withValues(alpha: 0.1),
+                      : brandColors.primarySoft?.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -386,7 +386,7 @@ class _NotificationTile extends StatelessWidget {
                       ? Icons.notifications_none_rounded
                       : Icons.notifications_active_rounded,
                   size: 24,
-                  color: isRead ? brandColors.muted : brandColors.navy,
+                  color: isRead ? brandColors.muted : brandColors.primarySoft,
                 ),
               ),
               const SizedBox(width: 12),
@@ -412,7 +412,7 @@ class _NotificationTile extends StatelessWidget {
                             height: 14,
                             margin: const EdgeInsets.only(top: 3),
                             decoration: BoxDecoration(
-                              color: brandColors.navy,
+                              color: brandColors.primarySoft,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -454,15 +454,15 @@ class _NotificationTile extends StatelessWidget {
   String _fmt(BuildContext context, DateTime d) {
     final now = DateTime.now();
     final diff = now.difference(d);
-    if (diff.inMinutes < 1) return context.l10n.notif_time_just_now;
+    if (diff.inMinutes < 1) return context.l10nCommon.notif_time_just_now;
     if (diff.inMinutes < 60) {
-      return context.l10n.notif_time_minutes(diff.inMinutes);
+      return context.l10nCommon.notif_time_minutes(diff.inMinutes);
     }
     if (diff.inHours < 24) {
-      return context.l10n.notif_time_hours(diff.inHours);
+      return context.l10nCommon.notif_time_hours(diff.inHours);
     }
-    if (diff.inDays == 1) return context.l10n.notif_time_yesterday;
-    if (diff.inDays < 7) return context.l10n.notif_time_days(diff.inDays);
+    if (diff.inDays == 1) return context.l10nCommon.notif_time_yesterday;
+    if (diff.inDays < 7) return context.l10nCommon.notif_time_days(diff.inDays);
     return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
   }
 }

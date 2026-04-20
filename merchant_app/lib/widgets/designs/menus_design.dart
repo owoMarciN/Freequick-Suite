@@ -3,12 +3,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/models/menus.dart';
 import 'package:merchant_app/screens/restaurant/items_screen.dart';
 import 'package:merchant_app/widgets/sheets/edit_sheet_components.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class MenusDesignWidget extends StatelessWidget {
   final Menus? model;
@@ -56,7 +56,7 @@ class MenusDesignWidget extends StatelessWidget {
                       loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
                         return Container(
-                          color: brandColors.navy?.withValues(alpha: 0.05),
+                          color: brandColors.primary?.withValues(alpha: 0.05),
                           child: Center(
                             child: CircularProgressIndicator(
                               value: progress.expectedTotalBytes != null
@@ -64,7 +64,7 @@ class MenusDesignWidget extends StatelessWidget {
                                       progress.expectedTotalBytes!
                                   : null,
                               strokeWidth: 2,
-                              color: brandColors.navy,
+                              color: brandColors.primary,
                             ),
                           ),
                         );
@@ -108,7 +108,7 @@ class MenusDesignWidget extends StatelessWidget {
                                 size: 14, color: Colors.lightBlueAccent),
                             const SizedBox(width: 4),
                             Text(
-                              context.l10n.menus_design_view_items,
+                              context.l10nCommon.viewItems,
                               style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -129,13 +129,13 @@ class MenusDesignWidget extends StatelessWidget {
                     onPressed: () => _openEditSheet(context),
                     child: Row(
                       children: [
-                        Text(context.l10n.menus_design_edit_button,
+                        Text(context.l10nCommon.edit,
                             style: TextStyle(
-                                color: brandColors.accentGreen,
+                                color: brandColors.success,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(width: 10),
                         Icon(Icons.change_circle,
-                            color: brandColors.accentGreen),
+                            color: brandColors.success),
                       ],
                     ),
                   ),
@@ -233,17 +233,17 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
         final String? errorMsg = await deleteOldFile(oldUrl);
         if (errorMsg != null && mounted) {
           unifiedSnackBar(
-              context, context.l10n.menus_design_banner_cleanup_error,
+              context.l10nMerchant.menus_image_cleanup_error,
               error: true);
         }
       }
 
       if (!mounted) return;
-      unifiedSnackBar(context, context.l10n.menus_design_saved);
+      unifiedSnackBar(context.l10nCommon.successSaved);
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -253,15 +253,15 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(context.l10n.menus_design_delete_dialog_title),
-        content: Text(context.l10n.menus_design_delete_dialog_body),
+        title: Text(context.l10nCommon.confirmDeleteTitle),
+        content: Text(context.l10nCommon.confirmDeleteBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(context.l10n.menus_design_delete_cancel)),
+              child: Text(context.l10nCommon.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(context.l10n.menus_design_delete_confirm,
+            child: Text(context.l10nCommon.confirm,
                 style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
@@ -271,7 +271,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
     if (confirm != true || !mounted) return;
 
     if (widget.menu.restaurantID == null || widget.menu.menuID == null) {
-      unifiedSnackBar(context, context.l10n.menus_design_delete_missing_id,
+      unifiedSnackBar(context.l10nMerchant.menus_error_missing_ids,
           error: true);
       return;
     }
@@ -292,10 +292,10 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
 
       if (!mounted) return;
       Navigator.pop(context);
-      unifiedSnackBar(context, context.l10n.menus_design_deleted);
+      unifiedSnackBar(context.l10nMerchant.menus_deleted);
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -324,7 +324,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.l10n.menus_design_edit_sheet_title,
+                  Text(context.l10nMerchant.menus_design_edit_sheet_title,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w700)),
                   Row(
@@ -335,7 +335,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
                                 Colors.pink.withValues(alpha: 0.3)),
                         onPressed: _isLoading ? null : _delete,
                         child: Row(children: [
-                          Text(context.l10n.menus_design_delete_button,
+                          Text(context.l10nMerchant.menus_design_delete_button,
                               style: const TextStyle(
                                   color: Colors.redAccent,
                                   fontWeight: FontWeight.bold)),
@@ -367,7 +367,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _imageBytes != null
-                          ? brandColors.navy!
+                          ? brandColors.primary!
                           : colorScheme.outline,
                       width: _imageBytes != null ? 2 : 1,
                     ),
@@ -386,7 +386,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
               ),
               const SizedBox(height: 8),
               Center(
-                child: Text(context.l10n.menus_design_change_image_hint,
+                child: Text(context.l10nMerchant.menus_design_change_image_hint,
                     style: TextStyle(fontSize: 11, color: brandColors.muted)),
               ),
               const SizedBox(height: 20),
@@ -394,11 +394,11 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
               TextFormField(
                 controller: _titleController,
                 decoration: customInputDecoration(
-                    label: context.l10n.menus_design_field_title_label,
+                    label: context.l10nMerchant.menus_design_field_title_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.menus_design_field_title_required
+                    ? context.l10nMerchant.menus_design_field_title_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -407,11 +407,11 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: customInputDecoration(
-                    label: context.l10n.menus_design_field_desc_label,
+                    label: context.l10nMerchant.menus_design_field_desc_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.menus_design_field_desc_required
+                    ? context.l10nMerchant.menus_design_field_desc_required
                     : null,
               ),
 
@@ -423,7 +423,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: brandColors.navy,
+                    backgroundColor: brandColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -435,7 +435,7 @@ class _EditMenuSheetState extends State<_EditMenuSheet> {
                           height: 20,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white))
-                      : Text(context.l10n.menus_design_save_changes,
+                      : Text(context.l10nCommon.saveChanges,
                           style: const TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 15)),
                 ),

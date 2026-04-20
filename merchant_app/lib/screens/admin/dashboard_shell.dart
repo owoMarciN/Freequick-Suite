@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/widgets/ui/language_button.dart';
 
 class AdminDashboardShell extends StatelessWidget {
@@ -11,19 +12,19 @@ class AdminDashboardShell extends StatelessWidget {
   List<_NavItem> _navItems(BuildContext context) => [
         _NavItem(
             icon: Icons.grid_view_rounded,
-            label: context.l10n.admin_overview,
+            label: context.l10nCommon.overview,
             path: '/admin/overview'),
         _NavItem(
             icon: Icons.storefront_rounded,
-            label: context.l10n.admin_join_requests,
+            label: context.l10nMerchant.join_requests,
             path: '/admin/join-requests'),
         _NavItem(
             icon: Icons.people_rounded,
-            label: context.l10n.admin_users,
+            label: context.l10nCommon.users,
             path: '/admin/users'),
         _NavItem(
             icon: Icons.notifications_rounded,
-            label: context.l10n.admin_notifications,
+            label: context.l10nCommon.notifications,
             path: '/admin/notifications'),
       ];
 
@@ -130,7 +131,7 @@ class _AdminSidebar extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444),
+                    color: brand.danger,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.shield_rounded,
@@ -141,10 +142,12 @@ class _AdminSidebar extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Freequick',
+                      Text('Freequick',
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w700)),
-                      Text(context.l10n.admin_panel,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onSurface)),
+                      Text(context.l10nMerchant.admin_panel,
                           style: TextStyle(fontSize: 10, color: brand.muted)),
                     ],
                   ),
@@ -175,11 +178,11 @@ class _AdminSidebar extends StatelessWidget {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                    color: brand.danger!.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.admin_panel_settings_rounded,
-                      size: 24, color: Color(0xFFEF4444)),
+                  child: Icon(Icons.admin_panel_settings_rounded,
+                      size: 24, color: brand.danger),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -188,13 +191,15 @@ class _AdminSidebar extends StatelessWidget {
                     children: [
                       Text(
                         getUserPref<String>('accountName') ??
-                            context.l10n.admin,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600),
+                            context.l10nCommon.role_admin,
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurface),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text(context.l10n.administrator,
+                      Text(context.l10nCommon.role_administrator,
                           style: TextStyle(fontSize: 12, color: brand.muted)),
                     ],
                   ),
@@ -235,7 +240,7 @@ class _NavTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFFEF4444).withValues(alpha: 0.12)
+                ? brand.danger!.withValues(alpha: 0.12)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
@@ -244,15 +249,16 @@ class _NavTile extends StatelessWidget {
               Icon(
                 item.icon,
                 size: 18,
-                color: isSelected ? const Color(0xFFEF4444) : brand.muted,
+                color: isSelected ? brand.danger : brand.muted,
               ),
               const SizedBox(width: 10),
               Text(
                 item.label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? const Color(0xFFEF4444) : brand.muted,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? brand.danger : brand.muted,
                 ),
               ),
             ],
@@ -293,47 +299,55 @@ class _AdminTopBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
+                color: brand.danger,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Icon(Icons.shield_rounded,
                   color: Colors.white, size: 16),
             ),
             const SizedBox(width: 8),
-            Text(context.l10n.admin,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(
+              context.l10nCommon.role_admin,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: scheme.onSurface),
+            ),
           ],
           if (isWide)
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface),
+            ),
           const Spacer(),
 
           LanguageButton(brandColors: brand, colorScheme: scheme),
-          const SizedBox(
-            width: 16,
-          ),
+          const SizedBox(width: 16),
 
           // Admin badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+              color: brand.danger!.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                  color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  color: brand.danger!.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.shield_rounded,
-                    size: 16, color: Color(0xFFEF4444)),
+                Icon(Icons.shield_rounded, size: 16, color: brand.danger),
                 const SizedBox(width: 4),
-                Text(context.l10n.admin,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFEF4444))),
+                Text(
+                  context.l10nCommon.role_admin,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: brand.danger),
+                ),
               ],
             ),
           ),
@@ -342,11 +356,11 @@ class _AdminTopBar extends StatelessWidget {
           // Sign out
           PopupMenuButton(
             offset: const Offset(0, 50),
-            color: const Color(0xFF1E293B),
+            color: scheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.25),
+                color: brand.danger!.withValues(alpha: 0.25),
                 width: 1.2,
               ),
             ),
@@ -358,16 +372,17 @@ class _AdminTopBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      getUserPref<String>('accountName') ?? context.l10n.admin,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      getUserPref<String>('accountName') ??
+                          context.l10nCommon.role_admin,
+                      style: TextStyle(
+                          color: scheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w700),
                     ),
                     Text(
                       getUserPref<String>('accountEmail') ??
                           'business@email.com',
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(fontSize: 11, color: brand.muted),
                     ),
                   ],
                 ),
@@ -377,31 +392,36 @@ class _AdminTopBar extends StatelessWidget {
                 onTap: () async {
                   await firebaseAuth.signOut();
                   if (!context.mounted) return;
-                  Router.neglect(context, () => context.go('/auth/login'));
+                  Router.neglect(
+                      context, () => context.go('/auth/login'));
                 },
-                child: Row(children: [
-                  const Icon(Icons.logout_rounded,
-                      size: 16, color: Colors.redAccent),
-                  const SizedBox(width: 12),
-                  Text(context.l10n.sign_out,
-                      style: const TextStyle(
+                child: Row(
+                  children: [
+                    Icon(Icons.logout_rounded,
+                        size: 16, color: brand.danger),
+                    const SizedBox(width: 12),
+                    Text(
+                      context.l10nCommon.signOut,
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Colors.redAccent)),
-                ]),
+                          color: brand.danger),
+                    ),
+                  ],
+                ),
               ),
             ],
             child: Container(
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                color: brand.danger!.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                    color: brand.danger!.withValues(alpha: 0.3)),
               ),
-              child: const Icon(Icons.admin_panel_settings_rounded,
-                  size: 16, color: Color(0xFFEF4444)),
+              child: Icon(Icons.admin_panel_settings_rounded,
+                  size: 16, color: brand.danger),
             ),
           ),
         ],
@@ -433,12 +453,11 @@ class _AdminBottomNav extends StatelessWidget {
       selectedIndex: selected,
       onDestinationSelected: onTap,
       backgroundColor: scheme.surface,
-      indicatorColor: const Color(0xFFEF4444).withValues(alpha: 0.1),
+      indicatorColor: brand.danger!.withValues(alpha: 0.1),
       destinations: navItems
           .map((e) => NavigationDestination(
                 icon: Icon(e.icon, color: brand.muted),
-                selectedIcon: const Icon(Icons.circle,
-                    size: 18, color: Color(0xFFEF4444)),
+                selectedIcon: Icon(e.icon, size: 20, color: brand.danger),
                 label: e.label,
               ))
           .toList(),
@@ -452,5 +471,6 @@ class _NavItem {
   final IconData icon;
   final String label;
   final String path;
-  const _NavItem({required this.icon, required this.label, required this.path});
+  const _NavItem(
+      {required this.icon, required this.label, required this.path});
 }
