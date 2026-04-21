@@ -115,7 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Sign in to continue delivering',
-                    style: TextStyle(fontSize: 14, color: brand.primary, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: brand.primary,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 48),
                   CustomTextField(

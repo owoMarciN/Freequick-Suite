@@ -14,34 +14,33 @@ class _PricingScreenState extends State<PricingScreen> {
   int _ordersPerDay = 20;
   double _avgOrderValue = 45.0;
 
-  ({double rate, String tierName, Color tierColor}) _getTier(
-      int monthlyOrders, BrandColors brand, BuildContext context) {
-    if (monthlyOrders <= 100) {
+  ({double rate, String tierName, Color tierColor}) _getTier(int monthlyOrders, BrandColors brand, BuildContext context) {
+    if (monthlyOrders <= 300) {       // 0–10 orders/day
       return (
         rate: 0.10,
-        tierName: context.l10nMerchant.pricing_tier_starter_desc,
+        tierName: context.l10nMerchant.pricing_tier_starter_label, // było: _desc
         tierColor: brand.muted!
       );
-    } else if (monthlyOrders <= 500) {
+    } else if (monthlyOrders <= 1500) { // 11–50 orders/day
       return (
         rate: 0.08,
         tierName: context.l10nMerchant.pricing_tier_growing_label,
         tierColor: brand.primary!
       );
-    } else if (monthlyOrders <= 1500) {
+    } else if (monthlyOrders <= 4500) { // 51–150 orders/day
       return (
         rate: 0.06,
-        tierName: context.l10nMerchant.pricing_tier_growing_label,
+        tierName: context.l10nMerchant.pricing_tier_established_label, // było: growing
         tierColor: const Color(0xFF8B5CF6),
       );
-    } else {
+    } else {                            // 151+ orders/day
       return (
         rate: 0.04,
         tierName: context.l10nMerchant.pricing_tier_partner_label,
         tierColor: brand.success!
       );
     }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -238,9 +237,9 @@ class _PricingScreenState extends State<PricingScreen> {
                   _SliderRow(
                     label: context.l10nMerchant.pricing_slider_orders_label,
                     value: _ordersPerDay.toDouble(),
-                    min: 5,
+                    min: 1,
                     max: 200,
-                    divisions: 195,
+                    divisions: 199,
                     displayValue: context.l10nMerchant
                         .pricing_slider_orders_value(
                             _ordersPerDay, monthlyOrders),
@@ -322,7 +321,7 @@ class _PricingScreenState extends State<PricingScreen> {
                           child: _CalcResult(
                         label: context.l10nMerchant
                             .pricing_calc_fee_label(pctLabel),
-                        value: '− ${dailyFee.toStringAsFixed(0)} PLN',
+                        value: '- ${dailyFee.toStringAsFixed(0)} PLN',
                         sub: context.l10nMerchant.pricing_calc_fee_sub,
                         color: const Color(0xFFEF4444),
                         brand: brand,
@@ -336,7 +335,6 @@ class _PricingScreenState extends State<PricingScreen> {
                         color: brand.success!,
                         brand: brand,
                         scheme: scheme,
-                        highlight: true,
                       )),
                     ],
                   ),
@@ -597,7 +595,6 @@ class _CalcResult extends StatelessWidget {
   final Color color;
   final BrandColors brand;
   final ColorScheme scheme;
-  final bool highlight;
 
   const _CalcResult({
     required this.label,
@@ -606,7 +603,6 @@ class _CalcResult extends StatelessWidget {
     required this.color,
     required this.brand,
     required this.scheme,
-    this.highlight = false,
   });
 
   @override
@@ -615,10 +611,9 @@ class _CalcResult extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: highlight ? color.withValues(alpha: 0.08) : Colors.transparent,
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border:
-            highlight ? Border.all(color: color.withValues(alpha: 0.25)) : null,
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -750,6 +745,7 @@ class _FaqTileState extends State<_FaqTile> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [

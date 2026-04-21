@@ -26,16 +26,17 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isLargeScreen = context.isUltraWide;
 
     final brandColors = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: scheme.surface,
       body: Row(
         children: [
           if (isLargeScreen)
             Expanded(
               flex: 1,
               child: Container(
-                color: brandColors.muted,
+                color: brandColors.primaryDark,
                 padding: const EdgeInsets.all(60),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,10 +76,10 @@ class _AuthScreenState extends State<AuthScreen> {
                         showLogin
                             ? context.l10nMerchant.sign_in_to_dashboard
                             : context.l10nMerchant.create_your_account,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF21243D),
+                          color: brandColors.primary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -88,7 +89,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             showLogin
                                 ? context.l10nMerchant.new_to_the_platform
                                 : context.l10nMerchant.already_have_an_account,
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: brandColors.muted),
                           ),
                           const SizedBox(width: 5),
                           TextButton(
@@ -126,7 +127,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       Center(
                         child: Text(
                           context.l10nMerchant.terms_of_service,
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                          style:
+                              TextStyle(color: brandColors.muted, fontSize: 12),
                         ),
                       ),
                     ],
@@ -148,9 +150,12 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brandColors = Theme.of(context).extension<BrandColors>()!;
+
     return Center(
-      child: OutlinedButton(
+      child: TextButton(
         style: OutlinedButton.styleFrom(
+          backgroundColor: brandColors.muted,
           minimumSize: const Size(240, 50),
           maximumSize: const Size(350, 50),
           side: const BorderSide(color: Colors.grey),
