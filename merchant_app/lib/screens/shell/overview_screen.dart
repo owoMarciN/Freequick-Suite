@@ -180,6 +180,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
             restaurantID: currentRestaurantUID,
             limit: 5,
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );

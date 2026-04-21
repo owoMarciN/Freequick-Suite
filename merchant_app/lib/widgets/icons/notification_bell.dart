@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 
 class NotificationBell extends StatefulWidget {
   final String? uid;
@@ -109,7 +110,7 @@ class _NotificationBellState extends State<NotificationBell>
                           : Icons.notifications_none_rounded,
                       size: 24,
                       color: unread > 0
-                          ? widget.brandColors.primarySoft
+                          ? widget.brandColors.primary
                           : widget.brandColors.muted,
                     ),
                   ),
@@ -240,8 +241,8 @@ class _NotificationSheet extends StatelessWidget {
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   child: Text(context.l10nCommon.notifications_all_read,
-                      style: TextStyle(
-                          fontSize: 13, color: brandColors.success)),
+                      style:
+                          TextStyle(fontSize: 13, color: brandColors.success)),
                 ),
               ],
             ),
@@ -370,7 +371,7 @@ class _NotificationTile extends StatelessWidget {
             ),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 36,
@@ -385,8 +386,8 @@ class _NotificationTile extends StatelessWidget {
                   isRead
                       ? Icons.notifications_none_rounded
                       : Icons.notifications_active_rounded,
-                  size: 24,
-                  color: isRead ? brandColors.muted : brandColors.primarySoft,
+                  size: 28,
+                  color: isRead ? brandColors.muted : brandColors.success,
                 ),
               ),
               const SizedBox(width: 12),
@@ -412,11 +413,19 @@ class _NotificationTile extends StatelessWidget {
                             height: 14,
                             margin: const EdgeInsets.only(top: 3),
                             decoration: BoxDecoration(
-                              color: brandColors.primarySoft,
+                              color: brandColors.primary,
                               shape: BoxShape.circle,
                             ),
                           ),
                         ],
+                        GestureDetector(
+                          onTap: _delete,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Icon(Icons.close_rounded,
+                                size: 20, color: brandColors.muted),
+                          ),
+                        ),
                       ],
                     ),
                     if (body.isNotEmpty) ...[
@@ -429,19 +438,11 @@ class _NotificationTile extends StatelessWidget {
                     ],
                     if (date != null) ...[
                       const SizedBox(height: 6),
-                      Text(_fmt(context, date),
+                      Text(dateTimeToString(context, date),
                           style: TextStyle(
-                              fontSize: 10, color: brandColors.muted)),
+                              fontSize: 10, color: brandColors.primary)),
                     ],
                   ],
-                ),
-              ),
-              GestureDetector(
-                onTap: _delete,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: Icon(Icons.close_rounded,
-                      size: 20, color: brandColors.muted),
                 ),
               ),
             ],
@@ -449,20 +450,5 @@ class _NotificationTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _fmt(BuildContext context, DateTime d) {
-    final now = DateTime.now();
-    final diff = now.difference(d);
-    if (diff.inMinutes < 1) return context.l10nCommon.notif_time_just_now;
-    if (diff.inMinutes < 60) {
-      return context.l10nCommon.notif_time_minutes(diff.inMinutes);
-    }
-    if (diff.inHours < 24) {
-      return context.l10nCommon.notif_time_hours(diff.inHours);
-    }
-    if (diff.inDays == 1) return context.l10nCommon.notif_time_yesterday;
-    if (diff.inDays < 7) return context.l10nCommon.notif_time_days(diff.inDays);
-    return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
   }
 }

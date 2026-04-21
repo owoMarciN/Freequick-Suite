@@ -5,7 +5,7 @@ import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/models/status.dart';
 import 'package:shared_assets/widgets/ui/progress_bar.dart';
 
-class OrderTableWidget extends StatelessWidget {
+class OrderTableWidget extends StatefulWidget {
   final String? restaurantID;
   final int? limit;
 
@@ -15,13 +15,27 @@ class OrderTableWidget extends StatelessWidget {
     this.limit,
   });
 
-  // Fixed column widths for consistent header/row alignment
+  @override
+  State<OrderTableWidget> createState() => _OrderTableWidgetState();
+}
+
+class _OrderTableWidgetState extends State<OrderTableWidget> {
   static const double _colOrder = 110;
   static const double _colTime = 100;
   static const double _colCustomer = 200;
-  static const double _colItems = 120;
-  static const double _colStatus = 120;
-  static const double _colTotal = 100;
+  static const double _colItems = 200;
+  static const double _colStatus = 140;
+  static const double _colTotal = 120;
+
+  final ScrollController _verticalScrollController = ScrollController();
+  final ScrollController _horizontalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalScrollController.dispose();
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +44,11 @@ class OrderTableWidget extends StatelessWidget {
 
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance
         .collection('orders')
-        .where('restaurantID', isEqualTo: restaurantID)
+        .where('restaurantID', isEqualTo: widget.restaurantID)
         .where('status', whereIn: workflowStatuses)
         .orderBy('orderTime', descending: true);
 
-    if (limit != null) query = query.limit(limit!);
+    if (widget.limit != null) query = query.limit(widget.limit!);
 
     return StreamBuilder<QuerySnapshot>(
       stream: query.snapshots(),
@@ -42,30 +56,122 @@ class OrderTableWidget extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: circularProgress());
         }
+
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return _EmptyState(brandColors: brandColors);
         }
 
-        final docs = snapshot.data!.docs;
+        final docs = snapshot.data?.docs ?? [];
 
-        return Container(
-          // 1. ADDED PADDING HERE: Creates the frame around the entire table
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.surfaceBright),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ScrollableTable(
-                docs: docs,
-                brandColors: brandColors,
-                colorScheme: colorScheme,
+        final columnWidths = <int, TableColumnWidth>{
+          0: const FixedColumnWidth(_colOrder),
+          1: const FixedColumnWidth(_colTime),
+          2: const FixedColumnWidth(_colCustomer),
+          3: const FixedColumnWidth(_colItems),
+          4: const FixedColumnWidth(_colStatus),
+          5: const FixedColumnWidth(_colTotal),
+        };
+
+        // Vertical scroll wrapper with scrollbar
+        return Scrollbar(
+          thumbVisibility: true,
+          trackVisibility: true,
+          controller: _verticalScrollController,
+          child: SingleChildScrollView(
+            controller: _verticalScrollController,
+            scrollDirection: Axis.vertical,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colorScheme.surfaceBright),
               ),
-            ],
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  controller: _horizontalScrollController,
+                  child: SingleChildScrollView(
+                    controller: _horizontalScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Table(
+                      columnWidths: columnWidths,
+                      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                      children: [
+                        /// HEADER
+                        TableRow(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: colorScheme.surfaceBright),
+                            ),
+                          ),
+                          children: const [
+                            _HeaderCell('ORDER'),
+                            _HeaderCell('TIME'),
+                            _HeaderCell('CUSTOMER'),
+                            _HeaderCell('ITEMS'),
+                            _HeaderCell('STATUS'),
+                            _HeaderCell('TOTAL'),
+                          ],
+                        ),
+
+                        /// DATA ROWS
+                        ...docs.map((doc) {
+                          final d = doc.data() as Map<String, dynamic>;
+
+                          final String orderId = '#${doc.id.substring(0, 8)}';
+
+                          final ts = d['orderTime'] as Timestamp?;
+                          final String time = ts != null
+                              ? DateFormat('HH:mm').format(ts.toDate())
+                              : '—';
+
+                          final List items = d['items'] ?? [];
+                          final String itemsLabel = items
+                              .map((i) => '${i['quantity']}× ${i['name']}')
+                              .join(', ');
+
+                          final double total = (d['subtotal'] ?? 0).toDouble();
+
+                          return TableRow(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: colorScheme.surfaceBright),
+                              ),
+                            ),
+                            children: [
+                              _DataCell(
+                                orderId,
+                                isMono: true,
+                                isBold: true,
+                              ),
+                              _DataCell(time),
+                              _DataCell(
+                                d['userID']?.toString() ?? '—',
+                              ),
+                              _DataCell(
+                                itemsLabel,
+                                isMuted: true,
+                              ),
+                              _StatusCell(
+                                status: d['status'] ?? 'Pending',
+                                brandColors: brandColors,
+                              ),
+                              _DataCell(
+                                '${total.toStringAsFixed(2)} PLN',
+                                isBold: true,
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -73,222 +179,100 @@ class OrderTableWidget extends StatelessWidget {
   }
 }
 
-class _ScrollableTable extends StatefulWidget {
-  final List<QueryDocumentSnapshot> docs;
-  final BrandColors brandColors;
-  final ColorScheme colorScheme;
-
-  const _ScrollableTable({
-    required this.docs,
-    required this.brandColors,
-    required this.colorScheme,
-  });
-
-  @override
-  State<_ScrollableTable> createState() => _ScrollableTableState();
-}
-
-class _ScrollableTableState extends State<_ScrollableTable> {
-  final ScrollController _headerScrollController = ScrollController();
-  final ScrollController _bodyScrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Keep header and body horizontally in sync
-    _bodyScrollController.addListener(() {
-      if (_headerScrollController.hasClients) {
-        _headerScrollController.jumpTo(_bodyScrollController.offset);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _headerScrollController.dispose();
-    _bodyScrollController.dispose();
-    super.dispose();
-  }
+/// HEADER CELL
+class _HeaderCell extends StatelessWidget {
+  final String text;
+  const _HeaderCell(this.text);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // --- HEADER ---
-        SingleChildScrollView(
-          controller: _headerScrollController,
-          scrollDirection: Axis.horizontal,
-          physics: const NeverScrollableScrollPhysics(),
-          child: Padding(
-            // Removed horizontal padding because the parent Container now handles the frame
-            padding: const EdgeInsets.only(bottom: 14),
-            child: const _TableRow(isHeader: true),
-          ),
-        ),
-        Divider(height: 1, color: widget.colorScheme.surfaceBright),
-
-        // --- BODY ---
-        Scrollbar(
-          controller: _bodyScrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _bodyScrollController,
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              // 2. ADDED BOTTOM PADDING: Gives the scrollbar space so it doesn't overlap the table data
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.docs.length * 2 - 1, (i) {
-                  if (i.isOdd) {
-                    return Divider(
-                        height: 1, color: widget.colorScheme.surfaceBright);
-                  }
-                  final index = i ~/ 2;
-                  final doc = widget.docs[index];
-                  final d = doc.data() as Map<String, dynamic>;
-
-                  final String orderId = '#${doc.id.substring(0, 8)}';
-                  final ts = d['orderTime'] as Timestamp?;
-                  final String time = ts != null
-                      ? DateFormat('HH:mm').format(ts.toDate())
-                      : '—';
-                  final List items = d['items'] ?? [];
-                  final String itemsLabel = items
-                      .map((i) => '${i['quantity']}× ${i['name']}')
-                      .join(', ');
-
-                  return Padding(
-                    // Removed horizontal padding here as well
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: _TableRow(
-                      orderId: orderId,
-                      time: time,
-                      customer: d['userID']?.toString() ?? '—',
-                      itemsLabel: itemsLabel,
-                      status: d['status'] ?? 'Pending',
-                      total: d['subtotal'] ?? 0,
-                      brandColors: widget.brandColors,
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TableRow extends StatelessWidget {
-  final bool isHeader;
-  final String? orderId;
-  final String? time;
-  final String? customer;
-  final String? itemsLabel;
-  final String? status;
-  final dynamic total;
-  final BrandColors? brandColors;
-
-  const _TableRow({
-    this.isHeader = false,
-    this.orderId,
-    this.time,
-    this.customer,
-    this.itemsLabel,
-    this.status,
-    this.total,
-    this.brandColors,
-  });
-
-  // 3. ADDED HELPER: Ensures every cell is strictly aligned to the left
-  Widget _buildCell(double width, Widget child) {
-    return SizedBox(
-      width: width,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: child,
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF94A3B8),
+            letterSpacing: 0.8,
+          ),
+        ),
       ),
     );
   }
+}
+
+/// DATA CELL
+class _DataCell extends StatelessWidget {
+  final String text;
+  final bool isMuted;
+  final bool isBold;
+  final bool isMono;
+
+  const _DataCell(
+    this.text, {
+    this.isMuted = false,
+    this.isBold = false,
+    this.isMono = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (isHeader) {
-      return Row(
-        children: [
-          _buildCell(OrderTableWidget._colOrder, const _TableHeader('ORDER')),
-          _buildCell(OrderTableWidget._colTime, const _TableHeader('TIME')),
-          _buildCell(
-              OrderTableWidget._colCustomer, const _TableHeader('CUSTOMER')),
-          _buildCell(OrderTableWidget._colItems, const _TableHeader('ITEMS')),
-          _buildCell(OrderTableWidget._colStatus, const _TableHeader('STATUS')),
-          _buildCell(OrderTableWidget._colTotal, const _TableHeader('TOTAL')),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        _buildCell(
-          OrderTableWidget._colOrder,
-          Text(
-            orderId ?? '—',
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'monospace'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+            color: isMuted ? Colors.grey : null,
+            fontFamily: isMono ? 'monospace' : null,
           ),
         ),
-        _buildCell(
-          OrderTableWidget._colTime,
-          Text(time ?? '—', style: const TextStyle(fontSize: 12)),
-        ),
-        _buildCell(
-          OrderTableWidget._colCustomer,
-          Text(
-            customer ?? '—',
-            style: const TextStyle(fontSize: 12),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        _buildCell(
-          OrderTableWidget._colItems,
-          Text(
-            itemsLabel ?? '—',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        _buildCell(
-          OrderTableWidget._colStatus,
-          _StatusChip(
-            status: status ?? 'Pending',
-            brandColors: brandColors!,
-          ),
-        ),
-        _buildCell(
-          OrderTableWidget._colTotal,
-          Text(
-            '${total.toStringAsFixed(2)} PLN',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
+/// STATUS CELL
+class _StatusCell extends StatelessWidget {
+  final String status;
+  final BrandColors brandColors;
+
+  const _StatusCell({
+    required this.status,
+    required this.brandColors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _StatusChip(
+          status: status,
+          brandColors: brandColors,
+        ),
+      ),
+    );
+  }
+}
+
+/// STATUS CHIP
 class _StatusChip extends StatelessWidget {
   final String status;
   final BrandColors brandColors;
 
-  const _StatusChip({required this.status, required this.brandColors});
+  const _StatusChip({
+    required this.status,
+    required this.brandColors,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -311,31 +295,20 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          color: fg,
+        ),
       ),
     );
   }
 }
 
-class _TableHeader extends StatelessWidget {
-  final String text;
-  const _TableHeader(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          color: Color(0xFF94A3B8),
-          letterSpacing: 0.8),
-    );
-  }
-}
-
+/// EMPTY STATE
 class _EmptyState extends StatelessWidget {
   final BrandColors brandColors;
+
   const _EmptyState({required this.brandColors});
 
   @override
@@ -344,8 +317,10 @@ class _EmptyState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(40),
       child: Center(
-        child: Text('No recent orders.',
-            style: TextStyle(color: brandColors.muted)),
+        child: Text(
+          'No recent orders.',
+          style: TextStyle(color: brandColors.muted),
+        ),
       ),
     );
   }
