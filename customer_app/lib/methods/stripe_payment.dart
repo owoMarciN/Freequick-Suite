@@ -4,7 +4,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:flutter_stripe/flutter_stripe.dart';
 
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 Future<String?> processStripePayment({
   required String clientSecret,

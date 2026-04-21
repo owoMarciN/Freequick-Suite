@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class TestFunctionsSheet extends StatefulWidget {
   const TestFunctionsSheet({super.key});
@@ -123,11 +123,12 @@ class _TestFunctionsSheetState extends State<TestFunctionsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
     return Container(
       padding: const EdgeInsets.all(16),
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppTheme.background,
+      decoration: BoxDecoration(
+        color: brand.primary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

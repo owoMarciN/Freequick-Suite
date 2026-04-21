@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 
 class JoinRequestsScreen extends StatefulWidget {
   const JoinRequestsScreen({super.key});
@@ -38,15 +39,15 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen>
           color: scheme.surface,
           child: TabBar(
             controller: _tabController,
-            labelColor: const Color(0xFFEF4444),
+            labelColor: brand.danger,
             unselectedLabelColor: brand.muted,
-            indicatorColor: const Color(0xFFEF4444),
+            indicatorColor: brand.danger,
             indicatorWeight: 2,
             labelStyle:
                 const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             tabs: [
-              Tab(text: context.l10n.requests_tab_registrations),
-              Tab(text: context.l10n.requests_tab_go_live),
+              Tab(text: context.l10nMerchant.requests_tab_registrations),
+              Tab(text: context.l10nMerchant.requests_tab_go_live),
             ],
           ),
         ),
@@ -106,7 +107,7 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                   child: Row(
                     children: [
                       _FilterChip(
-                        label: context.l10n.requests_filter_pending,
+                        label: context.l10nMerchant.requests_filter_pending,
                         icon: Icons.hourglass_top_rounded,
                         color: const Color(0xFFD97706),
                         selected: _filter == 'pending',
@@ -116,7 +117,7 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: context.l10n.requests_filter_approved,
+                        label: context.l10nMerchant.requests_filter_approved,
                         icon: Icons.check_circle_rounded,
                         color: const Color(0xFF10B981),
                         selected: _filter == 'approved',
@@ -126,7 +127,7 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: context.l10n.requests_filter_active,
+                        label: context.l10nMerchant.requests_filter_active,
                         icon: Icons.bolt_rounded,
                         color: const Color(0xFF8B5CF6),
                         selected: _filter == 'active',
@@ -136,7 +137,7 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: context.l10n.requests_filter_rejected,
+                        label: context.l10nMerchant.requests_filter_rejected,
                         icon: Icons.cancel_rounded,
                         color: const Color(0xFFEF4444),
                         selected: _filter == 'rejected',
@@ -146,7 +147,7 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: context.l10n.requests_filter_suspended,
+                        label: context.l10nMerchant.requests_filter_suspended,
                         icon: Icons.block_rounded,
                         color: Colors.grey,
                         selected: _filter == 'suspended',
@@ -156,9 +157,9 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: context.l10n.requests_filter_all,
+                        label: context.l10nMerchant.requests_filter_all,
                         icon: Icons.list_rounded,
-                        color: brand.navy!,
+                        color: brand.muted!,
                         selected: _filter == null,
                         onTap: () => setState(() => _filter = null),
                         brand: brand,
@@ -201,8 +202,8 @@ class _RegistrationsTabState extends State<_RegistrationsTab> {
                       const SizedBox(height: 12),
                       Text(
                         _filter != null
-                            ? context.l10n.requests_empty_filtered(_filter!)
-                            : context.l10n.requests_empty_all,
+                            ? context.l10nMerchant.requests_empty_filtered(_filter!)
+                            : context.l10nMerchant.requests_empty_all,
                         style: TextStyle(fontSize: 14, color: brand.muted),
                       ),
                     ],
@@ -269,7 +270,7 @@ class _GoLiveRequestsTab extends StatelessWidget {
               children: [
                 Icon(Icons.rocket_launch_rounded, size: 40, color: brand.muted),
                 const SizedBox(height: 12),
-                Text(context.l10n.requests_go_live_empty,
+                Text(context.l10nMerchant.requests_go_live_empty,
                     style: TextStyle(fontSize: 14, color: brand.muted)),
               ],
             ),
@@ -281,7 +282,7 @@ class _GoLiveRequestsTab extends StatelessWidget {
           children: [
             if (pending.isNotEmpty) ...[
               _sectionLabel(
-                  context.l10n.requests_go_live_section_pending, brand),
+                  context.l10nMerchant.requests_go_live_section_pending, brand),
               const SizedBox(height: 12),
               ...pending.map((doc) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -295,7 +296,7 @@ class _GoLiveRequestsTab extends StatelessWidget {
             ],
             if (reviewed.isNotEmpty) ...[
               _sectionLabel(
-                  context.l10n.requests_go_live_section_reviewed, brand),
+                  context.l10nMerchant.requests_go_live_section_reviewed, brand),
               const SizedBox(height: 12),
               ...reviewed.map((doc) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -391,7 +392,7 @@ class _GoLiveCardState extends State<_GoLiveCard> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(context.l10n.requests_error_failed(e.toString()))));
+          content: Text(context.l10nMerchant.requests_error_failed(e.toString()))));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -411,7 +412,7 @@ class _GoLiveCardState extends State<_GoLiveCard> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(context.l10n.requests_error_failed(e.toString()))));
+          content: Text(context.l10nMerchant.requests_error_failed(e.toString()))));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -424,8 +425,8 @@ class _GoLiveCardState extends State<_GoLiveCard> {
     final String restaurantID = widget.doc.id;
     final String status = d['status']?.toString() ?? 'pending';
     final Timestamp? ts = d['requestedAt'] as Timestamp?;
-    final String date = ts != null ? _formatDate(ts.toDate()) : '—';
-    final String timeAgo = ts != null ? _timeAgo(ts.toDate()) : '—';
+    final String date = ts != null ? ts.toDate().toString() : '—';
+    final String timeAgo = ts != null ? dateTimeToString(context, ts.toDate()) : '—';
 
     final bool isPending = status == 'pending';
 
@@ -465,7 +466,7 @@ class _GoLiveCardState extends State<_GoLiveCard> {
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w700)),
                       Text(
-                          context.l10n
+                          context.l10nMerchant
                               .requests_go_live_requested(timeAgo, date),
                           style: TextStyle(
                               fontSize: 11, color: widget.brand.muted)),
@@ -524,14 +525,14 @@ class _GoLiveCardState extends State<_GoLiveCard> {
                     ? Row(
                         children: [
                           _ActionButton(
-                            label: context.l10n.requests_action_activate,
+                            label: context.l10nCommon.activate,
                             icon: Icons.bolt_rounded,
                             color: const Color(0xFF8B5CF6),
                             onTap: _activate,
                           ),
                           const SizedBox(width: 8),
                           _ActionButton(
-                            label: context.l10n.requests_action_decline,
+                            label: context.l10nCommon.decline,
                             icon: Icons.close_rounded,
                             color: const Color(0xFFEF4444),
                             outline: true,
@@ -541,12 +542,12 @@ class _GoLiveCardState extends State<_GoLiveCard> {
                       )
                     : Text(
                         status == 'approved'
-                            ? context.l10n.requests_go_live_activated_on(
-                                _formatDate((d['reviewedAt'] as Timestamp?)
+                            ? context.l10nMerchant.requests_go_live_activated_on(
+                                dateTimeToString(context, (d['reviewedAt'] as Timestamp?)
                                         ?.toDate() ??
                                     DateTime.now()))
-                            : context.l10n.requests_go_live_declined_on(
-                                _formatDate(
+                            : context.l10nMerchant.requests_go_live_declined_on(
+                                dateTimeToString(context, 
                                     (d['reviewedAt'] as Timestamp?)?.toDate() ??
                                         DateTime.now())),
                         style:
@@ -572,22 +573,12 @@ class _GoLiveCardState extends State<_GoLiveCard> {
   String _badgeLabel(String status) {
     switch (status) {
       case 'approved':
-        return context.l10n.requests_badge_activated;
+        return context.l10nMerchant.requests_badge_activated;
       case 'declined':
-        return context.l10n.requests_badge_declined;
+        return context.l10nMerchant.requests_badge_declined;
       default:
-        return context.l10n.requests_badge_pending_review;
+        return context.l10nMerchant.requests_badge_pending_review;
     }
-  }
-
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-
-  String _timeAgo(DateTime d) {
-    final diff = DateTime.now().difference(d);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    return '${diff.inDays}d ago';
   }
 }
 
@@ -634,17 +625,17 @@ class _SetupChecklist extends StatelessWidget {
         final menusSnap = snap.data![2] as QuerySnapshot;
 
         final checks = [
-          _Check(context.l10n.requests_check_logo,
+          _Check(context.l10nMerchant.requests_check_logo,
               (restaurantData['logoUrl'] ?? '').toString().isNotEmpty),
-          _Check(context.l10n.requests_check_banner,
+          _Check(context.l10nMerchant.requests_check_banner,
               (restaurantData['bannerUrl'] ?? '').toString().isNotEmpty),
-          _Check(context.l10n.requests_check_address,
+          _Check(context.l10nMerchant.requests_check_address,
               (restaurantData['address'] ?? '').toString().isNotEmpty),
-          _Check(context.l10n.requests_check_iban,
+          _Check(context.l10nMerchant.requests_check_iban,
               (restaurantData['iban'] ?? '').toString().trim().isNotEmpty),
-          _Check(context.l10n.requests_check_photo,
+          _Check(context.l10nMerchant.requests_check_photo,
               (userData['photoUrl'] ?? '').toString().isNotEmpty),
-          _Check(context.l10n.requests_check_menu, menusSnap.docs.isNotEmpty),
+          _Check(context.l10nMerchant.requests_check_menu, menusSnap.docs.isNotEmpty),
         ];
 
         final int completed = checks.where((c) => c.done).length;
@@ -655,7 +646,7 @@ class _SetupChecklist extends StatelessWidget {
             Row(
               children: [
                 Text(
-                    context.l10n
+                    context.l10nMerchant
                         .requests_setup_progress(completed, checks.length),
                     style: TextStyle(
                         fontSize: 11,
@@ -669,9 +660,8 @@ class _SetupChecklist extends StatelessWidget {
                       value: completed / checks.length,
                       backgroundColor: scheme.outline,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                          completed == checks.length
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFD97706)),
+                        completed == checks.length ? brand.success! : brand.warning!,
+                      ),
                       minHeight: 5,
                     ),
                   ),
@@ -691,7 +681,7 @@ class _SetupChecklist extends StatelessWidget {
                           ? Icons.check_circle_rounded
                           : Icons.radio_button_unchecked_rounded,
                       size: 13,
-                      color: c.done ? const Color(0xFF10B981) : brand.muted,
+                      color: c.done ? brand.success : brand.muted,
                     ),
                     const SizedBox(width: 4),
                     Text(c.label,
@@ -740,7 +730,7 @@ class _RequestCard extends StatelessWidget {
     final String mobile = data['businessMobile']?.toString() ?? '—';
     final String status = data['status']?.toString() ?? 'pending';
     final Timestamp? ts = data['createdAt'] as Timestamp?;
-    final String date = ts != null ? _formatDate(ts.toDate()) : '—';
+    final String date = ts != null ? dateTimeToString(context, ts.toDate()) : '—';
 
     final _StatusStyle style = _statusStyle(context, status);
 
@@ -774,7 +764,7 @@ class _RequestCard extends StatelessWidget {
                       Text(name,
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w700)),
-                      Text(context.l10n.requests_submitted(date),
+                      Text(context.l10nMerchant.requests_submitted(date),
                           style: TextStyle(fontSize: 11, color: brand.muted)),
                     ],
                   ),
@@ -833,36 +823,33 @@ class _RequestCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-
   _StatusStyle _statusStyle(BuildContext context, String status) {
     switch (status) {
       case 'approved':
         return _StatusStyle(
             icon: Icons.check_circle_rounded,
             color: const Color(0xFF10B981),
-            label: context.l10n.requests_status_approved);
+            label: context.l10nCommon.status_approved);
       case 'active':
         return _StatusStyle(
             icon: Icons.bolt_rounded,
             color: const Color(0xFF8B5CF6),
-            label: context.l10n.requests_status_active);
+            label: context.l10nCommon.status_active);
       case 'rejected':
         return _StatusStyle(
             icon: Icons.cancel_rounded,
             color: const Color(0xFFEF4444),
-            label: context.l10n.requests_status_rejected);
+            label: context.l10nCommon.status_rejected);
       case 'suspended':
         return _StatusStyle(
             icon: Icons.block_rounded,
             color: Colors.grey,
-            label: context.l10n.requests_status_suspended);
+            label: context.l10nCommon.status_suspended);
       default:
         return _StatusStyle(
             icon: Icons.hourglass_top_rounded,
             color: const Color(0xFFD97706),
-            label: context.l10n.requests_status_pending);
+            label: context.l10nCommon.status_pending);
     }
   }
 }
@@ -932,7 +919,7 @@ class _ActionRowState extends State<_ActionRow> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(context.l10n.requests_error_failed(e.toString()))),
+            content: Text(context.l10nMerchant.requests_error_failed(e.toString()))),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -952,7 +939,7 @@ class _ActionRowState extends State<_ActionRow> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(context.l10n.requests_confirm_cancel),
+            child: Text(context.l10nCommon.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -994,13 +981,13 @@ class _ActionRowState extends State<_ActionRow> {
     final buttons = <Widget>[
       if (widget.status == 'pending' || widget.status == 'rejected')
         _ActionButton(
-          label: context.l10n.requests_action_approve,
+          label: context.l10nCommon.approve,
           icon: Icons.check_rounded,
           color: const Color(0xFF10B981),
           onTap: () => _confirmAndUpdate(
             'approved',
-            context.l10n.requests_confirm_approve_title,
-            context.l10n.requests_confirm_approve_body,
+            context.l10nMerchant.requests_confirm_approve_title,
+            context.l10nMerchant.requests_confirm_approve_body,
             const Color(0xFF10B981),
           ),
         ),
@@ -1008,39 +995,39 @@ class _ActionRowState extends State<_ActionRow> {
           widget.status == 'approved' ||
           widget.status == 'suspended')
         _ActionButton(
-          label: context.l10n.requests_action_reject,
+          label: context.l10nCommon.reject,
           icon: Icons.close_rounded,
           color: const Color(0xFFEF4444),
           outline: true,
           onTap: () => _confirmAndUpdate(
             'rejected',
-            context.l10n.requests_confirm_reject_title,
-            context.l10n.requests_confirm_reject_body,
+            context.l10nMerchant.requests_confirm_reject_title,
+            context.l10nMerchant.requests_confirm_reject_body,
             const Color(0xFFEF4444),
           ),
         ),
       if (widget.status == 'active' || widget.status == 'approved')
         _ActionButton(
-          label: context.l10n.requests_action_suspend,
+          label: context.l10nCommon.suspend,
           icon: Icons.block_rounded,
           color: Colors.grey,
           outline: true,
           onTap: () => _confirmAndUpdate(
             'suspended',
-            context.l10n.requests_confirm_suspend_title,
-            context.l10n.requests_confirm_suspend_body,
+            context.l10nMerchant.requests_confirm_suspend_title,
+            context.l10nMerchant.requests_confirm_suspend_body,
             Colors.grey,
           ),
         ),
       if (widget.status == 'suspended')
         _ActionButton(
-          label: context.l10n.requests_action_reinstate,
+          label: context.l10nCommon.reinstate,
           icon: Icons.undo_rounded,
           color: const Color(0xFF10B981),
           onTap: () => _confirmAndUpdate(
             'active',
-            context.l10n.requests_confirm_reinstate_title,
-            context.l10n.requests_confirm_reinstate_body,
+            context.l10nMerchant.requests_confirm_reinstate_title,
+            context.l10nMerchant.requests_confirm_reinstate_body,
             const Color(0xFF10B981),
           ),
         ),
@@ -1056,12 +1043,12 @@ class _ActionRowState extends State<_ActionRow> {
 
         // Copy restaurant ID
         IconButton(
-          tooltip: context.l10n.requests_action_copy_id,
+          tooltip: context.l10nMerchant.requests_action_copy_id,
           icon: Icon(Icons.copy_rounded, size: 16, color: widget.brand.muted),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(context.l10n.requests_copied(widget.docId)),
+                content: Text(context.l10nMerchant.requests_copied(widget.docId)),
                 duration: const Duration(seconds: 2),
               ),
             );

@@ -10,13 +10,15 @@ import 'package:user_app/global/global.dart';
 import 'package:user_app/screens/users/main_screen.dart';
 
 import 'package:user_app/widgets/ui/auth_button.dart';
-import 'package:user_app/widgets/dialogs/error_dialog.dart';
-import 'package:user_app/widgets/dialogs/loading_dialog.dart';
-import 'package:user_app/widgets/text_fields/custom_text_field.dart';
-import 'package:user_app/widgets/text_fields/custom_password_field.dart';
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
 
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
+
+import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
+
+import 'package:shared_assets/extensions/extensions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,7 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadingDialog(message: context.l10n.checkingCredentials),
+      builder: (_) =>
+          LoadingDialog(message: context.l10nCommon.checkingCredentials),
     );
 
     User? currentUser;
@@ -55,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (_) => ErrorDialog(
-            message: error.message ?? context.l10n.errorLoginFailed),
+            message: error.message ?? context.l10nCommon.errorLoginFailed),
       );
     } catch (e) {
       if (!mounted) return;
@@ -70,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showDialog(
         context: context,
         builder: (_) =>
-            ErrorDialog(message: context.l10n.errorEnterEmailOrPassword),
+            ErrorDialog(message: context.l10nCommon.errorEnterEmailPassword),
       );
     }
   }
@@ -97,7 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         showDialog(
           context: context,
-          builder: (_) => ErrorDialog(message: context.l10n.errorNoRecordFound),
+          builder: (_) =>
+              ErrorDialog(message: context.l10nCommon.errorNoRecordFound),
         );
         return;
       }
@@ -106,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (data["role"] != "customer" || data["status"] != "approved") {
         await firebaseAuth.signOut();
         if (!mounted) return;
-        unifiedSnackBar(context.l10n.blockedAccountMessage, error: true);
+        unifiedSnackBar(context.l10nCommon.errorAccountBlocked, error: true);
         return;
       }
 
@@ -128,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
-        ErrorDialog(message: "Syncing security permissions... please wait.");
+        ErrorDialog(message: context.l10nCommon.syncingPermissions);
 
         await Future.delayed(const Duration(seconds: 1));
         await readDataAndSetDataLocally(currentUser);
@@ -136,12 +140,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
       if (e.code == 'unavailable') {
-        ErrorDialog(message: context.l10n.networkUnavailable);
+        ErrorDialog(message: context.l10nCommon.errorNetworkUnavailable);
       } else {
         showDialog(
           context: context,
           builder: (_) => ErrorDialog(
-              message: e.message ?? context.l10n.errorFetchingUserData),
+              message:
+                  e.message ?? context.l10nCommon.errorNoRecordFound),
         );
       }
     }
@@ -162,54 +167,47 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
+          child: Column(
+            children: [
+              Container(
+                alignment: Alignment.bottomCenter,
+                padding: const EdgeInsets.all(15),
+                child: Image.asset(
+                  'images/login.png',
+                  package: 'shared_assets',
+                  height: 270,
+                ),
               ),
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    padding: const EdgeInsets.all(15),
-                    child: Image.asset(
-                      'images/login.png',
-                      package: 'shared_assets',
-                      height: 270,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsGeometry.symmetric(horizontal: 32),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          CustomTextField(
-                            data: Icons.email,
-                            controller: _emailController,
-                            hintText: context.l10n.hintEmail,
-                            isObsecure: false,
-                          ),
-                          CustomPasswordField(
-                            controller: _passwordController,
-                            label: context.l10n.hintPassword,
-                            isRequired: true,
-                            isConfirmation: true,
-                          ),
-                          const SizedBox(height: 10),
-                          AuthButton(
-                            label: context.l10n.login,
-                            onPressed: () async {
-                              await formValidation();
-                            },
-                          ),
-                        ],
+              Padding(
+                padding: const EdgeInsetsGeometry.symmetric(horizontal: 32),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        data: Icons.email,
+                        controller: _emailController,
+                        hintText: context.l10nCommon.email,
+                        isObsecure: false,
                       ),
-                    ),
+                      CustomPasswordField(
+                        controller: _passwordController,
+                        label: context.l10nCommon.password,
+                        isRequired: true,
+                        isConfirmation: true,
+                      ),
+                      const SizedBox(height: 10),
+                      AuthButton(
+                        label: context.l10nCommon.login,
+                        onPressed: () async {
+                          await formValidation();
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

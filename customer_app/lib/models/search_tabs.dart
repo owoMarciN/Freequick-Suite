@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class SearchTab {
   final String label;
@@ -8,11 +8,11 @@ class SearchTab {
 }
 
 List<SearchTab> getSearchTabs(BuildContext context) {
-  final t = context.l10n;
+  final t = context.l10nCommon;
   return [
-    SearchTab(label: t.searchAll),
-    SearchTab(label: t.searchRestaurants),
-    SearchTab(label: t.searchFood),
-    SearchTab(label: t.searchStores),
+    SearchTab(label: t.all),
+    SearchTab(label: t.restaurants),
+    SearchTab(label: t.food),
+    SearchTab(label: t.stores),
   ];
 }

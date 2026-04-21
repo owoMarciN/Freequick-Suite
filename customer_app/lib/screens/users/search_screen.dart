@@ -11,7 +11,7 @@ import 'package:user_app/screens/items/item_details_screen.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/models/restaurants.dart';
 import 'package:user_app/widgets/icons/cart_icon.dart';
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class SearchScreen extends StatefulWidget {
   final String initialText;

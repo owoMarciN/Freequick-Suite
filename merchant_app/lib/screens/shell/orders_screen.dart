@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/widgets/orders/order_board_widget.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 import 'package:merchant_app/models/status.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -42,9 +42,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
       }
 
       await batch.commit();
-      if (mounted) unifiedSnackBar(context, 'Order marked as $newStatus');
+      if (mounted) unifiedSnackBar('Order marked as $newStatus');
     } catch (e) {
-      if (mounted) unifiedSnackBar(context, 'Update failed: $e', error: true);
+      if (mounted) unifiedSnackBar('Update failed: $e', error: true);
     }
   }
 

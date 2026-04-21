@@ -1,0 +1,753 @@
+{
+  "@@locale": "en",
+
+  "@@_ADMIN": {},
+
+  "admin_panel": "Admin Panel",
+  "join_requests": "Join Requests",
+  "edit_sheet_title": "Edit Sheet",
+
+  "@@_ADMIN_NOTIFICATIONS": {},
+
+  "admin_notifications_tab_send": "Send",
+  "admin_notifications_tab_history": "History",
+  "admin_notifications_target_audience": "Target Audience",
+  "admin_notifications_audience_all": "All Users",
+  "admin_notifications_audience_restaurants": "Restaurants",
+  "admin_notifications_audience_specific": "Specific Users",
+  "admin_notifications_search_hint": "Search users by name or email...",
+  "admin_notifications_search_hint_more": "Add another user...",
+  "admin_notifications_title_label": "Notification Title",
+  "admin_notifications_title_hint": "Enter title",
+  "admin_notifications_body_label": "Message Body",
+  "admin_notifications_body_hint": "Enter message",
+  "admin_notifications_required": "This field is required",
+  "admin_notifications_sending": "Sending...",
+  "admin_notifications_send_button": "Send Notification",
+  "admin_notifications_select_user": "Please select at least one user",
+  "admin_notifications_sent_one": "Notification sent successfully",
+  "admin_notifications_sent_many": "Notifications sent to {count} users",
+  "@admin_notifications_sent_many": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "admin_notifications_history_empty": "No notification history yet",
+  "admin_notifications_history_sent_badge": "SENT",
+  "admin_notifications_history_sent_count": "{count} sent",
+  "@admin_notifications_history_sent_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "@@_ADMIN_OVERVIEW": {},
+
+  "admin_overview_platform_glance": "Platform at a Glance",
+  "admin_overview_revenue_30d": "Revenue (Last 30 Days)",
+  "admin_overview_pending_requests": "Pending Join Requests",
+  "admin_overview_view_all": "View All",
+  "admin_overview_order_status": "Order Status",
+  "admin_overview_top_restaurants": "Top Restaurants",
+  "admin_overview_stat_restaurants": "Total Restaurants",
+  "admin_overview_stat_restaurants_sub": "{active} active",
+  "@admin_overview_stat_restaurants_sub": {
+    "placeholders": { "active": { "type": "int" } }
+  },
+  "admin_overview_stat_orders": "Total Orders",
+  "admin_overview_stat_orders_sub": "{today} today",
+  "@admin_overview_stat_orders_sub": {
+    "placeholders": { "today": { "type": "int" } }
+  },
+  "admin_overview_stat_revenue": "Total Revenue",
+  "admin_overview_stat_revenue_sub": "{last7d} PLN last 7d",
+  "@admin_overview_stat_revenue_sub": {
+    "placeholders": { "last7d": { "type": "String" } }
+  },
+  "admin_overview_stat_avg": "Avg Order Value",
+  "admin_overview_stat_avg_sub": "{menus} menus • {items} items",
+  "@admin_overview_stat_avg_sub": {
+    "placeholders": {
+      "menus": { "type": "int" },
+      "items": { "type": "int" }
+    }
+  },
+  "admin_overview_revenue_no_data": "No revenue data available.",
+  "admin_overview_no_pending": "No pending join requests.",
+  "admin_overview_pending_nip": "NIP: {nip} • {date}",
+  "@admin_overview_pending_nip": {
+    "placeholders": {
+      "nip": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "admin_overview_no_orders": "No orders yet.",
+  "admin_overview_no_order_data": "No order data available.",
+  "admin_overview_orders_count": "{count} orders",
+  "@admin_overview_orders_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "@@_JOIN_REQUESTS": {},
+
+  "requests_tab_registrations": "Registrations",
+  "requests_tab_go_live": "Go Live",
+  "requests_filter_pending": "Pending",
+  "requests_filter_approved": "Approved",
+  "requests_filter_active": "Active",
+  "requests_filter_rejected": "Rejected",
+  "requests_filter_suspended": "Suspended",
+  "requests_filter_all": "All",
+  "requests_empty_filtered": "No {status} requests found.",
+  "@requests_empty_filtered": {
+    "placeholders": { "status": { "type": "String" } }
+  },
+  "requests_empty_all": "No registration requests found.",
+  "requests_go_live_empty": "No Go Live requests found.",
+  "requests_go_live_section_pending": "PENDING REVIEW",
+  "requests_go_live_section_reviewed": "REVIEWED",
+  "requests_go_live_requested": "Requested {timeAgo} ({date})",
+  "@requests_go_live_requested": {
+    "placeholders": {
+      "timeAgo": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "requests_badge_activated": "Activated",
+  "requests_badge_declined": "Declined",
+  "requests_badge_pending_review": "Pending Review",
+  "requests_go_live_activated_on": "Activated on {date}",
+  "@requests_go_live_activated_on": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "requests_go_live_declined_on": "Declined on {date}",
+  "@requests_go_live_declined_on": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "requests_check_logo": "Logo",
+  "requests_check_banner": "Banner",
+  "requests_check_address": "Address",
+  "requests_check_iban": "IBAN",
+  "requests_check_photo": "Profile Photo",
+  "requests_check_menu": "Menu Items",
+  "requests_setup_progress": "{completed}/{total} Setup Tasks",
+  "@requests_setup_progress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "requests_submitted": "Submitted {date}",
+  "@requests_submitted": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "requests_copied": "ID copied: {id}",
+  "@requests_copied": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "requests_confirm_approve_title": "Approve Restaurant?",
+  "requests_confirm_approve_body": "This will allow the merchant to start setting up their menus and profile.",
+  "requests_confirm_reject_title": "Reject Application?",
+  "requests_confirm_reject_body": "This will prevent the merchant from accessing the dashboard.",
+  "requests_confirm_suspend_title": "Suspend Restaurant?",
+  "requests_confirm_suspend_body": "This will hide the restaurant and all its items from the platform immediately.",
+  "requests_confirm_reinstate_title": "Reinstate Restaurant?",
+  "requests_confirm_reinstate_body": "This will restore the restaurant to Active status and make it visible to customers again.",
+  "requests_action_copy_id": "Copy Restaurant ID",
+  "requests_error_failed": "Operation failed: {error}",
+  "@requests_error_failed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "@@_USER_MANAGEMENT": {},
+
+  "users_search_hint": "Search by name or email...",
+  "users_empty_filtered": "No users match your filters.",
+  "users_empty_all": "No users found in the system.",
+  "users_joined": "Joined {date}",
+  "@users_joined": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "users_detail_title": "User Details",
+  "users_detail_id": "User ID",
+  "users_detail_phone": "Phone",
+  "users_detail_joined": "Joined",
+  "users_detail_role": "Role",
+  "users_ban_body": "This user will be immediately logged out and prevented from accessing their account.",
+  "users_unban_body": "This will restore the user's access to the platform.",
+  "users_delete_title": "Delete User Permanently?",
+  "users_delete_body": "All user profile data will be permanently removed from the database.",
+  "users_snack_banned": "User has been banned from the platform.",
+  "users_snack_unbanned": "User access has been restored.",
+  "users_snack_deleted": "User account has been permanently deleted.",
+  "users_filter_all": "All",
+  "users_filter_restaurant": "Restaurants",
+  "users_filter_admin": "Admin",
+  "users_filter_customer": "Customers",
+
+  "@@_SHELL": {},
+
+  "shell_nav_overview": "Overview",
+  "shell_nav_orders": "Orders",
+  "shell_nav_menus": "Menus",
+  "shell_nav_promotions": "Promotions",
+  "shell_nav_analytics": "Analytics",
+  "shell_nav_settings": "Settings",
+  "shell_restaurant_not_found": "Restaurant data not found.",
+  "shell_finish_setup": "Finish Setup",
+  "shell_my_account": "My Account",
+  "shell_menu_support": "Support Center",
+  "shell_menu_sales": "Sales Contact",
+  "shell_menu_cookies": "Cookie Policy",
+  "shell_menu_settings": "App Settings",
+  "shell_menu_logout": "Logout",
+  "shell_already_pending": "You already have a pending go-live request.",
+  "shell_go_live_submitted": "Your go-live request has been submitted for review.",
+  "shell_error": "Error: {error}",
+  "@shell_error": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "shell_go_offline_title": "Go Offline?",
+  "shell_go_offline_body": "Your restaurant will no longer be visible to customers on the platform.",
+  "shell_go_offline_confirm": "Yes, Go Offline",
+  "shell_live_go_offline": "Live / Go Offline",
+  "shell_go_live_pending": "Reviewing Request",
+  "shell_go_live_declined": "Declined - Try Again",
+  "shell_request_go_live": "Request to Go Live",
+
+  "@@_GATE": {},
+
+  "gate_pending_title": "Under Review",
+  "gate_pending_message": "Our team is currently reviewing your restaurant profile. We will notify you once approved.",
+  "gate_rejected_title": "Application Rejected",
+  "gate_rejected_message": "Unfortunately, your application was not approved. Please contact support for details.",
+  "gate_suspended_title": "Account Suspended",
+  "gate_suspended_message": "Your account has been suspended due to a policy violation.",
+  "gate_default_title": "Restricted Access",
+  "gate_default_message": "You do not have permission to access this dashboard yet.",
+
+  "@@_ANALYTICS": {},
+
+  "analytics_section_glance": "AT A GLANCE",
+  "analytics_stat_revenue": "Revenue ({days}d)",
+  "@analytics_stat_revenue": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "analytics_stat_orders": "Orders ({days}d)",
+  "@analytics_stat_orders": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "analytics_stat_today": "Today's Sales",
+  "analytics_stat_avg": "Avg. Order Value",
+  "analytics_section_revenue": "REVENUE TREND",
+  "analytics_no_revenue": "No revenue data for this period.",
+  "analytics_section_status": "ORDER STATUS BREAKDOWN",
+  "analytics_no_orders": "No orders found for this period.",
+  "analytics_section_popular": "MOST POPULAR ITEMS",
+  "analytics_no_items": "No item data available.",
+  "analytics_orders_count": "{count} orders",
+  "@analytics_orders_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "@@_MENUS": {},
+
+  "menus_error": "Could not load menus: {error}",
+  "@menus_error": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "menus_empty_title": "Your menu is empty",
+  "menus_empty_subtitle": "Create categories like 'Main Courses' or 'Drinks' to start organising your kitchen.",
+  "menus_field_title_hint": "e.g. Italian Pizzas",
+  "menus_field_desc_hint": "Briefly describe what's in this section...",
+  "menus_image_browse": "JPG or PNG, recommended 16:9",
+  "menus_created": "Menu category has been created.",
+  "menus_updated": "Menu category has been updated.",
+  "menus_deleted": "Menu category has been removed.",
+  "menus_image_cleanup_error": "Menu saved, but the old banner could not be removed from storage.",
+  "menus_error_missing_ids": "Required IDs are missing. Cannot delete.",
+
+  "@@_ITEMS": {},
+
+  "items_error": "Error loading items: {error}",
+  "@items_error": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "items_empty_title": "No items here yet",
+  "items_empty_subtitle": "Start by adding your first dish to this menu.",
+  "items_field_title_hint": "e.g. Classic Cheeseburger",
+  "items_field_info_hint": "e.g. 200g Beef, Cheddar, Pickles",
+  "items_field_desc_hint": "Describe the ingredients and preparation...",
+  "items_field_price_hint": "0.00",
+  "items_field_tags_hint": "Vegan, Spicy, GlutenFree...",
+  "items_tag_hint": "Add tags (e.g. Popular)",
+  "items_added": "Item has been added to your menu.",
+  "items_updated": "Item details have been saved.",
+  "items_deleted": "Item has been removed from your menu.",
+  "items_error_no_image": "Please upload an image first.",
+  "items_tag_error_empty": "Tag cannot be empty.",
+  "items_tag_error_capitalize": "Tag must start with a capital letter.",
+  "items_tag_error_letters": "Only letters are allowed in tags.",
+  "items_tag_error_duplicate": "This tag already exists.",
+  "items_discount_info": "e.g. 500g, spicy, vegan",
+
+  "image_cleanup_error": "The new image is saved, but the old image could not be removed from storage.",
+
+  "@@_OVERVIEW": {},
+
+  "overview_welcome": "Welcome back, {name}!",
+  "@overview_welcome": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "overview_chef_fallback": "Chef",
+  "overview_subtitle": "Here is what is happening with your restaurant today.",
+  "overview_setup_title": "Finish your setup",
+  "overview_setup_progress": "{completed} of {total} steps completed",
+  "@overview_setup_progress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "overview_task_logo_title": "Upload Logo",
+  "overview_task_logo_desc": "Your brand identity on the customer app.",
+  "overview_task_banner_title": "Restaurant Banner",
+  "overview_task_banner_desc": "A high-quality photo of your best dish.",
+  "overview_task_address_title": "Business Address",
+  "overview_task_address_desc": "So customers know where to find you.",
+  "overview_task_photo_title": "Profile Photo",
+  "overview_task_photo_desc": "Add a personal touch to your account.",
+  "overview_task_menu_title": "Create Menus",
+  "overview_task_menu_desc": "Add at least one menu category and one item.",
+  "overview_task_iban_title": "Payout Details",
+  "overview_task_iban_desc": "Enter your IBAN to receive weekly earnings.",
+  "overview_stat_total_orders": "Total Orders",
+  "overview_stat_pending": "Pending",
+  "overview_stat_completed": "Completed",
+  "overview_stat_revenue": "Total Revenue",
+
+  "@@_PROMOTIONS": {},
+
+  "promo_empty_title": "No active promotions",
+  "promo_empty_subtitle": "Create your first campaign to boost your restaurant's visibility.",
+  "promo_field_title_hint": "e.g. Summer Burger Fest",
+  "promo_field_desc_hint": "Explain the offer to your customers...",
+  "promo_items_linked": "{count} Item linked",
+  "@promo_items_linked": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "promo_items_linked_plural": "{count} Items linked",
+  "@promo_items_linked_plural": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "promo_date_order_error": "End date must be after start date.",
+  "promo_no_dates": "Please select both start and end dates.",
+  "promo_created": "Promotion is now live.",
+  "promo_updated": "Promotion details have been updated.",
+  "promo_deleted": "Promotion has been removed.",
+  "promo_banner_cleanup_error": "Promotion saved, but the old banner could not be removed from storage.",
+  "promo_error_no_image": "A banner image is required for new promotions.",
+  "promo_link_no_items": "No items found in your menus.",
+  "promo_image_recommended": "Recommended ratio 16:9",
+
+  "@@_SETTINGS": {},
+
+  "settings_error": "Could not load settings. Please try again.",
+  "settings_logo_recommended": "Square PNG or JPG (min. 512x512px)",
+  "settings_logo_uploading": "Uploading...",
+  "settings_logo_updated": "Restaurant logo has been updated.",
+  "settings_banner_recommended": "Wide 16:9 aspect ratio recommended",
+  "settings_banner_updated": "Cover banner has been updated.",
+  "settings_business_updated": "Business information has been saved.",
+  "settings_profile_updated": "Profile changes have been saved.",
+  "settings_password_reset_sent": "A password reset link has been sent to your email.",
+  "settings_delete_dialog_title": "Are you absolutely sure?",
+  "settings_delete_dialog_body": "This action is irreversible. All your menus, promotions, and history will be wiped.",
+  "settings_address_set": "No address pinned yet",
+  "settings_map_no_pick": "Please pick a location on the map first.",
+  "settings_profile_name_hint": "Full Name",
+
+  "@@_LANDING": {},
+
+  "build_user_experience": "Build the next generation of dining experiences.",
+  "join_thousands": "Join thousands of restaurants growing their business with our platform.",
+  "sign_in_to_dashboard": "Sign in to Dashboard",
+  "create_your_account": "Create your account",
+  "new_to_the_platform": "New to the platform?",
+  "already_have_an_account": "Already have an account?",
+  "with_google": "with Google",
+  "terms_of_service": "By continuing, you agree to our Terms of Service and Privacy Policy.",
+  "errorNoUserRecord": "No user profile found. Please contact support.",
+  "errorRestaurantAccountOnly": "This portal is for restaurant and admin accounts only.",
+  "errorNoRestaurantRecord": "No restaurant business profile found for this account.",
+  "hintEmail": "Email Address",
+  "hintPassword": "Password",
+  "business": "Business",
+  "business_name": "Business Name",
+  "business_phone": "Business Phone",
+  "owner_full_name": "Owner Full Name",
+  "owner_phone": "Owner Phone",
+  "creating_partner_account": "Creating partner account...",
+  "account_is_pending_approval": "Registration successful! Your account is now pending approval.",
+  "now_live_in": "Now live in Kraków & Warsaw",
+  "put_your_restaurant_on": "Put your restaurant on the digital map.",
+  "manage_your_menu": "Manage your menu, track live sales, and grow your customer base with our all-in-one merchant dashboard.",
+  "register_your_restaurant": "Register Your Restaurant",
+  "see_how_it_works": "See How it Works",
+  "live_platform_stats": "LIVE PLATFORM STATS",
+  "restaurants_on_platform": "Restaurants on platform",
+  "orders_placed": "Orders placed",
+  "menus_published": "Menus published",
+  "items_available": "Items available",
+  "trusted_by_restaurants": "TRUSTED BY 200+ LOCAL RESTAURANTS",
+  "digital_menu": "Digital Menu",
+  "your_menu_goes_live_instantly": "Your menu goes live instantly on our customer platform.",
+  "custom_banners": "Custom Banners",
+  "full_creative_control": "Full creative control over your store's visual identity.",
+  "sales_analytics": "Sales Analytics",
+  "track_peak_hours": "Track peak hours and top-selling items in real-time.",
+  "ready_to_grow": "Ready to grow your revenue?",
+  "join_restaurants": "Join the restaurants already thriving on our platform.",
+  "hiw_title": "How It Works",
+  "hiw_hero_badge": "Simple Onboarding",
+  "hiw_hero_title": "Getting your kitchen online has never been easier.",
+  "hiw_hero_subtitle": "From registration to your first order, we've streamlined every step.",
+  "hiw_step1_title": "Create Account",
+  "hiw_step1_desc": "Sign up with your business details (NIP/REGON) and owner information.",
+  "hiw_step2_title": "Admin Verification",
+  "hiw_step2_desc": "Our team reviews your application to ensure platform safety and quality standards.",
+  "hiw_step3_title": "Setup Your Store",
+  "hiw_step3_desc": "Upload your logo, set your operating hours, and define your delivery zones.",
+  "hiw_step4_title": "Build Your Menu",
+  "hiw_step4_desc": "Add categories, items, and modifiers. Use our AI tools for high-quality descriptions.",
+  "hiw_step5_title": "Go Live",
+  "hiw_step5_desc": "Switch your status to active and start receiving orders from local customers.",
+  "hiw_feature1_title": "Real-time Sync",
+  "hiw_feature1_desc": "Menu updates reflect instantly on the customer app with zero delay.",
+  "hiw_feature2_title": "Detailed Analytics",
+  "hiw_feature2_desc": "Track your best sellers and peak hours to optimize your staff and inventory.",
+  "hiw_feature3_title": "Image Management",
+  "hiw_feature3_desc": "Integrated cloud storage for all your high-resolution food photography.",
+  "hiw_feature4_title": "Role-based Access",
+  "hiw_feature4_desc": "Securely manage permissions for owners, managers, and kitchen staff.",
+  "hiw_feature5_title": "Multi-device",
+  "hiw_feature5_desc": "Manage your restaurant from a desktop, tablet, or mobile phone seamlessly.",
+  "hiw_feature6_title": "24/7 Support",
+  "hiw_feature6_desc": "Our merchant success team is always available to help you grow.",
+  "hiw_cta_title": "Ready to grow your revenue?",
+  "hiw_cta_subtitle": "Join our community of successful restaurants today.",
+  "hiw_cta_primary": "Start for Free",
+  "hiw_cta_secondary": "View Pricing",
+  "pricing_title": "Pricing",
+  "pricing_hero_badge": "Transparent Fees",
+  "pricing_hero_title": "Grow your business without the fixed costs.",
+  "pricing_hero_subtitle": "We only succeed when you do. No setup fees, no monthly subscriptions.",
+  "pricing_step1_title": "Customer Orders",
+  "pricing_step1_desc": "Orders are placed through our secure customer platform.",
+  "pricing_step2_title": "You Prepare",
+  "pricing_step2_desc": "Manage the kitchen and keep 100% of the tips.",
+  "pricing_step3_title": "Weekly Payouts",
+  "pricing_step3_desc": "Funds are deposited minus our small commission fee.",
+  "pricing_calculator_title": "Estimate your earnings.",
+  "pricing_slider_orders_label": "Orders per day",
+  "pricing_slider_orders_value": "{count} orders ({monthly} / month)",
+  "@pricing_slider_orders_value": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "monthly": { "type": "int" }
+    }
+  },
+  "pricing_slider_avg_label": "Average order value",
+  "pricing_tier_badge": "{name} Tier ({pct})",
+  "@pricing_tier_badge": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+  "pricing_tier_monthly": "{count} monthly orders",
+  "@pricing_tier_monthly": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "pricing_calc_revenue_label": "Daily Revenue",
+  "pricing_calc_revenue_sub": "Gross sales",
+  "pricing_calc_fee_label": "Platform Fee ({pct})",
+  "@pricing_calc_fee_label": {
+    "placeholders": { "pct": { "type": "String" } }
+  },
+  "pricing_tier_starter_range": "0-300 orders/month",
+  "pricing_tier_growing_range": "301-1500 orders/month",
+  "pricing_tier_established_range": "1501-4500 orders/month",
+  "pricing_tier_partner_range": "4500+ orders/month",
+  "pricing_calc_fee_sub": "Our commission",
+  "pricing_calc_keep_label": "You Keep",
+  "pricing_calc_disclaimer": "Estimates based on current tier rates. Excludes payment processing fees.",
+  "pricing_tiers_title": "The more you sell, the less you pay.",
+  "pricing_tiers_subtitle": "Commission rates are automatically adjusted based on your previous 30-day order volume.",
+  "pricing_tier_starter_label": "Starter",
+  "pricing_tier_starter_desc": "Perfect for new restaurants and pop-up kitchens.",
+  "pricing_tier_growing_label": "Growing",
+  "pricing_tier_growing_desc": "For local favorites starting to scale their delivery.",
+  "pricing_tier_established_label": "Established",
+  "pricing_tier_established_desc": "High-volume establishments with a loyal following.",
+  "pricing_tier_partner_label": "Partner",
+  "pricing_tier_partner_desc": "Deep integration for city-wide restaurant groups.",
+  "pricing_faq1_q": "Are there any hidden monthly fees?",
+  "pricing_faq1_a": "No. There are no monthly maintenance or subscription fees. You only pay commission on completed orders.",
+  "pricing_faq2_q": "How often do I get paid?",
+  "pricing_faq2_a": "Payouts are processed weekly every Tuesday for all orders completed in the previous week.",
+  "pricing_faq3_q": "Do I pay commission on canceled orders?",
+  "pricing_faq3_a": "No. If an order is canceled and the customer is refunded, no commission is charged.",
+  "pricing_faq4_q": "Who handles the delivery?",
+  "pricing_faq4_a": "This plan assumes you provide your own delivery staff. We provide the digital infrastructure to manage them.",
+  "pricing_faq5_q": "Can I cancel at any time?",
+  "pricing_faq5_a": "Yes. There are no long-term contracts. You can set your store to Inactive at any time.",
+  "pricing_cta_title": "No risk, all reward.",
+  "pricing_cta_subtitle": "Start receiving orders today and only pay for results.",
+  "pricing_cta_primary": "Join as a Partner",
+
+
+
+
+  "admin_overview_review": "Review",
+  "admin_overview_status_pending": "Pending",
+  "admin_overview_status_processing": "In Progress",
+  "admin_overview_status_delivered": "Delivered",
+  "admin_overview_status_cancelled": "Cancelled",
+
+
+  "requests_action_activate": "Activate",
+  "requests_action_decline": "Decline",
+  "requests_action_approve": "Approve",
+  "requests_action_reject": "Reject",
+  "requests_action_suspend": "Suspend",
+  "requests_action_reinstate": "Reinstate",
+
+  "requests_status_approved": "Approved",
+  "requests_status_active": "Active",
+  "requests_status_rejected": "Rejected",
+  "requests_status_suspended": "Suspended",
+  "requests_status_pending": "Pending",
+
+  "users_banned_badge": "BANNED",
+
+  "users_action_ban": "Ban User",
+  "users_action_unban": "Unban User",
+  "users_action_delete": "Delete User",
+  "users_confirm_cancel": "Cancel",
+  "users_role_admin": "Platform Admin",
+  "users_role_restaurant": "Restaurant Owner",
+  "users_role_customer": "Customer",
+  "users_copied": "Value copied to clipboard",
+
+  "shell_confirm_cancel": "Cancel",
+
+  "analytics_status_normal": "Normal",
+  "analytics_status_processing": "Processing",
+  "analytics_status_delivered": "Delivered",
+  "analytics_status_cancelled": "Cancelled",
+
+  "menus_fab": "Create Menu",
+  "menus_sheet_title": "New Menu Category",
+  "menus_image_upload_label": "Category Banner",
+
+  "menus_field_title_label": "Category Name",
+
+  "menus_field_title_required": "Name is required",
+  "menus_field_desc_label": "Description",
+  "menus_field_desc_required": "Description is required",
+  "menus_no_image": "Please select a banner image",
+  "menus_submit": "Add Category",
+  "menus_design_view_items": "View items",
+  "menus_design_edit_button": "Edit",
+  "menus_design_edit_sheet_title": "Edit Menu",
+  "menus_design_delete_button": "Delete",
+  "menus_design_change_image_hint": "Tap to change banner image",
+  "menus_design_field_title_label": "Menu Title",
+  "menus_design_field_title_required": "Please enter a title",
+  "menus_design_field_desc_label": "Description",
+  "menus_design_field_desc_required": "Please enter a description",
+  "menus_design_save_changes": "Save Changes",
+  "menus_design_saved": "Menu updated successfully",
+  "menus_design_banner_cleanup_error": "Note: Menu updated, but the old image could not be removed.",
+  "menus_design_delete_dialog_title": "Delete Menu?",
+  "menus_design_delete_dialog_body": "Are you sure? This will permanently remove this menu and all its associated data.",
+  "menus_design_delete_cancel": "Cancel",
+  "menus_design_delete_confirm": "Delete Permanently",
+  "menus_design_delete_missing_id": "Error: Missing IDs. Cannot delete.",
+  "menus_design_deleted": "Menu deleted",
+
+
+
+  "items_app_bar_fallback": "Menu Items",
+
+
+  "items_fab": "Add Item",
+  "items_sheet_title": "Add New Item",
+  "items_image_upload_label": "Item Photo",
+  "items_image_browse": "Tap to browse images",
+  "items_field_title_label": "Item Name",
+
+  "items_field_info_label": "Short Info",
+
+  "items_field_desc_label": "Full Description",
+
+  "items_field_price_label": "Base Price",
+
+  "items_field_price_required": "Price is required",
+  "items_field_price_invalid": "Enter a valid price",
+  "items_field_tags_label": "Tags",
+
+  "items_discount_label": "Discount Percentage",
+  "items_discount_required": "Enter discount amount",
+  "items_discount_invalid": "Enter 1-100",
+  "items_no_image": "Please upload an image first",
+
+  "items_submit": "Create Item",
+  "items_design_edit_button": "Edit",
+
+  "items_design_image_cleanup_error": "Item updated, but the previous image could not be deleted from storage.",
+  "items_design_saved": "Item updated successfully",
+  "items_design_deleted": "Item has been removed",
+  "items_design_delete_dialog_title": "Delete Item?",
+  "items_design_delete_dialog_body": "Are you sure you want to delete this item? This action cannot be undone.",
+  "items_design_delete_cancel": "Cancel",
+  "items_design_delete_confirm": "Delete",
+  "items_design_edit_sheet_title": "Edit Item",
+  "items_design_delete_button": "Delete",
+  "items_design_change_image_hint": "Tap the image to change it",
+  "items_design_field_title_label": "Item Name",
+  "items_field_title_required": "Name is required",
+  "items_design_field_info_label": "Short Info",
+  "items_design_field_info_hint": "e.g. 500g, spicy, vegan",
+  "items_field_info_required": "Short info is required",
+  "items_design_field_desc_label": "Description",
+  "items_field_desc_required": "Description is required",
+  "items_design_field_price_label": "Base Price",
+  "items_design_field_price_required": "Price is required",
+  "items_design_field_price_invalid": "Enter a valid price",
+  "items_design_field_tags_label": "Tags",
+  "items_design_field_tags_hint": "Add tags (e.g. Popular)",
+  "items_discount_toggle": "Offer a discount",
+  "items_design_discount_label": "Discount Percentage",
+  "items_design_discount_required": "Discount value is required",
+  "items_design_discount_invalid": "Enter a value between 1 and 100",
+
+
+  "overview_section_glance": "AT A GLANCE",
+  "overview_section_orders": "RECENT ORDERS",
+
+  "overview_task_done": "Done",
+  "overview_task_setup": "Setup",
+
+  "promo_fab": "Create Promotion",
+  "promo_badge_live": "LIVE",
+  "promo_badge_inactive": "INACTIVE",
+
+  "promo_edit_button": "Manage",
+  "promo_sheet_add_title": "New Promotion",
+  "promo_sheet_edit_title": "Edit Promotion",
+  "promo_field_title_label": "Campaign Title",
+
+  "promo_field_title_required": "Please enter a title",
+  "promo_field_desc_label": "Short Description",
+
+  "promo_field_desc_required": "Description is required",
+  "promo_date_start": "Start Date",
+  "promo_date_end": "End Date",
+  "promo_date_pick": "Select Date",
+
+  "promo_active_toggle": "Show promotion to customers",
+  "promo_image_upload_hint": "Tap to upload a campaign banner",
+  "promo_image_change_hint": "Tap to change banner",
+
+  "promo_delete_title": "Delete Promotion?",
+  "promo_delete_body": "This will permanently remove the campaign and its banner. This action cannot be undone.",
+  "promo_delete_cancel": "Keep it",
+  "promo_delete_confirm": "Delete",
+  "promo_no_image": "A banner image is required for new promotions",
+
+  "promo_link_section_label": "Link Items",
+  "promo_link_section_hint": "Select which items belong to this promotion.",
+
+  "promo_image_upload_label": "Promotion Image",
+
+  "promo_save_changes": "Save Changes",
+  "promo_create": "Launch Promotion",
+
+  "settings_section_business": "Business Details",
+  "settings_section_business_sub": "Manage your restaurant's public identity.",
+  "settings_section_profile": "Account Profile",
+  "settings_section_profile_sub": "Your personal contact information.",
+  "settings_section_danger": "Danger Zone",
+  "settings_section_danger_sub": "Irreversible account actions.",
+  "settings_logo_title": "Restaurant Logo",
+  "settings_logo_status_staged": "New logo selected",
+  "settings_logo_status_exists": "Logo uploaded",
+  "settings_logo_status_none": "No logo set",
+  "settings_logo_choose": "Choose Image",
+  "settings_logo_upload": "Save Logo",
+  "settings_logo_success": "Logo updated successfully!",
+  "settings_banner_title": "Cover Banner",
+  "settings_banner_choose": "Tap to choose a cover photo",
+  "settings_banner_upload": "Save Banner",
+  "settings_banner_success": "Banner updated successfully!",
+  "settings_business_title": "Store Information",
+  "settings_address_pick": "Pin on Map",
+  "settings_address_change": "Change",
+  "settings_business_saved": "Business information updated!",
+  "settings_profile_title": "Account Owner",
+  "settings_profile_photo_ready": "New photo ready to save",
+  "settings_profile_phone_label": "Contact Phone",
+  "settings_save_changes": "Save Changes",
+  "settings_cancel": "Cancel",
+  "settings_danger_reset_title": "Reset Password",
+  "settings_danger_reset_sub": "Send a password reset link to your email.",
+  "settings_danger_reset_button": "Reset",
+  "settings_danger_reset_sent": "Reset email sent! Please check your inbox.",
+  "settings_danger_delete_title": "Delete Account",
+  "settings_danger_delete_sub": "Permanently remove your restaurant and all data.",
+  "settings_danger_delete_button": "Delete",
+  "settings_danger_delete_dialog_title": "Are you absolutely sure?",
+  "settings_danger_delete_dialog_body": "This action is irreversible. All your menus, promotions, and history will be wiped.",
+  "settings_map_dialog_title": "Select Location",
+  "settings_map_no_location": "No location selected yet.",
+  "settings_map_open": "Open Map",
+  "settings_map_change": "Change Location",
+  "settings_map_confirm": "Confirm Location",
+  "settings_profile_saved": "The changes has been saved",
+
+  "how_it_works": "How It Works",
+  "pricing": "Pricing",
+  "getStarted": "Get Started",
+  "tapToUploadImage": "Tap to upload Image",
+  "sign_up": "Sign up",
+  "log_in": "Log in",
+  "sign_in": "Sign in",
+
+  "errorEnterEmailOrPassword": "Please enter your email and password.",
+  "errorLoginFailed": "Login failed. Please check your connection or credentials.",
+  "error_no_user_record_found": "No user profile found. Please contact support.",
+  "permission_restaurant_accounts_only": "This portal is for restaurant and admin accounts only.",
+  "error_no_restaurant_record_found": "No restaurant business profile found for this account.",
+
+  "admin_profile": "Admin Profile",
+
+  "info_continue": "Continue",
+
+  "hintConfPassword": "Confirm Password",
+  "errorNoMatchPasswords": "Passwords do not match.",
+
+  "orders_today": "Orders Today",
+  "total_orders": "Total Orders",
+  "menu_items": "Menu Items",
+  
+  "upper_features": "Features",
+  
+  "register_now": "Register Now",
+
+  "@@_HOW_IT_WORKS": {},
+
+  
+  "hiw_section_process": "The Process",
+  
+  "hiw_section_features": "Everything You Need",
+  "hiw_features_title": "Powerful tools for modern kitchens."
+   
+}

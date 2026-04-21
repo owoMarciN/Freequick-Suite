@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:merchant_app/extensions/brand_color_ext.dart';
 import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:merchant_app/widgets/ui/language_button.dart';
-import 'package:merchant_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 // -- CTA Block ---------------------------------------------------------------------
 // Usage:
@@ -47,7 +46,7 @@ class LandingCta extends StatelessWidget {
         gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [brand.navy!, brand.navyDark ?? brand.navy!]),
+            colors: [brand.primary!, brand.primaryDark ?? brand.primary!]),
       ),
       child: Column(
         children: [
@@ -113,32 +112,41 @@ class LandingNav extends StatelessWidget {
       child: Row(
         children: [
           LandingLogo(),
-          const Spacer(),
+          Spacer(),
           if (isWide) ...[
             LandingNavLink(
-              context.l10n.how_it_works,
+              context.l10nMerchant.hiw_title,
               active: activeRoute == '/how-it-works',
               onTap: () =>
                   Router.neglect(context, () => context.go('/how-it-works')),
             ),
             const SizedBox(width: 32),
             LandingNavLink(
-              context.l10n.pricing,
+              context.l10nMerchant.pricing_title,
               active: activeRoute == '/pricing',
               onTap: () =>
                   Router.neglect(context, () => context.go('/pricing')),
             ),
             const SizedBox(width: 40),
           ],
-          LandingOutlineButton(
-              label: context.l10n.log_in,
-              onTap: () =>
-                  Router.neglect(context, () => context.go('/auth/login'))),
-          const SizedBox(width: 12),
-          LandingPrimaryButton(
-              label: context.l10n.get_started,
-              onTap: () =>
-                  Router.neglect(context, () => context.go('/auth/register'))),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: LandingOutlineButton(
+                    label: context.l10nCommon.login,
+                    onTap: () => Router.neglect(
+                        context, () => context.go('/auth/login'))),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: LandingPrimaryButton(
+                    label: context.l10nCommon.getStarted,
+                    onTap: () => Router.neglect(
+                        context, () => context.go('/auth/register'))),
+              ),
+            ],
+          ),
           const SizedBox(width: 16),
           LanguageButton(brandColors: brand, colorScheme: scheme)
         ],
@@ -189,7 +197,7 @@ class LandingLogo extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-                color: brand.navy, borderRadius: BorderRadius.circular(6)),
+                color: brand.primary, borderRadius: BorderRadius.circular(6)),
             child:
                 const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
           ),
@@ -253,19 +261,21 @@ class LandingPrimaryButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: white ? Colors.white : brand.navy,
-        foregroundColor: white ? brand.navy : Colors.white,
+        backgroundColor: white ? Colors.white : brand.primary,
+        foregroundColor: white ? brand.primary : Colors.white,
         elevation: 0,
         padding: EdgeInsets.symmetric(
             horizontal: large ? 28 : 16, vertical: large ? 18 : 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }
-
-// -- Outline button -----------------------------------------------------------------------------
 
 class LandingOutlineButton extends StatelessWidget {
   final String label;
@@ -285,7 +295,7 @@ class LandingOutlineButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return OutlinedButton(
+    return TextButton(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
         foregroundColor: white ? Colors.white : scheme.onSurface,
@@ -296,7 +306,11 @@ class LandingOutlineButton extends StatelessWidget {
             horizontal: large ? 28 : 16, vertical: large ? 18 : 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w500),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }

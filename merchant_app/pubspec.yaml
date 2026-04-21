@@ -10,14 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # --- Shared Assets Package ---
-  shared_assets:
-    path: ../shared_assets
-
   flutter_localizations:
     sdk: flutter
+  shared_assets:
+    path: ../shared_assets
   intl: ^0.20.2
+  
   easy_localization: ^3.0.1
 
   cupertino_icons: ^1.0.2

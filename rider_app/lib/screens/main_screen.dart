@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rider_app/methods/assistant_methods.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:rider_app/screens/home_screen.dart';
 import 'package:rider_app/screens/profile_screen.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,38 +21,49 @@ class _MainScreenState extends State<MainScreen> {
     const ProfileScreen(),
   ];
 
-  
-
   void _confirmSignOut(BuildContext context) {
     final riderProvider = Provider.of<RiderProvider>(context, listen: false);
+
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: scheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Sign Out',
-            style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const Text('Are you sure you want to exit the app?'),
+        title: Center(
+            child: Text(context.l10nCommon.signOut,
+                style: TextStyle(fontWeight: FontWeight.w800))),
+        content: Text(context.l10nCommon.questionAppExit),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              riderProvider.signOut();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.danger,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            child:
-                const Text('Sign Out', style: TextStyle(color: Colors.white)),
-          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(context.l10nCommon.cancel,
+                    style: TextStyle(color: brand.primaryDark)),
+              ),
+              const SizedBox(
+                width: 16,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  riderProvider.signOut();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brand.danger,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(context.l10nCommon.confirm,
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -62,11 +73,16 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final riderProvider = Provider.of<RiderProvider>(context);
 
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppTheme.surface,
-        elevation: 0,
+        backgroundColor: scheme.surface,
         centerTitle: false,
+        elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        surfaceTintColor: Colors.transparent,
         title: Row(
           children: [
             // Icon / Avatar
@@ -74,11 +90,11 @@ class _MainScreenState extends State<MainScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.15),
+                color: brand.primary!.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.delivery_dining,
-                  color: AppTheme.primary, size: 22),
+              child:
+                  Icon(Icons.delivery_dining, color: brand.primary, size: 22),
             ),
             const SizedBox(width: 12),
             // Name, Phone & Status
@@ -89,16 +105,16 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Text(
                     riderProvider.rider?.name ?? 'Rider',
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
+                    style: TextStyle(
+                      color: brand.primary,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
-                    formatPhoneNumber(riderProvider.rider?.phone),
+                    formatPhoneNumber(context, riderProvider.rider?.phone),
                     style: TextStyle(
-                      color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                      color: brand.primaryDark!.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -110,8 +126,8 @@ class _MainScreenState extends State<MainScreen> {
                         height: 6,
                         decoration: BoxDecoration(
                           color: riderProvider.isOnline
-                              ? AppTheme.primary
-                              : AppTheme.textSecondary,
+                              ? brand.success
+                              : brand.danger,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -120,8 +136,8 @@ class _MainScreenState extends State<MainScreen> {
                         riderProvider.isOnline ? 'Online' : 'Offline',
                         style: TextStyle(
                           color: riderProvider.isOnline
-                              ? AppTheme.primary
-                              : AppTheme.textSecondary,
+                              ? brand.success
+                              : brand.danger,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -136,11 +152,10 @@ class _MainScreenState extends State<MainScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => _confirmSignOut(context),
-            icon: const Icon(Icons.logout_rounded,
-                size: 24, color: AppTheme.danger),
-            label: const Text('Sign Out',
+            icon: Icon(Icons.logout_rounded, size: 24, color: brand.danger),
+            label: Text(context.l10nCommon.signOut,
                 style: TextStyle(
-                    color: AppTheme.danger, fontWeight: FontWeight.w600)),
+                    color: brand.danger, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
         ],
@@ -149,18 +164,32 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: AppTheme.primary,
-        unselectedItemColor: AppTheme.textSecondary,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded), label: 'Profile'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(
+                  0, -1), // Negative Y offset pushes the shadow upwards
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          selectedItemColor: brand.primary,
+          unselectedItemColor: brand.primaryDark,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_rounded), label: context.l10nCommon.home),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_rounded),
+                label: context.l10nCommon.profile),
+          ],
+        ),
       ),
     );
   }

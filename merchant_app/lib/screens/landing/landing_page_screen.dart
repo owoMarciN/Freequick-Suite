@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:provider/provider.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/providers/global_stats_provider.dart';
 import 'package:merchant_app/widgets/ui/landing_widgets.dart';
 
@@ -37,11 +38,11 @@ class _LandingPageView extends StatelessWidget {
             _buildLogoBanner(context, brand),
             _buildFeatures(context, brand, scheme),
             LandingCta(
-              title: context.l10n.ready_to_grow,
-              subtitle: context.l10n.join_restaurants,
-              primaryLabel: context.l10n.register_now,
+              title: context.l10nMerchant.ready_to_grow,
+              subtitle: context.l10nMerchant.join_restaurants,
+              primaryLabel: context.l10nMerchant.register_now,
               primaryRoute: '/auth/register',
-              secondaryLabel: context.l10n.see_how_it_works,
+              secondaryLabel: context.l10nMerchant.see_how_it_works,
               secondaryRoute: '/how-it-works',
             ),
             const LandingFooter(),
@@ -67,22 +68,22 @@ class _LandingPageView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: brand.navy?.withValues(alpha: 0.15),
+              color: brand.primary?.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
-                  color:
-                      brand.navy?.withValues(alpha: 0.4) ?? Colors.transparent),
+                  color: brand.primary?.withValues(alpha: 0.4) ??
+                      Colors.transparent),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _dot(brand.accentGreen ?? Colors.green),
+                _dot(brand.success ?? Colors.green),
                 const SizedBox(width: 8),
                 Text(
-                  context.l10n.now_live_in,
+                  context.l10nMerchant.now_live_in,
                   style: TextStyle(
                       fontSize: 12,
-                      color: brand.accentGreen,
+                      color: brand.success,
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -92,7 +93,7 @@ class _LandingPageView extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 760),
             child: Text(
-              context.l10n.put_your_restaurant_on,
+              context.l10nMerchant.put_your_restaurant_on,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isWide ? 64 : 38,
@@ -106,7 +107,7 @@ class _LandingPageView extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 540),
             child: Text(
-              context.l10n.manage_your_menu,
+              context.l10nMerchant.manage_your_menu,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 17, color: brand.muted, height: 1.6),
             ),
@@ -118,12 +119,12 @@ class _LandingPageView extends StatelessWidget {
             alignment: WrapAlignment.center,
             children: [
               LandingPrimaryButton(
-                label: context.l10n.register_your_restaurant,
+                label: context.l10nMerchant.register_your_restaurant,
                 onTap: () => context.go('/auth/register'),
                 large: true,
               ),
               LandingOutlineButton(
-                label: context.l10n.see_how_it_works,
+                label: context.l10nMerchant.see_how_it_works,
                 onTap: () => context.go('/how-it-works'),
                 large: true,
               ),
@@ -147,7 +148,7 @@ class _LandingPageView extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          colors: [brand.navy!, const Color(0xFF8B5CF6), brand.accentGreen!],
+          colors: [brand.primary!, const Color(0xFF8B5CF6), brand.success!],
         ),
       ),
       child: Container(
@@ -174,28 +175,28 @@ class _LandingPageView extends StatelessWidget {
               final isWide = constraints.maxWidth > 500;
               final cards = [
                 _previewStat(
-                  context.l10n.orders_today,
+                  context.l10nMerchant.orders_today,
                   stats.isLoading ? '—' : '${stats.todayOrders}',
-                  brand.accentGreen!,
+                  brand.success!,
                   brand,
                   live: true,
                 ),
                 _previewStat(
-                  context.l10n.total_orders,
+                  context.l10nMerchant.total_orders,
                   stats.isLoading ? '—' : '${stats.totalOrders}',
-                  brand.navy!,
+                  brand.primary!,
                   brand,
                   live: true,
                 ),
                 _previewStat(
-                  context.l10n.restaurants,
+                  context.l10nCommon.restaurants,
                   stats.isLoading ? '—' : '${stats.totalRestaurants}',
                   const Color(0xFF8B5CF6),
                   brand,
                   live: true,
                 ),
                 _previewStat(
-                  context.l10n.menu_items,
+                  context.l10nMerchant.menu_items,
                   stats.isLoading ? '—' : '${stats.totalItems}',
                   const Color(0xFFD97706),
                   brand,
@@ -294,31 +295,31 @@ class _LandingPageView extends StatelessWidget {
       _LiveStat(
         icon: Icons.storefront_rounded,
         value: stats.isLoading ? '—' : '${stats.totalRestaurants}',
-        label: context.l10n.restaurants_on_platform,
-        color: brand.navy!,
+        label: context.l10nMerchant.restaurants_on_platform,
+        color: brand.primary!,
       ),
       _LiveStat(
         icon: Icons.receipt_long_rounded,
         value: stats.isLoading ? '—' : '${stats.totalOrders}',
-        label: context.l10n.orders_placed,
-        color: brand.accentGreen!,
+        label: context.l10nMerchant.orders_placed,
+        color: brand.success!,
       ),
       _LiveStat(
         icon: Icons.restaurant_menu_rounded,
         value: stats.isLoading ? '—' : '${stats.totalMenus}',
-        label: context.l10n.menus_published,
+        label: context.l10nMerchant.menus_published,
         color: const Color(0xFF8B5CF6),
       ),
       _LiveStat(
         icon: Icons.fastfood_rounded,
         value: stats.isLoading ? '—' : '${stats.totalItems}',
-        label: context.l10n.items_available,
+        label: context.l10nMerchant.items_available,
         color: const Color(0xFFD97706),
       ),
       _LiveStat(
         icon: Icons.today_rounded,
         value: stats.isLoading ? '—' : '${stats.todayOrders}',
-        label: context.l10n.orders_today,
+        label: context.l10nMerchant.orders_today,
         color: const Color(0xFFEF4444),
       ),
     ];
@@ -338,13 +339,13 @@ class _LandingPageView extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: brand.accentGreen,
+                  color: brand.success,
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
-                context.l10n.live_platform_stats,
+                context.l10nMerchant.live_platform_stats,
                 style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
@@ -393,7 +394,7 @@ class _LandingPageView extends StatelessWidget {
                   BorderSide(color: Theme.of(context).colorScheme.outline))),
       child: Column(
         children: [
-          Text(context.l10n.trusted_by_restaurants,
+          Text(context.l10nMerchant.trusted_by_restaurants,
               style: TextStyle(
                   fontSize: 10, color: brand.muted, letterSpacing: 2)),
           const SizedBox(height: 24),
@@ -411,19 +412,19 @@ class _LandingPageView extends StatelessWidget {
     final double h = isWide ? 60.0 : 24.0;
 
     final features = [
-      _Feature(Icons.restaurant_menu_rounded, context.l10n.digital_menu,
-          context.l10n.your_menu_goes_live_instantly, brand.navy!),
-      _Feature(Icons.image_rounded, context.l10n.custom_banners,
-          context.l10n.full_creative_control, const Color(0xFF8B5CF6)),
-      _Feature(Icons.bar_chart_rounded, context.l10n.sales_analytics,
-          context.l10n.track_peak_hours, brand.accentGreen!),
+      _Feature(Icons.restaurant_menu_rounded, context.l10nMerchant.digital_menu,
+          context.l10nMerchant.your_menu_goes_live_instantly, brand.primary!),
+      _Feature(Icons.image_rounded, context.l10nMerchant.custom_banners,
+          context.l10nMerchant.full_creative_control, const Color(0xFF8B5CF6)),
+      _Feature(Icons.bar_chart_rounded, context.l10nMerchant.sales_analytics,
+          context.l10nMerchant.track_peak_hours, brand.success!),
     ];
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: h, vertical: 100),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.upper_features),
+          LandingSectionLabel(context.l10nMerchant.upper_features),
           const SizedBox(height: 60),
           isWide
               ? Row(

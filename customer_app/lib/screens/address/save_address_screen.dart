@@ -7,7 +7,7 @@ import 'package:user_app/services/location_service.dart';
 import 'package:user_app/screens/maps/map_screen.dart';
 
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class SaveAddressScreen extends StatefulWidget {
   const SaveAddressScreen({super.key});

@@ -1,0 +1,14 @@
+arb-dir: lib/l10n/common
+template-arb-file: app_en.arb
+output-localization-file: common_localizations.dart
+output-class: CommonLocalizations
+output-dir: lib/l10n/generated/common
+
+translator:
+  service: Google
+  key_file: ../secrets.json 
+  targets:
+    - ko
+    - pl
+    - de
+    - uk

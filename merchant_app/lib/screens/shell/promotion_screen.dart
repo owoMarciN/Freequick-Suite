@@ -3,11 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
 import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/widgets/sheets/edit_sheet_components.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class PromotionsScreen extends StatelessWidget {
   const PromotionsScreen({super.key});
@@ -89,11 +90,11 @@ class PromotionsScreen extends StatelessWidget {
                       Icon(Icons.campaign_rounded,
                           size: 64, color: brandColors.muted),
                       const SizedBox(height: 16),
-                      Text(context.l10n.promo_empty_title,
+                      Text(context.l10nMerchant.promo_empty_title,
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
-                      Text(context.l10n.promo_empty_subtitle,
+                      Text(context.l10nMerchant.promo_empty_subtitle,
                           style: TextStyle(
                               fontSize: 14, color: brandColors.muted)),
                     ],
@@ -126,9 +127,9 @@ class PromotionsScreen extends StatelessWidget {
             child: FloatingActionButton.extended(
               onPressed: () =>
                   _openAddSheet(context, currentRestaurantUID ?? ''),
-              backgroundColor: brandColors.navy,
+              backgroundColor: brandColors.primary,
               icon: const Icon(Icons.add_rounded, color: Colors.white),
-              label: Text(context.l10n.promo_fab,
+              label: Text(context.l10nMerchant.promo_fab,
                   style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.w600)),
             ),
@@ -197,7 +198,7 @@ class _PromotionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: effectivelyActive
-              ? brandColors.accentGreen?.withValues(alpha: 0.4) ??
+              ? brandColors.success?.withValues(alpha: 0.4) ??
                   colorScheme.outline
               : colorScheme.outline,
         ),
@@ -218,7 +219,7 @@ class _PromotionCard extends StatelessWidget {
                         loadingBuilder: (_, child, progress) {
                           if (progress == null) return child;
                           return Container(
-                            color: brandColors.navy?.withValues(alpha: 0.05),
+                            color: brandColors.primary?.withValues(alpha: 0.05),
                             child: Center(
                               child: CircularProgressIndicator(
                                 value: progress.expectedTotalBytes != null
@@ -226,7 +227,7 @@ class _PromotionCard extends StatelessWidget {
                                         progress.expectedTotalBytes!
                                     : null,
                                 strokeWidth: 2,
-                                color: brandColors.navy,
+                                color: brandColors.primary,
                               ),
                             ),
                           );
@@ -246,7 +247,7 @@ class _PromotionCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: effectivelyActive
-                        ? brandColors.accentGreen
+                        ? brandColors.success
                         : Colors.black54,
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -264,8 +265,8 @@ class _PromotionCard extends StatelessWidget {
                       const SizedBox(width: 5),
                       Text(
                         effectivelyActive
-                            ? context.l10n.promo_badge_live
-                            : context.l10n.promo_badge_inactive,
+                            ? context.l10nMerchant.promo_badge_live
+                            : context.l10nMerchant.promo_badge_inactive,
                         style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -296,9 +297,9 @@ class _PromotionCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           linkedItemIDs.length == 1
-                              ? context.l10n
+                              ? context.l10nMerchant
                                   .promo_items_linked(linkedItemIDs.length)
-                              : context.l10n.promo_items_linked_plural(
+                              : context.l10nMerchant.promo_items_linked_plural(
                                   linkedItemIDs.length),
                           style: const TextStyle(
                               fontSize: 11,
@@ -354,13 +355,13 @@ class _PromotionCard extends StatelessWidget {
                       ),
                       onPressed: () => _openEditSheet(context),
                       child: Row(children: [
-                        Text(context.l10n.promo_edit_button,
+                        Text(context.l10nMerchant.promo_edit_button,
                             style: TextStyle(
-                                color: brandColors.accentGreen,
+                                color: brandColors.success,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(width: 8),
                         Icon(Icons.edit_rounded,
-                            size: 14, color: brandColors.accentGreen),
+                            size: 14, color: brandColors.success),
                       ]),
                     ),
                   ],
@@ -389,7 +390,7 @@ class _PromotionCard extends StatelessWidget {
   }
 
   Widget _bannerPlaceholder(BrandColors brand) => Container(
-        color: brand.navy?.withValues(alpha: 0.05),
+        color: brand.primary?.withValues(alpha: 0.05),
         child: Center(
           child: Icon(Icons.campaign_rounded, size: 48, color: brand.muted),
         ),
@@ -529,16 +530,15 @@ class _PromotionSheetState extends State<_PromotionSheet> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_startDate == null || _endDate == null) {
-      unifiedSnackBar(context, context.l10n.promo_no_dates, error: true);
+      unifiedSnackBar(context.l10nMerchant.promo_no_dates, error: true);
       return;
     }
     if (_endDate!.isBefore(_startDate!)) {
-      unifiedSnackBar(context, context.l10n.promo_date_order_error,
-          error: true);
+      unifiedSnackBar(context.l10nMerchant.promo_date_order_error, error: true);
       return;
     }
     if (!widget.isEditing && _imageBytes == null) {
-      unifiedSnackBar(context, context.l10n.promo_no_image, error: true);
+      unifiedSnackBar(context.l10nMerchant.promo_no_image, error: true);
       return;
     }
 
@@ -591,7 +591,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
       if (bannerChanged && oldUrl != null && oldUrl.isNotEmpty) {
         final String? err = await deleteOldFile(oldUrl);
         if (err != null && mounted) {
-          unifiedSnackBar(context, context.l10n.promo_banner_cleanup_error,
+          unifiedSnackBar(context.l10nMerchant.promo_banner_cleanup_error,
               error: true);
         }
       }
@@ -599,15 +599,15 @@ class _PromotionSheetState extends State<_PromotionSheet> {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       final successMsg = widget.isEditing
-          ? context.l10n.promo_updated
-          : context.l10n.promo_created;
+          ? context.l10nMerchant.promo_updated
+          : context.l10nMerchant.promo_created;
       Navigator.pop(context);
       messenger
         ..clearSnackBars()
         ..showSnackBar(_successSnack(successMsg));
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -618,14 +618,14 @@ class _PromotionSheetState extends State<_PromotionSheet> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(context.l10n.promo_delete_title,
+        title: Text(context.l10nMerchant.promo_delete_title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        content: Text(context.l10n.promo_delete_body,
+        content: Text(context.l10nMerchant.promo_delete_body,
             style: const TextStyle(fontSize: 13)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(context.l10n.promo_delete_cancel)),
+              child: Text(context.l10nMerchant.promo_delete_cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
@@ -635,7 +635,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text(context.l10n.promo_delete_confirm),
+            child: Text(context.l10nMerchant.promo_delete_confirm),
           ),
         ],
       ),
@@ -660,14 +660,14 @@ class _PromotionSheetState extends State<_PromotionSheet> {
           .delete();
 
       if (!mounted) return;
-      final deletedMsg = context.l10n.promo_deleted;
+      final deletedMsg = context.l10nMerchant.promo_deleted;
       Navigator.pop(context);
       messenger
         ..clearSnackBars()
         ..showSnackBar(_successSnack(deletedMsg));
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -698,8 +698,8 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                 children: [
                   Text(
                     widget.isEditing
-                        ? context.l10n.promo_sheet_edit_title
-                        : context.l10n.promo_sheet_add_title,
+                        ? context.l10nMerchant.promo_sheet_edit_title
+                        : context.l10nMerchant.promo_sheet_add_title,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w700),
                   ),
@@ -712,7 +712,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                                   Colors.pink.withValues(alpha: 0.3)),
                           onPressed: _isLoading ? null : _delete,
                           child: Row(children: [
-                            Text(context.l10n.promo_sheet_delete_button,
+                            Text(context.l10nMerchant.promo_delete_confirm,
                                 style: const TextStyle(
                                     color: Colors.redAccent,
                                     fontWeight: FontWeight.bold)),
@@ -740,11 +740,11 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                   height: 180,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: brandColors.navy?.withValues(alpha: 0.05),
+                    color: brandColors.primary?.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _imageBytes != null
-                          ? brandColors.navy!
+                          ? brandColors.primary!
                           : colorScheme.outline,
                       width: _imageBytes != null ? 2 : 1,
                     ),
@@ -767,8 +767,8 @@ class _PromotionSheetState extends State<_PromotionSheet> {
               Center(
                 child: Text(
                   widget.isEditing
-                      ? context.l10n.promo_image_change_hint
-                      : context.l10n.promo_image_upload_hint,
+                      ? context.l10nMerchant.promo_image_change_hint
+                      : context.l10nMerchant.promo_image_upload_hint,
                   style: TextStyle(fontSize: 11, color: brandColors.muted),
                 ),
               ),
@@ -778,12 +778,12 @@ class _PromotionSheetState extends State<_PromotionSheet> {
               TextFormField(
                 controller: _titleController,
                 decoration: customInputDecoration(
-                    label: context.l10n.promo_field_title_label,
-                    hint: context.l10n.promo_field_title_hint,
+                    label: context.l10nMerchant.promo_field_title_label,
+                    hint: context.l10nMerchant.promo_field_title_hint,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.promo_field_title_required
+                    ? context.l10nMerchant.promo_field_title_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -793,12 +793,12 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: customInputDecoration(
-                    label: context.l10n.promo_field_desc_label,
-                    hint: context.l10n.promo_field_desc_hint,
+                    label: context.l10nMerchant.promo_field_desc_label,
+                    hint: context.l10nMerchant.promo_field_desc_hint,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.promo_field_desc_required
+                    ? context.l10nMerchant.promo_field_desc_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -808,9 +808,9 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                 children: [
                   Expanded(
                     child: _DateButton(
-                      label: context.l10n.promo_date_start,
+                      label: context.l10nMerchant.promo_date_start,
                       date: _startDate,
-                      pickLabel: context.l10n.promo_date_pick,
+                      pickLabel: context.l10nMerchant.promo_date_pick,
                       onTap: () => _pickDate(isStart: true),
                       brandColors: brandColors,
                       colorScheme: colorScheme,
@@ -819,9 +819,9 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _DateButton(
-                      label: context.l10n.promo_date_end,
+                      label: context.l10nMerchant.promo_date_end,
                       date: _endDate,
-                      pickLabel: context.l10n.promo_date_pick,
+                      pickLabel: context.l10nMerchant.promo_date_pick,
                       onTap: () => _pickDate(isStart: false),
                       brandColors: brandColors,
                       colorScheme: colorScheme,
@@ -835,12 +835,12 @@ class _PromotionSheetState extends State<_PromotionSheet> {
               Container(
                 decoration: BoxDecoration(
                   color: _isActive
-                      ? brandColors.accentGreen?.withValues(alpha: 0.08)
+                      ? brandColors.success?.withValues(alpha: 0.08)
                       : colorScheme.surfaceBright,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _isActive
-                        ? brandColors.accentGreen?.withValues(alpha: 0.4) ??
+                        ? brandColors.success?.withValues(alpha: 0.4) ??
                             colorScheme.outline
                         : colorScheme.outline,
                   ),
@@ -857,17 +857,17 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                           Icons.toggle_on_rounded,
                           size: 20,
                           color: _isActive
-                              ? brandColors.accentGreen
+                              ? brandColors.success
                               : brandColors.muted,
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          context.l10n.promo_active_toggle,
+                          context.l10nMerchant.promo_active_toggle,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: _isActive
-                                ? brandColors.accentGreen
+                                ? brandColors.success
                                 : brandColors.muted,
                           ),
                         ),
@@ -875,7 +875,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                         Switch(
                           value: _isActive,
                           onChanged: (v) => setState(() => _isActive = v),
-                          activeThumbColor: brandColors.accentGreen,
+                          activeThumbColor: brandColors.success,
                         ),
                       ],
                     ),
@@ -886,8 +886,8 @@ class _PromotionSheetState extends State<_PromotionSheet> {
 
               // Link items section
               _SectionLabel(
-                  label: context.l10n.promo_link_section_label,
-                  hint: context.l10n.promo_link_section_hint,
+                  label: context.l10nMerchant.promo_link_section_label,
+                  hint: context.l10nMerchant.promo_link_section_hint,
                   brandColors: brandColors),
               const SizedBox(height: 10),
 
@@ -896,14 +896,14 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: brandColors.navy),
+                        strokeWidth: 2, color: brandColors.primary),
                   ),
                 )
               else if (_allItems.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    context.l10n.promo_link_no_items,
+                    context.l10nMerchant.promo_link_no_items,
                     style: TextStyle(fontSize: 12, color: brandColors.muted),
                   ),
                 )
@@ -927,7 +927,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                           title: Text(entry.value,
                               style: const TextStyle(fontSize: 13)),
                           value: selected,
-                          activeColor: brandColors.navy,
+                          activeColor: brandColors.primary,
                           checkColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4)),
@@ -955,7 +955,7 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: brandColors.navy,
+                    backgroundColor: brandColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -969,8 +969,8 @@ class _PromotionSheetState extends State<_PromotionSheet> {
                               strokeWidth: 2, color: Colors.white))
                       : Text(
                           widget.isEditing
-                              ? context.l10n.promo_save_changes
-                              : context.l10n.promo_create,
+                              ? context.l10nMerchant.promo_save_changes
+                              : context.l10nMerchant.promo_create,
                           style: const TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 15)),
                 ),
@@ -988,13 +988,13 @@ class _PromotionSheetState extends State<_PromotionSheet> {
           Icon(Icons.add_photo_alternate_outlined,
               size: 40, color: brand.muted),
           const SizedBox(height: 8),
-          Text(context.l10n.promo_image_upload_label,
+          Text(context.l10nMerchant.promo_image_upload_label,
               style: TextStyle(
                   fontSize: 13,
                   color: brand.muted,
                   fontWeight: FontWeight.w500)),
           const SizedBox(height: 4),
-          Text(context.l10n.promo_image_recommended,
+          Text(context.l10nMerchant.promo_image_recommended,
               style: TextStyle(fontSize: 11, color: brand.muted)),
         ],
       );
@@ -1047,12 +1047,12 @@ class _DateButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
           color: hasDate
-              ? brandColors.navy?.withValues(alpha: 0.06)
+              ? brandColors.primary?.withValues(alpha: 0.06)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: hasDate
-                ? brandColors.navy?.withValues(alpha: 0.4) ??
+                ? brandColors.primary?.withValues(alpha: 0.4) ??
                     colorScheme.outline
                 : colorScheme.outline,
           ),
@@ -1061,7 +1061,7 @@ class _DateButton extends StatelessWidget {
           children: [
             Icon(Icons.calendar_today_rounded,
                 size: 16,
-                color: hasDate ? brandColors.navy : brandColors.muted),
+                color: hasDate ? brandColors.primary : brandColors.muted),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -1077,7 +1077,7 @@ class _DateButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: hasDate ? brandColors.navy : brandColors.muted,
+                      color: hasDate ? brandColors.primary : brandColors.muted,
                     ),
                   ),
                 ],

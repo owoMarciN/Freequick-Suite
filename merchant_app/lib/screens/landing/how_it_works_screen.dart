@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:merchant_app/widgets/ui/landing_widgets.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class HowItWorksScreen extends StatelessWidget {
   const HowItWorksScreen({super.key});
@@ -21,11 +22,11 @@ class HowItWorksScreen extends StatelessWidget {
             _buildSteps(context, brand, scheme, isWide, h),
             _buildFeatureGrid(context, brand, scheme, isWide, h),
             LandingCta(
-              title: context.l10n.hiw_cta_title,
-              subtitle: context.l10n.hiw_cta_subtitle,
-              primaryLabel: context.l10n.hiw_cta_primary,
+              title: context.l10nMerchant.hiw_cta_title,
+              subtitle: context.l10nMerchant.hiw_cta_subtitle,
+              primaryLabel: context.l10nMerchant.hiw_cta_primary,
               primaryRoute: '/auth/register',
-              secondaryLabel: context.l10n.hiw_cta_secondary,
+              secondaryLabel: context.l10nMerchant.hiw_cta_secondary,
               secondaryRoute: '/pricing',
             ),
             const LandingFooter(),
@@ -47,23 +48,23 @@ class HowItWorksScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: brand.navy?.withValues(alpha: 0.12),
+              color: brand.primary?.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
-                  color:
-                      brand.navy?.withValues(alpha: 0.3) ?? Colors.transparent),
+                  color: brand.primary?.withValues(alpha: 0.3) ??
+                      Colors.transparent),
             ),
-            child: Text(context.l10n.hiw_hero_badge,
+            child: Text(context.l10nMerchant.hiw_hero_badge,
                 style: TextStyle(
                     fontSize: 12,
-                    color: brand.navy,
+                    color: brand.primary,
                     fontWeight: FontWeight.w600)),
           ),
           const SizedBox(height: 28),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 680),
             child: Text(
-              context.l10n.hiw_hero_title,
+              context.l10nMerchant.hiw_hero_title,
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: isWide ? 58 : 34,
@@ -75,7 +76,7 @@ class HowItWorksScreen extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
             child: Text(
-              context.l10n.hiw_hero_subtitle,
+              context.l10nMerchant.hiw_hero_subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: brand.muted, height: 1.6),
             ),
@@ -92,36 +93,36 @@ class HowItWorksScreen extends StatelessWidget {
     final steps = [
       _Step(
         number: '01',
-        title: context.l10n.hiw_step1_title,
-        description: context.l10n.hiw_step1_desc,
+        title: context.l10nMerchant.hiw_step1_title,
+        description: context.l10nMerchant.hiw_step1_desc,
         icon: Icons.person_add_rounded,
-        color: brand.navy!,
+        color: brand.primary!,
       ),
       _Step(
         number: '02',
-        title: context.l10n.hiw_step2_title,
-        description: context.l10n.hiw_step2_desc,
+        title: context.l10nMerchant.hiw_step2_title,
+        description: context.l10nMerchant.hiw_step2_desc,
         icon: Icons.storefront_rounded,
         color: const Color(0xFF8B5CF6),
       ),
       _Step(
         number: '03',
-        title: context.l10n.hiw_step3_title,
-        description: context.l10n.hiw_step3_desc,
+        title: context.l10nMerchant.hiw_step3_title,
+        description: context.l10nMerchant.hiw_step3_desc,
         icon: Icons.restaurant_menu_rounded,
-        color: brand.accentGreen!,
+        color: brand.success!,
       ),
       _Step(
         number: '04',
-        title: context.l10n.hiw_step4_title,
-        description: context.l10n.hiw_step4_desc,
+        title: context.l10nMerchant.hiw_step4_title,
+        description: context.l10nMerchant.hiw_step4_desc,
         icon: Icons.receipt_long_rounded,
         color: const Color(0xFFD97706),
       ),
       _Step(
         number: '05',
-        title: context.l10n.hiw_step5_title,
-        description: context.l10n.hiw_step5_desc,
+        title: context.l10nMerchant.hiw_step5_title,
+        description: context.l10nMerchant.hiw_step5_desc,
         icon: Icons.account_balance_rounded,
         color: const Color(0xFFEF4444),
       ),
@@ -131,7 +132,7 @@ class HowItWorksScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 80 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.hiw_section_process),
+          LandingSectionLabel(context.l10nMerchant.hiw_section_process),
           const SizedBox(height: 56),
           ...steps.asMap().entries.map((entry) => _StepRow(
                 step: entry.value,
@@ -150,18 +151,24 @@ class HowItWorksScreen extends StatelessWidget {
   Widget _buildFeatureGrid(BuildContext context, BrandColors brand,
       ColorScheme scheme, bool isWide, double h) {
     final items = [
-      _GridItem(Icons.bolt_rounded, context.l10n.hiw_feature1_title,
-          context.l10n.hiw_feature1_desc, brand.navy!),
-      _GridItem(Icons.analytics_rounded, context.l10n.hiw_feature2_title,
-          context.l10n.hiw_feature2_desc, const Color(0xFF8B5CF6)),
-      _GridItem(Icons.image_rounded, context.l10n.hiw_feature3_title,
-          context.l10n.hiw_feature3_desc, brand.accentGreen!),
-      _GridItem(Icons.lock_rounded, context.l10n.hiw_feature4_title,
-          context.l10n.hiw_feature4_desc, const Color(0xFFD97706)),
-      _GridItem(Icons.devices_rounded, context.l10n.hiw_feature5_title,
-          context.l10n.hiw_feature5_desc, const Color(0xFFEF4444)),
-      _GridItem(Icons.support_agent_rounded, context.l10n.hiw_feature6_title,
-          context.l10n.hiw_feature6_desc, const Color(0xFF0EA5E9)),
+      _GridItem(Icons.bolt_rounded, context.l10nMerchant.hiw_feature1_title,
+          context.l10nMerchant.hiw_feature1_desc, brand.primary!),
+      _GridItem(
+          Icons.analytics_rounded,
+          context.l10nMerchant.hiw_feature2_title,
+          context.l10nMerchant.hiw_feature2_desc,
+          const Color(0xFF8B5CF6)),
+      _GridItem(Icons.image_rounded, context.l10nMerchant.hiw_feature3_title,
+          context.l10nMerchant.hiw_feature3_desc, brand.success!),
+      _GridItem(Icons.lock_rounded, context.l10nMerchant.hiw_feature4_title,
+          context.l10nMerchant.hiw_feature4_desc, const Color(0xFFD97706)),
+      _GridItem(Icons.devices_rounded, context.l10nMerchant.hiw_feature5_title,
+          context.l10nMerchant.hiw_feature5_desc, const Color(0xFFEF4444)),
+      _GridItem(
+          Icons.support_agent_rounded,
+          context.l10nMerchant.hiw_feature6_title,
+          context.l10nMerchant.hiw_feature6_desc,
+          const Color(0xFF0EA5E9)),
     ];
 
     return Container(
@@ -169,9 +176,9 @@ class HowItWorksScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: h, vertical: isWide ? 80 : 48),
       child: Column(
         children: [
-          LandingSectionLabel(context.l10n.hiw_section_features),
+          LandingSectionLabel(context.l10nMerchant.hiw_section_features),
           const SizedBox(height: 16),
-          Text(context.l10n.hiw_features_title,
+          Text(context.l10nMerchant.hiw_features_title,
               style: TextStyle(
                   fontSize: isWide ? 36 : 24, fontWeight: FontWeight.w700)),
           const SizedBox(height: 48),

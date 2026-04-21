@@ -2,16 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
-
-// -----------------------------------------------------------------------------
-// ADMIN USER MANAGEMENT SCREEN
-// Lists all users in the `users` collection.
-// Supports search by name/email, filter by role, and per-user actions:
-//   • View full profile detail sheet
-//   • Ban / Unban  (sets users/{uid}/banned = true/false)
-//   • Delete account (deletes users/{uid} document — does NOT delete Auth user)
-// -----------------------------------------------------------------------------
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -23,14 +15,13 @@ class UserManagementScreen extends StatefulWidget {
 class _UserManagementScreenState extends State<UserManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _search = '';
-  // null = all roles
   String? _roleFilter;
 
   List<({String label, String? value})> _roleOptions(BuildContext context) => [
-        (label: context.l10n.users_filter_all, value: null),
-        (label: context.l10n.users_filter_restaurant, value: 'restaurant'),
-        (label: context.l10n.users_filter_admin, value: 'admin'),
-        (label: context.l10n.users_filter_customer, value: 'customer'),
+        (label: context.l10nCommon.all, value: null),
+        (label: context.l10nCommon.restaurants, value: 'restaurants'),
+        (label: context.l10nCommon.role_admin, value: 'admin'),
+        (label: context.l10nCommon.customers, value: 'customer'),
       ];
 
   @override
@@ -53,7 +44,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     return Column(
       children: [
-        // -- Toolbar ----------------------------------------------------------
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
           decoration: BoxDecoration(
@@ -62,15 +52,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           ),
           child: Row(
             children: [
-              // Search
               Expanded(
                 child: SizedBox(
                   height: 40,
                   child: TextField(
                     controller: _searchController,
-                    style: const TextStyle(fontSize: 13),
+                    style: TextStyle(fontSize: 13, color: scheme.onSurface),
                     decoration: InputDecoration(
-                      hintText: context.l10n.users_search_hint,
+                      hintText: context.l10nMerchant.users_search_hint,
                       hintStyle: TextStyle(fontSize: 13, color: brand.muted),
                       prefixIcon: Icon(Icons.search_rounded,
                           size: 18, color: brand.muted),
@@ -86,6 +75,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           : null,
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      filled: true,
+                      fillColor: scheme.surfaceBright,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(color: scheme.outline)),
@@ -94,15 +85,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           borderSide: BorderSide(color: scheme.outline)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFEF4444))),
+                          borderSide: BorderSide(color: brand.danger!)),
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Role filter chips
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -112,19 +100,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       padding: const EdgeInsets.only(right: 6),
                       child: GestureDetector(
                         onTap: () => setState(() => _roleFilter = opt.value),
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: selected
-                                ? const Color(0xFFEF4444)
-                                    .withValues(alpha: 0.12)
+                                ? brand.danger!.withValues(alpha: 0.12)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: selected
-                                  ? const Color(0xFFEF4444)
-                                      .withValues(alpha: 0.5)
+                                  ? brand.danger!.withValues(alpha: 0.5)
                                   : scheme.outline,
                             ),
                           ),
@@ -134,9 +121,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               fontSize: 12,
                               fontWeight:
                                   selected ? FontWeight.w600 : FontWeight.w400,
-                              color: selected
-                                  ? const Color(0xFFEF4444)
-                                  : brand.muted,
+                              color: selected ? brand.danger : brand.muted,
                             ),
                           ),
                         ),
@@ -148,15 +133,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ],
           ),
         ),
-
-        // -- List -------------------------------------------------------------
         Expanded(
           child: StreamBuilder<QuerySnapshot>(
-            // No orderBy — createdAt can be DateTime (legacy) or Timestamp,
-            // mixed types cause Firestore to reject the query. Sort client-side.
-            // The stream is only opened when the caller is authenticated;
-            // the Firestore rule (allow list: if isAdmin()) enforces server-side
-            // that only users whose users/{uid}.role == 'admin' may list this collection.
             stream: FirebaseAuth.instance.currentUser == null
                 ? const Stream.empty()
                 : FirebaseFirestore.instance.collection('users').snapshots(),
@@ -168,13 +146,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.error_outline_rounded,
-                            size: 40, color: Colors.redAccent),
+                        Icon(Icons.error_outline_rounded,
+                            size: 40, color: brand.danger),
                         const SizedBox(height: 12),
                         Text(
                           snap.error.toString(),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12),
+                          style:
+                              TextStyle(fontSize: 12, color: scheme.onSurface),
                         ),
                       ],
                     ),
@@ -183,31 +162,24 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               }
 
               if (!snap.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return Center(
+                    child: CircularProgressIndicator(color: brand.primary));
               }
 
-              // Sort and filter entirely client-side.
-              // orderBy('createdAt') is unsafe here because the field is
-              // written as DateTime on older documents and Timestamp on newer
-              // ones — Firestore rejects mixed-type ordering at the query level.
               var docs = snap.data!.docs.toList()
                 ..sort((a, b) {
                   final aRaw = (a.data() as Map<String, dynamic>)['createdAt'];
                   final bRaw = (b.data() as Map<String, dynamic>)['createdAt'];
-
                   DateTime? aDate;
                   DateTime? bDate;
-
                   if (aRaw is Timestamp) aDate = aRaw.toDate();
                   if (bRaw is Timestamp) bDate = bRaw.toDate();
-                  // DateTime stored directly (legacy documents)
                   if (aRaw is DateTime) aDate = aRaw;
                   if (bRaw is DateTime) bDate = bRaw;
-
                   if (aDate == null && bDate == null) return 0;
                   if (aDate == null) return 1;
                   if (bDate == null) return -1;
-                  return bDate.compareTo(aDate); // descending
+                  return bDate.compareTo(aDate);
                 });
 
               if (_roleFilter != null) {
@@ -238,8 +210,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       const SizedBox(height: 12),
                       Text(
                         _search.isNotEmpty || _roleFilter != null
-                            ? context.l10n.users_empty_filtered
-                            : context.l10n.users_empty_all,
+                            ? context.l10nMerchant.users_empty_filtered
+                            : context.l10nMerchant.users_empty_all,
                         style: TextStyle(fontSize: 14, color: brand.muted),
                       ),
                     ],
@@ -277,8 +249,6 @@ class _UserCard extends StatelessWidget {
   final BrandColors brand;
   final ColorScheme scheme;
 
-  static const Color _red = Color(0xFFEF4444);
-
   const _UserCard({
     required this.uid,
     required this.data,
@@ -306,9 +276,9 @@ class _UserCard extends StatelessWidget {
         ? data['photoUrl'] as String
         : null;
     final Timestamp? ts = data['createdAt'] as Timestamp?;
-    final String joined = ts != null ? _formatDate(ts.toDate()) : '—';
-
-    final _RoleStyle rs = _roleStyle(role, context);
+    final String joined =
+        ts != null ? dateTimeToString(context, ts.toDate()) : '—';
+    final _RoleStyle rs = _roleStyle(role, context, brand);
 
     return GestureDetector(
       onTap: () => _openDetail(context),
@@ -318,17 +288,17 @@ class _UserCard extends StatelessWidget {
           color: scheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: banned ? _red.withValues(alpha: 0.35) : scheme.outline,
+            color:
+                banned ? brand.danger!.withValues(alpha: 0.35) : scheme.outline,
           ),
         ),
         child: Row(
           children: [
-            // Avatar
             Stack(
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: brand.navy?.withValues(alpha: 0.1),
+                  backgroundColor: brand.primary!.withValues(alpha: 0.1),
                   backgroundImage:
                       photoUrl != null ? NetworkImage(photoUrl) : null,
                   child: photoUrl == null
@@ -337,7 +307,7 @@ class _UserCard extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: brand.navy),
+                              color: brand.primary),
                         )
                       : null,
                 ),
@@ -348,8 +318,8 @@ class _UserCard extends StatelessWidget {
                     child: Container(
                       width: 14,
                       height: 14,
-                      decoration: const BoxDecoration(
-                          color: _red, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                          color: brand.danger, shape: BoxShape.circle),
                       child: const Icon(Icons.block_rounded,
                           size: 9, color: Colors.white),
                     ),
@@ -357,8 +327,6 @@ class _UserCard extends StatelessWidget {
               ],
             ),
             const SizedBox(width: 14),
-
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,8 +336,10 @@ class _UserCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           name,
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onSurface),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -380,16 +350,16 @@ class _UserCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: _red.withValues(alpha: 0.1),
+                            color: brand.danger!.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(5),
-                            border:
-                                Border.all(color: _red.withValues(alpha: 0.3)),
+                            border: Border.all(
+                                color: brand.danger!.withValues(alpha: 0.3)),
                           ),
-                          child: Text(context.l10n.users_banned_badge,
-                              style: const TextStyle(
+                          child: Text(context.l10nCommon.users,
+                              style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: _red)),
+                                  color: brand.danger)),
                         ),
                       ],
                     ],
@@ -402,7 +372,6 @@ class _UserCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      // Role badge
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
@@ -419,7 +388,7 @@ class _UserCard extends StatelessWidget {
                                 color: rs.color)),
                       ),
                       const SizedBox(width: 8),
-                      Text(context.l10n.users_joined(joined),
+                      Text(context.l10nMerchant.users_joined(joined),
                           style: TextStyle(fontSize: 11, color: brand.muted)),
                     ],
                   ),
@@ -427,17 +396,12 @@ class _UserCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-
-            // Chevron
             Icon(Icons.chevron_right_rounded, size: 20, color: brand.muted),
           ],
         ),
       ),
     );
   }
-
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 }
 
 // -- User detail sheet ---------------------------------------------------------
@@ -462,32 +426,32 @@ class _UserDetailSheet extends StatefulWidget {
 class _UserDetailSheetState extends State<_UserDetailSheet> {
   bool _loading = false;
 
-  static const Color _red = Color(0xFFEF4444);
-
   Future<void> _toggleBan() async {
     final bool currentlyBanned = widget.data['banned'] == true;
-    final String action = currentlyBanned
-        ? context.l10n.users_action_unban
-        : context.l10n.users_action_ban;
+    final String action =
+        currentlyBanned ? context.l10nCommon.unban : context.l10nCommon.ban;
     final String detail = currentlyBanned
-        ? context.l10n.users_unban_body
-        : context.l10n.users_ban_body;
+        ? context.l10nMerchant.users_unban_body
+        : context.l10nMerchant.users_ban_body;
 
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: widget.scheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('$action User?',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        content: Text(detail, style: const TextStyle(fontSize: 13)),
+        content: Text(detail,
+            style: TextStyle(fontSize: 13, color: widget.brand.muted)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(context.l10n.users_confirm_cancel)),
+              child: Text(context.l10nCommon.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: currentlyBanned ? const Color(0xFF10B981) : _red,
+              backgroundColor:
+                  currentlyBanned ? widget.brand.success : widget.brand.danger,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -514,8 +478,8 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       messenger
         ..clearSnackBars()
         ..showSnackBar(_successSnack(currentlyBanned
-            ? context.l10n.users_snack_unbanned
-            : context.l10n.users_snack_banned));
+            ? context.l10nMerchant.users_snack_unbanned
+            : context.l10nMerchant.users_snack_banned));
     } catch (e) {
       if (!mounted) return;
       messenger
@@ -530,27 +494,26 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: widget.scheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(context.l10n.users_delete_title,
+        title: Text(context.l10nMerchant.users_delete_title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        content: Text(
-          context.l10n.users_delete_body,
-          style: const TextStyle(fontSize: 13),
-        ),
+        content: Text(context.l10nMerchant.users_delete_body,
+            style: TextStyle(fontSize: 13, color: widget.brand.muted)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(context.l10n.users_confirm_cancel)),
+              child: Text(context.l10nCommon.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _red,
+              backgroundColor: widget.brand.danger,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text(context.l10n.users_action_delete),
+            child: Text(context.l10nMerchant.users_delete_title),
           ),
         ],
       ),
@@ -570,7 +533,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       Navigator.pop(context);
       messenger
         ..clearSnackBars()
-        ..showSnackBar(_successSnack(context.l10n.users_snack_deleted));
+        ..showSnackBar(_successSnack(context.l10nMerchant.users_snack_deleted));
     } catch (e) {
       if (!mounted) return;
       messenger
@@ -593,8 +556,9 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
         ? data['photoUrl'] as String
         : null;
     final Timestamp? ts = data['createdAt'] as Timestamp?;
-    final String joined = ts != null ? _formatDate(ts.toDate()) : '—';
-    final _RoleStyle rs = _roleStyle(role, context);
+    final String joined =
+        ts != null ? dateTimeToString(context, ts.toDate()) : '—';
+    final _RoleStyle rs = _roleStyle(role, context, widget.brand);
 
     return Container(
       decoration: BoxDecoration(
@@ -608,12 +572,13 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row
             Row(
               children: [
-                Text(context.l10n.users_detail_title,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700)),
+                Text(context.l10nMerchant.users_detail_title,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: widget.scheme.onSurface)),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -622,13 +587,11 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
               ],
             ),
             const SizedBox(height: 20),
-
-            // Avatar + name + email
             Row(
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: widget.brand.navy?.withValues(alpha: 0.1),
+                  backgroundColor: widget.brand.primary!.withValues(alpha: 0.1),
                   backgroundImage:
                       photoUrl != null ? NetworkImage(photoUrl) : null,
                   child: photoUrl == null
@@ -637,7 +600,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                           style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
-                              color: widget.brand.navy),
+                              color: widget.brand.primary),
                         )
                       : null,
                 ),
@@ -647,8 +610,10 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(name,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w700)),
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: widget.scheme.onSurface)),
                       const SizedBox(height: 2),
                       Text(email,
                           style: TextStyle(
@@ -677,16 +642,18 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: _red.withValues(alpha: 0.1),
+                                color:
+                                    widget.brand.danger!.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(
-                                    color: _red.withValues(alpha: 0.3)),
+                                    color: widget.brand.danger!
+                                        .withValues(alpha: 0.3)),
                               ),
-                              child: Text(context.l10n.users_banned_badge,
-                                  style: const TextStyle(
+                              child: Text(context.l10nMerchant.users_ban_body,
+                                  style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: _red)),
+                                      color: widget.brand.danger)),
                             ),
                           ],
                         ],
@@ -696,44 +663,37 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
             Divider(color: widget.scheme.outline),
             const SizedBox(height: 16),
-
-            // Detail grid
             _DetailRow(
-                label: context.l10n.users_detail_id,
+                label: context.l10nMerchant.users_detail_id,
                 value: widget.uid,
                 copyable: true,
                 brand: widget.brand),
             _DetailRow(
-                label: context.l10n.users_detail_phone,
+                label: context.l10nMerchant.users_detail_phone,
                 value: phone,
                 brand: widget.brand),
             _DetailRow(
-                label: context.l10n.users_detail_joined,
+                label: context.l10nMerchant.users_detail_joined,
                 value: joined,
                 brand: widget.brand),
             _DetailRow(
-                label: context.l10n.users_detail_role,
+                label: context.l10nMerchant.users_detail_role,
                 value: role,
                 brand: widget.brand),
-
             const SizedBox(height: 24),
-
-            // Actions
             if (_loading)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: CircularProgressIndicator(),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: CircularProgressIndicator(color: widget.brand.primary),
                 ),
               )
             else
               Row(
                 children: [
-                  // Ban / Unban
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _toggleBan,
@@ -742,13 +702,15 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                         size: 16,
                       ),
                       label: Text(banned
-                          ? context.l10n.users_action_unban
-                          : context.l10n.users_action_ban),
+                          ? context.l10nCommon.unban
+                          : context.l10nCommon.ban),
                       style: OutlinedButton.styleFrom(
                         foregroundColor:
-                            banned ? const Color(0xFF10B981) : _red,
+                            banned ? widget.brand.success : widget.brand.danger,
                         side: BorderSide(
-                            color: banned ? const Color(0xFF10B981) : _red),
+                            color: banned
+                                ? widget.brand.success!
+                                : widget.brand.danger!),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
@@ -756,15 +718,13 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Delete
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _deleteUser,
                       icon: const Icon(Icons.delete_outline_rounded, size: 16),
-                      label: Text(context.l10n.users_action_delete),
+                      label: Text(context.l10nMerchant.users_delete_title),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _red,
+                        backgroundColor: widget.brand.danger,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -775,16 +735,12 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                   ),
                 ],
               ),
-
             const SizedBox(height: 8),
           ],
         ),
       ),
     );
   }
-
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   SnackBar _successSnack(String msg) => SnackBar(
         content: Row(children: [
@@ -797,7 +753,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                   fontSize: 13,
                   fontWeight: FontWeight.w500)),
         ]),
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: widget.brand.success,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -816,7 +772,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                       fontSize: 13,
                       fontWeight: FontWeight.w500))),
         ]),
-        backgroundColor: Colors.redAccent.shade700,
+        backgroundColor: widget.brand.danger,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -841,6 +797,8 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -855,7 +813,10 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurface),
             ),
           ),
           if (copyable)
@@ -864,7 +825,8 @@ class _DetailRow extends StatelessWidget {
                 Clipboard.setData(ClipboardData(text: value));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(context.l10n.users_copied),
+                    content:
+                        Text(context.l10nMerchant.requests_copied("Given ID")),
                     duration: const Duration(seconds: 1),
                     behavior: SnackBarBehavior.floating,
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -889,17 +851,16 @@ class _RoleStyle {
   const _RoleStyle(this.label, this.color);
 }
 
-_RoleStyle _roleStyle(String role, BuildContext context) {
+_RoleStyle _roleStyle(String role, BuildContext context, BrandColors brand) {
   switch (role) {
     case 'admin':
-      return _RoleStyle(context.l10n.users_role_admin, const Color(0xFFEF4444));
+      return _RoleStyle(context.l10nCommon.role_admin, brand.danger!);
     case 'restaurant':
       return _RoleStyle(
-          context.l10n.users_role_restaurant, const Color(0xFF8B5CF6));
+          context.l10nCommon.role_restaurant, const Color(0xFF8B5CF6));
     case 'customer':
-      return _RoleStyle(
-          context.l10n.users_role_customer, const Color(0xFF3B82F6));
+      return _RoleStyle(context.l10nCommon.role_customer, brand.primary!);
     default:
-      return _RoleStyle(role, const Color(0xFF6B7280));
+      return _RoleStyle(role, brand.muted!);
   }
 }

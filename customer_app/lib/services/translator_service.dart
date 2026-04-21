@@ -1,5 +1,5 @@
 import 'package:translator/translator.dart';
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
 
 class TranslationService {
   static Future<Map<String, dynamic>> translateAddressData(Map<String, dynamic> mapData, String targetLang) async {

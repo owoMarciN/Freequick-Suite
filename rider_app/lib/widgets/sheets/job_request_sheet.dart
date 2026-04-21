@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rider_app/models/dispatch_model.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class JobRequestSheet extends StatefulWidget {
   final DispatchJob job;
@@ -98,18 +98,19 @@ class _JobRequestSheetState extends State<JobRequestSheet>
     final job = widget.job;
     final progress = _secondsLeft / widget.timeoutSeconds;
     final isLowTime = _secondsLeft <= 10;
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-            color: AppTheme.primary.withValues(alpha: 0.4), 
-            width: 1.5),
+            color: brand.primary!.withValues(alpha: 0.4), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.15),
+            color: brand.primary!.withValues(alpha: 0.15),
             blurRadius: 24,
             spreadRadius: 2,
           ),
@@ -118,7 +119,6 @@ class _JobRequestSheetState extends State<JobRequestSheet>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
@@ -132,11 +132,11 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         height: 48,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppTheme.primary.withValues(
-                              alpha: 0.1 + 0.12 * _pulse.value),
+                          color: brand.primary!
+                              .withValues(alpha: 0.1 + 0.12 * _pulse.value),
                         ),
-                        child: const Icon(Icons.delivery_dining_rounded,
-                            color: AppTheme.primary, size: 24),
+                        child: Icon(Icons.delivery_dining_rounded,
+                            color: brand.primary, size: 24),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -144,9 +144,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('New Job',
+                          Text('New Job',
                               style: TextStyle(
-                                  color: AppTheme.textPrimary,
+                                  color: brand.primary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16)),
                           Text(
@@ -154,7 +154,8 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                                 ? 'Autorejecting in $_secondsLeft s'
                                 : 'Expires in $_secondsLeft s',
                             style: TextStyle(
-                              color: isLowTime ? AppTheme.danger : AppTheme.textSecondary,
+                              color:
+                                  isLowTime ? brand.danger : brand.primaryDark,
                               fontSize: 12,
                             ),
                           ),
@@ -164,16 +165,18 @@ class _JobRequestSheetState extends State<JobRequestSheet>
 
                     // Badge with payment
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.15),
+                        color: brand.primary!.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4)),
+                        border: Border.all(
+                            color: brand.primary!.withValues(alpha: 0.4)),
                       ),
                       child: Text(
                         'zł ${(job.deliveryFee).toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: AppTheme.primary,
+                        style: TextStyle(
+                          color: brand.primary,
                           fontWeight: FontWeight.w900,
                           fontSize: 16,
                         ),
@@ -190,9 +193,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 5,
-                    backgroundColor: AppTheme.divider,
+                    backgroundColor: Theme.of(context).dividerColor,
                     valueColor: AlwaysStoppedAnimation(
-                      isLowTime ? AppTheme.danger : AppTheme.primary,
+                      isLowTime ? brand.danger : brand.primary,
                     ),
                   ),
                 ),
@@ -202,14 +205,14 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardBg,
+                    color: brand.cardSurface,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
                     children: [
                       _RouteRow(
                         icon: Icons.store_rounded,
-                        iconColor: AppTheme.info,
+                        iconColor: brand.primarySoft!,
                         label: 'Pickup from',
                         value: job.restaurantName,
                         sub: job.restaurantAddress,
@@ -217,7 +220,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       const SizedBox(height: 8),
                       _RouteRow(
                         icon: Icons.location_on_rounded,
-                        iconColor: AppTheme.danger,
+                        iconColor: brand.danger!,
                         label: 'Ship to',
                         value: job.customerName ?? 'Customer',
                         sub: job.customerAddress,
@@ -236,13 +239,15 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       label: _isCash(job.paymentMethod)
                           ? 'Cash · zł${job.finalTotal.toStringAsFixed(2)}'
                           : 'Payed (Stripe)',
-                      color: _isCash(job.paymentMethod) ? AppTheme.warning : AppTheme.primary,
+                      color: _isCash(job.paymentMethod)
+                          ? brand.warning!
+                          : brand.primary!,
                     ),
                     const SizedBox(width: 8),
                     _StatChip(
                       icon: Icons.receipt_long_outlined,
                       label: '${job.items.length} products',
-                      color: AppTheme.info,
+                      color: brand.primarySoft!,
                     ),
                   ],
                 ),
@@ -253,18 +258,20 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.warning.withValues(alpha: 0.1),
+                      color: brand.warning!.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.warning.withValues(alpha: 0.4)),
+                      border: Border.all(
+                          color: brand.warning!.withValues(alpha: 0.4)),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.account_balance_wallet, color: AppTheme.warning, size: 20),
+                      Icon(Icons.account_balance_wallet,
+                          color: brand.warning, size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           'Get zł${job.finalTotal.toStringAsFixed(2)} of payment',
-                          style: const TextStyle(
-                              color: AppTheme.warning,
+                          style: TextStyle(
+                              color: brand.warning,
                               fontWeight: FontWeight.bold,
                               fontSize: 12),
                         ),
@@ -286,10 +293,11 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       child: OutlinedButton(
                         onPressed: _safeReject,
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.danger,
-                          side: const BorderSide(color: AppTheme.danger),
+                          foregroundColor: brand.danger,
+                          side: BorderSide(color: brand.danger!),
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text('Reject'),
                       ),
@@ -301,7 +309,8 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         onPressed: _safeAccept,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text('Accept'),
                       ),
@@ -317,6 +326,8 @@ class _JobRequestSheetState extends State<JobRequestSheet>
   }
 
   Widget _buildExpandableItems(DispatchJob job) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         GestureDetector(
@@ -324,18 +335,24 @@ class _JobRequestSheetState extends State<JobRequestSheet>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceLight,
+              color: scheme.surfaceBright,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(Icons.fastfood_outlined, color: AppTheme.textSecondary, size: 16),
+                Icon(Icons.fastfood_outlined,
+                    color: brand.primaryDark, size: 16),
                 const SizedBox(width: 8),
                 Text(_showItems ? 'Hide products' : 'Show products',
-                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                    style: TextStyle(
+                        color: brand.primaryDark, fontSize: 13)),
                 const Spacer(),
-                Icon(_showItems ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: AppTheme.textSecondary, size: 18),
+                Icon(
+                    _showItems
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: brand.primaryDark,
+                    size: 18),
               ],
             ),
           ),
@@ -345,21 +362,25 @@ class _JobRequestSheetState extends State<JobRequestSheet>
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.cardBg,
+              color: brand.cardSurface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
-              children: job.items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Text('${item.quantity}x', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(item.name)),
-                    Text('zł ${(item.price).toStringAsFixed(2)}'),
-                  ],
-                ),
-              )).toList(),
+              children: job.items
+                  .map((item) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Text('${item.quantity}x',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(item.name)),
+                            Text('zł ${(item.price).toStringAsFixed(2)}'),
+                          ],
+                        ),
+                      ))
+                  .toList(),
             ),
           ),
       ],
@@ -386,6 +407,8 @@ class _RouteRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -395,10 +418,16 @@ class _RouteRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(label,
+                  style: TextStyle(
+                      color: brand.primaryDark, fontSize: 10)),
+              Text(value,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 14)),
               if (sub != null)
-                Text(sub!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                Text(sub!,
+                    style: TextStyle(
+                        color: brand.primaryDark, fontSize: 11)),
             ],
           ),
         ),
@@ -412,7 +441,8 @@ class _StatChip extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _StatChip({required this.icon, required this.label, required this.color});
+  const _StatChip(
+      {required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +459,10 @@ class _StatChip extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 14),
             const SizedBox(width: 4),
-            Flexible(child: Text(label, style: TextStyle(color: color, fontSize: 11), overflow: TextOverflow.ellipsis)),
+            Flexible(
+                child: Text(label,
+                    style: TextStyle(color: color, fontSize: 11),
+                    overflow: TextOverflow.ellipsis)),
           ],
         ),
       ),

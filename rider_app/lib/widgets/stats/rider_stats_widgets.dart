@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rider_app/providers/rider_provider.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 /// A reusable card to display Today's Earnings and total deliveries.
 /// Used in both Home and Profile sections.
@@ -11,8 +11,10 @@ class EarningsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Format for Polish Złoty
-    final currencyFormat = NumberFormat.simpleCurrency(locale: 'PL', decimalDigits: 2);
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
+    final currencyFormat =
+        NumberFormat.simpleCurrency(locale: 'PL', decimalDigits: 2);
     final earnings = provider.rider?.totalEarnings ?? 0.0;
 
     return Container(
@@ -22,12 +24,12 @@ class EarningsCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primary.withValues(alpha: 0.15),
-            AppTheme.primary.withValues(alpha: 0.02),
+            brand.primary!.withValues(alpha: 0.15),
+            brand.primary!.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.1)),
+        border: Border.all(color: brand.primary!.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,19 +37,16 @@ class EarningsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Today's Earnings",
                 style: TextStyle(
-                  color: AppTheme.textSecondary,
+                  color: brand.primaryDark,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Icon(
-                Icons.account_balance_wallet_rounded, 
-                color: AppTheme.primary.withValues(alpha: 0.75), 
-                size: 32
-              ),
+              Icon(Icons.account_balance_wallet_rounded,
+                  color: brand.primary!.withValues(alpha: 0.75), size: 32),
             ],
           ),
           const SizedBox(height: 12),
@@ -57,8 +56,8 @@ class EarningsCard extends StatelessWidget {
             children: [
               Text(
                 currencyFormat.format(earnings),
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
+                style: TextStyle(
+                  color: brand.primaryDark,
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -1,
@@ -70,16 +69,16 @@ class EarningsCard extends StatelessWidget {
                 children: [
                   Text(
                     '${provider.rider?.totalDeliveries ?? 0}',
-                    style: const TextStyle(
-                      color: AppTheme.primary,
+                    style: TextStyle(
+                      color: brand.primary,
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Deliveries',
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: brand.primaryDark,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -109,18 +108,20 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppTheme.cardBg,
+          color: brand.cardSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.textSecondary.withValues(alpha: 0.05)),
+          border: Border.all(color: brand.primaryDark!.withValues(alpha: 0.05)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             )
           ],
         ),
@@ -128,8 +129,8 @@ class StatCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             DefaultTextStyle(
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              style: TextStyle(
+                color: brand.primaryDark,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -141,8 +142,8 @@ class StatCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               label.toUpperCase(),
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: brand.primaryDark,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,

@@ -7,8 +7,8 @@ import 'package:user_app/services/location_service.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/locale_provider.dart';
 
-import 'package:user_app/extensions/context_translate_ext.dart';
-import 'package:user_app/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
 import "package:user_app/services/translator_service.dart";
 
 class MapScreen extends StatefulWidget {
@@ -104,7 +104,7 @@ class _MapScreenState extends State<MapScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => LoadingDialog(message: context.l10n.errorReverseGeo(e)),
+        builder: (_) => LoadingDialog(message: e.toString()),
       );
     }
   }
@@ -156,7 +156,7 @@ class _MapScreenState extends State<MapScreen> {
                   elevation: 4,
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: context.l10n.searchAddress,
+                      hintText: context.l10nCommon.searchAddress,
                       prefixIcon: Icon(Icons.search),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(15),
@@ -209,7 +209,7 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                             ),
                             subtitle: index == 0
-                                ? Text(context.l10n.suggestedMatch,
+                                ? Text(context.l10nCustomer.suggestedMatch,
                                     style: TextStyle(
                                         fontSize: 11, color: Colors.blue))
                                 : null,
@@ -268,8 +268,10 @@ class _MapScreenState extends State<MapScreen> {
                               borderRadius: BorderRadius.circular(10)),
                           elevation: 2,
                         ),
-                        onPressed: () => Navigator.of(context)..pop()..pop(),
-                        label: Text(context.l10n.goBack,
+                        onPressed: () => Navigator.of(context)
+                          ..pop()
+                          ..pop(),
+                        label: Text(context.l10nCommon.goBack,
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
@@ -298,7 +300,7 @@ class _MapScreenState extends State<MapScreen> {
                             },
                             label: FittedBox(
                               fit: BoxFit.scaleDown,
-                              child: Text(context.l10n.confirmContinue,
+                              child: Text(context.l10nCustomer.confirmContinue,
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold)),
@@ -326,7 +328,7 @@ class _MapScreenState extends State<MapScreen> {
                             label: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                context.l10n.refreshLocation,
+                                context.l10nCustomer.confirmContinue,
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),

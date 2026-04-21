@@ -1,0 +1,14 @@
+arb-dir: lib/l10n/customer
+template-arb-file: app_en.arb
+output-localization-file: customer_localizations.dart
+output-class: CustomerLocalizations
+output-dir: lib/l10n/generated/customer
+
+translator:
+  service: Google
+  key_file: ../secrets.json 
+  targets:
+    - ko
+    - pl
+    - de
+    - uk

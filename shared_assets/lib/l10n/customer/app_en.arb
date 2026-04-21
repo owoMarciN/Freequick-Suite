@@ -1,0 +1,92 @@
+{
+  "@@locale": "en",
+
+  "@@_WELCOME": {},
+
+  "welcomeNotifTitle": "Welcome to Freequick!",
+  "welcomeNotifBody": "Hi {name}, your account is ready. Start exploring delicious meals near you!",
+  "@welcomeNotifBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "errorBlockedAccount": "Your account has been blocked or is not a customer account. Please contact support.",
+
+  "@@_HOME": {},
+
+  "suggestedMatch": "Suggested match",
+  "confirmContinue": "Confirm & Continue",
+  "refreshLocation": "Refresh Location",
+  "tabFoodDelivery": "Food Delivery",
+  "tabPickup": "Pickup",
+  "tabGroceryShopping": "Grocery Shopping",
+  "tabGifting": "Gifting",
+  "tabBenefits": "Benefits",
+  "orderAgain": "Order Again",
+  "orderAgainSubtitle": "Based on your recent favorites",
+  "topRestaurants": "Top Restaurants",
+  "topRestaurantsSubtitle": "Highly rated near you",
+  "whatsOnYourMind": "What's on your mind?",
+  "inTheSpotlight": "In the Spotlight",
+  "allOpenRestaurants": "All open restaurants",
+  "errorLoadingRestaurants": "Error loading restaurants",
+  "seeMore": "See more {category}",
+  "@seeMore": {
+    "placeholders": { "category": { "type": "String" } }
+  },
+  "seeLess": "See less {category}",
+  "@seeLess": {
+    "placeholders": { "category": { "type": "String" } }
+  },
+
+
+  "@@_CATEGORIES": {},
+
+  "categoryDiscounts": "Discounts",
+  "categoryPork": "Pork",
+  "categoryTonkatsuSashimi": "Tonkatsu & Sashimi",
+  "categoryPizza": "Pizza",
+  "categoryStew": "Stew",
+  "categoryChinese": "Chinese",
+  "categoryChicken": "Chicken",
+  "categoryKorean": "Korean",
+  "categoryOneBowl": "One-bowl Meals",
+  "categoryPichupDiscount": "Pickup Discount",
+  "categoryFastFood": "Fast Food",
+  "categoryCoffee": "Coffee & Dessert",
+  "categoryBakery": "Bakery",
+  "categoryLunch": "Lunch Specials",
+  "categoryFreshProduce": "Fresh Produce",
+  "categoryDairyEggs": "Dairy & Eggs",
+  "categoryMeat": "Meat",
+  "categoryBeverages": "Beverages",
+  "categoryFrozen": "Frozen Foods",
+  "categorySnacks": "Snacks & Sweets",
+  "categoryHousehold": "Household Essentials",
+  "categoryCakes": "Cakes",
+  "categoryFlowers": "Flowers",
+  "categoryGiftBoxes": "Gift Boxes",
+  "categoryPartySupplies": "Party Supplies",
+  "categoryGiftCards": "Gift Cards",
+  "categorySpecialOccasions": "Special Occasions",
+  "categoryDailyDeals": "Daily Deals",
+  "categoryLoyaltyRewards": "Loyalty Rewards",
+  "categoryCoupons": "My Coupons",
+  "categoryNewOffers": "New Offers",
+  "categoryExclusiveDeals": "Exclusive Deals",
+
+  "@@_CART": {},
+
+  "cartItemAdded": "Item has been added to your cart.",
+  "cartItemRemoved": "Item has been removed from your cart.",
+  "cartCleared": "Your cart has been cleared.",
+  "cartAlreadyEmpty": "Your cart is already empty.",
+  "cartMaxQuantityReached": "You have reached the maximum quantity for this item.",
+  "cartSingleRestaurantError": "You can only order from one restaurant at a time.",
+  "cartItemNotFound": "Item not found in cart.",
+
+  "@@_ORDERS": {},
+
+  "customerOrderHistory": "My Orders",
+  "orderPlacedSuccess": "Your order has been placed successfully.",
+  "orderCancelledSuccess": "Your order has been cancelled."
+
+}

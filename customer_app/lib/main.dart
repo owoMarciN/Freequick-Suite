@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/screens/users/main_screen.dart';
+import 'package:user_app/services/app_storege_bridge.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,7 +12,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'package:provider/provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
-import 'package:user_app/providers/theme_provider.dart';
+import 'package:shared_assets/providers/theme_provider.dart';
 import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/providers/amount_provider.dart';
 import 'package:user_app/providers/locale_provider.dart';
@@ -20,15 +21,14 @@ import 'package:user_app/global/global.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:user_app/l10n/app_localizations.dart';
-
-import 'package:user_app/models/language.dart';
+import 'package:shared_assets/models/language.dart';
 
 import 'package:user_app/screens/splash_screen.dart';
 
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
-import 'package:user_app/extensions/extensions_import.dart';
+import 'package:shared_assets/l10n/l10n.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
 
@@ -43,6 +43,10 @@ Future<void> main() async {
   // Initialize SharedPreferences
   sharedPreferences = await SharedPreferences.getInstance();
 
+  final storageBridge = AppStorageBridge();
+
+
+  // Used to format the phone numbers
   await init();
 
   // Initialize Stripe
@@ -58,7 +62,6 @@ Future<void> main() async {
     providerApple: AppleDebugProvider(),
   );
 
-  // Load Saved Locale
   LocaleProvider localeProvider = LocaleProvider();
   await localeProvider.loadLocale();
 
@@ -68,8 +71,7 @@ Future<void> main() async {
   CartProvider cartProvider = CartProvider();
   await cartProvider.loadCart();
 
-  ThemeProvider themeProvider = ThemeProvider();
-  await themeProvider.loadTheme();
+  final themeProvider = ThemeProvider(storageBridge);
 
   runApp(
     MultiProvider(
@@ -94,22 +96,22 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-      title: 'Freequick Cunstomer App',
+      title: 'Freequick Cunstomer',
       debugShowCheckedModeBanner: false,
       navigatorKey: snackBarNavigatorKey,
+      
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeProvider.themeMode,
 
       locale: localeProvider.locale,
-
-      // Autmatically fetching the languages list from language_model.dart
       supportedLocales: Language.languageList.map((lang) {
         return Locale(lang.code, lang.countryCode);
       }).toList(),
 
       localizationsDelegates: const [
-        AppLocalizations.delegate,
+        CommonLocalizations.delegate,
+        CustomerLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

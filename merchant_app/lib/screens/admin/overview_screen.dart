@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:merchant_app/extensions/responsive_ext.dart';
 import 'package:provider/provider.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/providers/global_stats_provider.dart';
 
 class AdminOverviewScreen extends StatelessWidget {
@@ -20,11 +21,11 @@ class AdminOverviewScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel(context.l10n.admin_overview_platform_glance, brand),
+          _sectionLabel(context.l10nMerchant.admin_overview_platform_glance, brand),
           const SizedBox(height: 14),
           _buildStatGrid(context, brand, scheme, stats),
           const SizedBox(height: 32),
-          _sectionLabel(context.l10n.admin_overview_revenue_30d, brand),
+          _sectionLabel(context.l10nMerchant.admin_overview_revenue_30d, brand),
           const SizedBox(height: 14),
           _RevenueChart(
               data: stats.revenueForRange(30), brand: brand, scheme: scheme),
@@ -33,12 +34,12 @@ class AdminOverviewScreen extends StatelessWidget {
             children: [
               Expanded(
                   child: _sectionLabel(
-                      context.l10n.admin_overview_pending_requests, brand)),
+                      context.l10nMerchant.admin_overview_pending_requests, brand)),
               TextButton.icon(
                 onPressed: () => Router.neglect(
                     context, () => context.go('/admin/join-requests')),
                 icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text(context.l10n.admin_overview_view_all,
+                label: Text(context.l10nMerchant.admin_overview_view_all,
                     style: const TextStyle(fontSize: 14)),
               ),
             ],
@@ -46,7 +47,7 @@ class AdminOverviewScreen extends StatelessWidget {
           const SizedBox(height: 14),
           _PendingRequestsList(brand: brand, scheme: scheme),
           const SizedBox(height: 32),
-          _sectionLabel(context.l10n.admin_overview_order_status, brand),
+          _sectionLabel(context.l10nMerchant.admin_overview_order_status, brand),
           const SizedBox(height: 14),
           _StatusBreakdown(
               counts: stats.statusCounts,
@@ -54,7 +55,7 @@ class AdminOverviewScreen extends StatelessWidget {
               brand: brand,
               scheme: scheme),
           const SizedBox(height: 32),
-          _sectionLabel(context.l10n.admin_overview_top_restaurants, brand),
+          _sectionLabel(context.l10nMerchant.admin_overview_top_restaurants, brand),
           const SizedBox(height: 14),
           _TopRestaurants(
               entries: stats.topRestaurantsByOrders(limit: 5),
@@ -74,43 +75,43 @@ class AdminOverviewScreen extends StatelessWidget {
 
     final cards = [
       _StatCard(
-        label: context.l10n.admin_overview_stat_restaurants,
+        label: context.l10nMerchant.admin_overview_stat_restaurants,
         value: stats.isLoading
-            ? context.l10n.admin_overview_loading
+            ? context.l10nCommon.loading_default
             : '${stats.totalRestaurants}',
-        sub: context.l10n
+        sub: context.l10nMerchant
             .admin_overview_stat_restaurants_sub(stats.activeRestaurants),
         icon: Icons.storefront_rounded,
-        color: brand.navy!,
+        color: brand.muted!,
         scheme: scheme,
       ),
       _StatCard(
-        label: context.l10n.admin_overview_stat_orders,
+        label: context.l10nMerchant.admin_overview_stat_orders,
         value: stats.isLoading
-            ? context.l10n.admin_overview_loading
+            ? context.l10nCommon.loading_default
             : '${stats.totalOrders}',
-        sub: context.l10n.admin_overview_stat_orders_sub(stats.todayOrders),
+        sub: context.l10nMerchant.admin_overview_stat_orders_sub(stats.todayOrders),
         icon: Icons.receipt_long_rounded,
-        color: brand.accentGreen!,
+        color: brand.success!,
         scheme: scheme,
       ),
       _StatCard(
-        label: context.l10n.admin_overview_stat_revenue,
+        label: context.l10nMerchant.admin_overview_stat_revenue,
         value: stats.isLoading
-            ? context.l10n.admin_overview_loading
+            ? context.l10nCommon.loading_default
             : '${stats.totalRevenue.toStringAsFixed(2)} PLN',
-        sub: context.l10n.admin_overview_stat_revenue_sub(
+        sub: context.l10nMerchant.admin_overview_stat_revenue_sub(
             stats.last7dRevenue.toStringAsFixed(2)),
         icon: Icons.payments_rounded,
         color: const Color(0xFF8B5CF6),
         scheme: scheme,
       ),
       _StatCard(
-        label: context.l10n.admin_overview_stat_avg,
+        label: context.l10nMerchant.admin_overview_stat_avg,
         value: stats.isLoading
-            ? context.l10n.admin_overview_loading
+            ? context.l10nCommon.loading_default
             : '${stats.avgOrderValue.toStringAsFixed(2)} PLN',
-        sub: context.l10n
+        sub: context.l10nMerchant
             .admin_overview_stat_avg_sub(stats.totalMenus, stats.totalItems),
         icon: Icons.trending_up_rounded,
         color: const Color(0xFFD97706),
@@ -282,7 +283,7 @@ class _RevenueChart extends StatelessWidget {
           ),
           if (maxValue == 0) ...[
             const SizedBox(height: 8),
-            Text(context.l10n.admin_overview_revenue_no_data,
+            Text(context.l10nMerchant.admin_overview_revenue_no_data,
                 style: TextStyle(fontSize: 12, color: brand.muted)),
           ],
         ],
@@ -326,7 +327,7 @@ class _PendingRequestsList extends StatelessWidget {
               border: Border.all(color: scheme.outline),
             ),
             child: Center(
-              child: Text(context.l10n.admin_overview_no_pending,
+              child: Text(context.l10nMerchant.admin_overview_no_pending,
                   style: TextStyle(fontSize: 13, color: brand.muted)),
             ),
           );
@@ -369,7 +370,7 @@ class _PendingRequestsList extends StatelessWidget {
                         Text(name,
                             style: const TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.w600)),
-                        Text(context.l10n.admin_overview_pending_nip(nip, date),
+                        Text(context.l10nMerchant.admin_overview_pending_nip(nip, date),
                             style: TextStyle(fontSize: 11, color: brand.muted)),
                       ],
                     ),
@@ -377,7 +378,7 @@ class _PendingRequestsList extends StatelessWidget {
                   TextButton(
                     onPressed: () => Router.neglect(
                         context, () => context.go('/admin/join-requests')),
-                    child: Text(context.l10n.admin_overview_review,
+                    child: Text(context.l10nCommon.review,
                         style: const TextStyle(fontSize: 14)),
                   ),
                 ],
@@ -419,27 +420,27 @@ class _StatusBreakdown extends StatelessWidget {
           border: Border.all(color: scheme.outline),
         ),
         child: Center(
-          child: Text(context.l10n.admin_overview_no_orders,
+          child: Text(context.l10nMerchant.admin_overview_no_orders,
               style: TextStyle(fontSize: 13, color: brand.muted)),
         ),
       );
     }
 
     final statuses = [
-      ('Pending', context.l10n.admin_overview_status_pending, brand.navy!),
+      ('Pending', context.l10nCommon.status_pending, brand.muted!),
       (
         'In Progress',
-        context.l10n.admin_overview_status_processing,
+        context.l10nCommon.status_processing,
         const Color(0xFF8B5CF6)
       ),
       (
         'Delivered',
-        context.l10n.admin_overview_status_delivered,
-        brand.accentGreen!
+        context.l10nCommon.status_delivered,
+        brand.success!
       ),
       (
         'Cancelled',
-        context.l10n.admin_overview_status_cancelled,
+        context.l10nCommon.status_cancelled,
         const Color(0xFFEF4444)
       ),
     ];
@@ -517,6 +518,7 @@ class _TopRestaurants extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     if (entries.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -526,7 +528,7 @@ class _TopRestaurants extends StatelessWidget {
           border: Border.all(color: scheme.outline),
         ),
         child: Center(
-          child: Text(context.l10n.admin_overview_no_order_data,
+          child: Text(context.l10nMerchant.admin_overview_no_order_data,
               style: TextStyle(fontSize: 13, color: brand.muted)),
         ),
       );
@@ -559,7 +561,7 @@ class _TopRestaurants extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     color: rank <= 3
-                        ? brand.navy?.withValues(alpha: 0.1)
+                        ? brand.muted?.withValues(alpha: 0.1)
                         : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
@@ -568,7 +570,7 @@ class _TopRestaurants extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: rank <= 3 ? brand.navy : brand.muted)),
+                          color: rank <= 3 ? brand.muted : brand.muted)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -584,7 +586,7 @@ class _TopRestaurants extends StatelessWidget {
                           value: pct,
                           backgroundColor: scheme.outline,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                              brand.navy ?? scheme.primary),
+                              brand.muted ?? scheme.primary),
                           minHeight: 5,
                         ),
                       ),
@@ -592,7 +594,7 @@ class _TopRestaurants extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(context.l10n.admin_overview_orders_count(count),
+                Text(context.l10nMerchant.admin_overview_orders_count(count),
                     style: TextStyle(fontSize: 12, color: brand.muted)),
               ],
             ),

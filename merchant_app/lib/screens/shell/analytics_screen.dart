@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -180,7 +180,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //  Stat cards
-          _sectionLabel(context.l10n.analytics_section_glance, brandColors),
+          _sectionLabel(
+              context.l10nMerchant.analytics_section_glance, brandColors),
           const SizedBox(height: 14),
           LayoutBuilder(builder: (context, constraints) {
             final int cols = constraints.maxWidth > 500 ? 4 : 2;
@@ -195,28 +196,29 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
               children: [
                 _StatCard(
-                  label: context.l10n.analytics_stat_revenue(_rangeDays),
+                  label:
+                      context.l10nMerchant.analytics_stat_revenue(_rangeDays),
                   value: '${_totalRevenue.toStringAsFixed(2)} PLN',
                   icon: Icons.payments_rounded,
-                  color: brandColors.accentGreen!,
+                  color: brandColors.success!,
                   colorScheme: colorScheme,
                 ),
                 _StatCard(
-                  label: context.l10n.analytics_stat_orders(_rangeDays),
+                  label: context.l10nMerchant.analytics_stat_orders(_rangeDays),
                   value: '$_totalOrders',
                   icon: Icons.shopping_bag_rounded,
-                  color: brandColors.navy!,
+                  color: brandColors.primary!,
                   colorScheme: colorScheme,
                 ),
                 _StatCard(
-                  label: context.l10n.analytics_stat_today,
+                  label: context.l10nMerchant.analytics_stat_today,
                   value: '${_todayRevenue.toStringAsFixed(2)} PLN',
                   icon: Icons.today_rounded,
                   color: const Color(0xFF8B5CF6),
                   colorScheme: colorScheme,
                 ),
                 _StatCard(
-                  label: context.l10n.analytics_stat_avg,
+                  label: context.l10nMerchant.analytics_stat_avg,
                   value: '${_avgOrderValue.toStringAsFixed(2)} PLN',
                   icon: Icons.trending_up_rounded,
                   color: const Color(0xFFD97706),
@@ -233,7 +235,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             children: [
               Expanded(
                   child: _sectionLabel(
-                      context.l10n.analytics_section_revenue, brandColors)),
+                      context.l10nMerchant.analytics_section_revenue,
+                      brandColors)),
               _RangeToggle(
                 selected: _rangeDays,
                 onChanged: (v) {
@@ -255,7 +258,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 32),
 
           //  Status breakdown
-          _sectionLabel(context.l10n.analytics_section_status, brandColors),
+          _sectionLabel(
+              context.l10nMerchant.analytics_section_status, brandColors),
           const SizedBox(height: 14),
           _StatusBreakdown(
             counts: _statusCounts,
@@ -267,7 +271,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 32),
 
           //  Popular items
-          _sectionLabel(context.l10n.analytics_section_popular, brandColors),
+          _sectionLabel(
+              context.l10nMerchant.analytics_section_popular, brandColors),
           const SizedBox(height: 14),
           _PopularItems(
             itemCounts: _itemCounts,
@@ -323,7 +328,7 @@ class _RangeToggle extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: isSelected ? brandColors.navy : Colors.transparent,
+                color: isSelected ? brandColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Text(
@@ -402,7 +407,7 @@ class _RevenueChart extends StatelessWidget {
                             height: (heightRatio * 120).clamp(2.0, 120.0),
                             decoration: BoxDecoration(
                               color: hasValue
-                                  ? brandColors.navy?.withValues(alpha: 0.85)
+                                  ? brandColors.primary?.withValues(alpha: 0.85)
                                   : colorScheme.outline,
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -433,7 +438,7 @@ class _RevenueChart extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                context.l10n.analytics_no_revenue,
+                context.l10nMerchant.analytics_no_revenue,
                 style: TextStyle(fontSize: 12, color: brandColors.muted),
               ),
             ),
@@ -470,27 +475,31 @@ class _StatusBreakdown extends StatelessWidget {
           border: Border.all(color: colorScheme.outline),
         ),
         child: Center(
-          child: Text(context.l10n.analytics_no_orders,
+          child: Text(context.l10nMerchant.analytics_no_orders,
               style: TextStyle(fontSize: 13, color: brandColors.muted)),
         ),
       );
     }
 
     final statuses = [
-      ('normal', context.l10n.analytics_status_normal, brandColors.navy!),
+      (
+        'normal',
+        context.l10nMerchant.analytics_status_normal,
+        brandColors.primary!
+      ),
       (
         'processing',
-        context.l10n.analytics_status_processing,
+        context.l10nMerchant.analytics_status_processing,
         const Color(0xFF8B5CF6)
       ),
       (
         'delivered',
-        context.l10n.analytics_status_delivered,
-        brandColors.accentGreen!
+        context.l10nMerchant.analytics_status_delivered,
+        brandColors.success!
       ),
       (
         'cancelled',
-        context.l10n.analytics_status_cancelled,
+        context.l10nMerchant.analytics_status_cancelled,
         const Color(0xFFEF4444)
       ),
     ];
@@ -587,7 +596,7 @@ class _PopularItems extends StatelessWidget {
           border: Border.all(color: colorScheme.outline),
         ),
         child: Center(
-          child: Text(context.l10n.analytics_no_items,
+          child: Text(context.l10nMerchant.analytics_no_items,
               style: TextStyle(fontSize: 13, color: brandColors.muted)),
         ),
       );
@@ -637,7 +646,9 @@ class _PopularItems extends StatelessWidget {
                                     fontSize: 13, fontWeight: FontWeight.w600),
                                 overflow: TextOverflow.ellipsis),
                           ),
-                          Text(context.l10n.analytics_orders_count(count),
+                          Text(
+                              context.l10nMerchant
+                                  .analytics_orders_count(count),
                               style: TextStyle(
                                   fontSize: 12, color: brandColors.muted)),
                         ],
@@ -648,8 +659,8 @@ class _PopularItems extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: pct,
                           backgroundColor: colorScheme.outline,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(brandColors.navy!),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              brandColors.primary!),
                           minHeight: 6,
                         ),
                       ),

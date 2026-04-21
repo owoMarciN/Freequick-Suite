@@ -5,6 +5,8 @@ import 'package:merchant_app/screens/shell/orders_screen.dart';
 import 'package:merchant_app/screens/shell/overview_screen.dart';
 import 'package:merchant_app/screens/shell/promotion_screen.dart';
 import 'package:merchant_app/screens/shell/settings_screen.dart';
+import 'package:merchant_app/services/app_storage_bridge.dart';
+import 'package:shared_assets/models/language.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,14 +14,10 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:merchant_app/l10n/app_localizations.dart';
-import 'package:merchant_app/models/language.dart';
-
 import 'package:merchant_app/providers/providers_import.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/extensions/brand_color_ext.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:merchant_app/screens/auth/auth_screen.dart';
@@ -42,6 +40,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
 
+import 'package:shared_assets/l10n/l10n.dart';
+import 'package:shared_assets/extensions/extensions.dart';
+
+import 'package:shared_assets/providers/theme_provider.dart';
+
 import 'package:web/web.dart' as web;
 
 void main() async {
@@ -62,10 +65,16 @@ void main() async {
 
   sharedPreferences = await SharedPreferences.getInstance();
 
+  final storageBridge = AppStorageBridge();
+
+
+
   injectGoogleMapsScript(LocationService.googleMapsApiKey);
 
   LocaleProvider localeProvider = LocaleProvider();
   await localeProvider.loadLocale();
+
+  final themeProvider = ThemeProvider(storageBridge);
 
   setPathUrlStrategy();
 
@@ -73,6 +82,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: localeProvider),
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(
             create: (_) => LocalStatsProvider(currentRestaurantUID ?? '')),
         ChangeNotifierProvider(create: (_) => GlobalStatsProvider()),
@@ -213,22 +223,32 @@ class AdminApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeProvider.themeMode,
+
       routerConfig: _router,
+
       title: 'Freequick Merchant',
       debugShowCheckedModeBanner: false,
-      theme: darkTheme,
+
       locale: localeProvider.locale,
+
       supportedLocales: Language.languageList.map((lang) {
         return Locale(lang.code, lang.countryCode);
       }).toList(),
+
       localizationsDelegates: const [
-        AppLocalizations.delegate,
+        CommonLocalizations.delegate,
+        MerchantLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+
       localeResolutionCallback: (locale, supportedLocales) {
         if (locale == null) return supportedLocales.first;
         for (var supportedLocale in supportedLocales) {

@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+
+  "activeDelivery": "Active Delivery",
+  "tapToReturnToMap": "Tap to return to map & navigation",
+  "youAreOnline": "You're Online",
+  "youAreOffline": "You're Offline",
+
+  "online": "Online",
+  "offline": "Offline"
+
+}

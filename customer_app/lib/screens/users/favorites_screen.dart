@@ -5,7 +5,7 @@ import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/items/item_details_screen.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/widgets/ui/my_drower.dart';
-import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:user_app/methods/favorites_methods.dart';
 
 class FavoritesScreen extends StatefulWidget {

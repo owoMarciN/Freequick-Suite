@@ -17,7 +17,7 @@ import 'package:user_app/widgets/ui/my_drower.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 
 import 'package:user_app/widgets/icons/cart_icon.dart';
-import 'package:user_app/widgets/ui/progress_bar.dart';
+import 'package:shared_assets/widgets/ui/progress_bar.dart';
 
 import 'package:user_app/screens/users/search_screen.dart';
 import 'package:user_app/screens/items/item_details_screen.dart';
@@ -25,7 +25,7 @@ import 'package:user_app/screens/menus/menus_screen.dart';
 
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/providers/locale_provider.dart';
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/global/global.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -281,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.redAccent, size: 20),
                   const SizedBox(width: 10),
                   Text(
-                    context.l10n.hintSearch,
+                    context.l10nCommon.search,
                     style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[400],
@@ -337,6 +337,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategoryGrid(BuildContext context, List displayedCategories,
       bool hasMore, selectedTab) {
+    final customer = context.l10nCustomer;
+    
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -369,9 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _showAllCategories
-                          ? 'Show Less'
-                          : context.l10n.seeMore(selectedTab.label),
+                      _showAllCategories ? customer.seeLess(selectedTab.label) : customer.seeMore(selectedTab.label),
                       style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -758,8 +758,7 @@ class _RecentItemsRow extends StatelessWidget {
 
         // 2. Fetch the actual item data using a Collection Group query
         return FutureBuilder<List<Map<String, dynamic>>>(
-          future:
-              fetchItems(itemIDsToFetch.toList(), fallbackRestID ?? ''),
+          future: fetchItems(itemIDsToFetch.toList(), fallbackRestID ?? ''),
           builder: (context, itemSnap) {
             if (!itemSnap.hasData || itemSnap.data!.isEmpty) {
               return const _SkeletonRow();

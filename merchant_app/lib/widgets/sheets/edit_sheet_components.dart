@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 InputDecoration customInputDecoration(
     {required String label,
@@ -39,7 +39,7 @@ InputDecoration customInputDecoration(
 
 Widget customImagePlaceholder(BuildContext context, BrandColors brandColors) {
   return Container(
-    color: brandColors.navy?.withValues(alpha: 0.05),
+    color: brandColors.muted?.withValues(alpha: 0.05),
     child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -47,7 +47,7 @@ Widget customImagePlaceholder(BuildContext context, BrandColors brandColors) {
           Icon(Icons.add_photo_alternate_outlined,
               size: 40, color: brandColors.muted),
           const SizedBox(height: 8),
-          Text(context.l10n.tap_to_upload_image,
+          Text(context.l10nCommon.tapToUploadImage,
               style: TextStyle(fontSize: 12, color: brandColors.muted)),
         ],
       ),
@@ -57,7 +57,7 @@ Widget customImagePlaceholder(BuildContext context, BrandColors brandColors) {
 
 Widget imagePlaceholder(BrandColors brandColors) {
   return Container(
-    color: brandColors.navy?.withValues(alpha: 0.05),
+    color: brandColors.muted?.withValues(alpha: 0.05),
     child: Center(
       child: Icon(Icons.fastfood_rounded, size: 40, color: brandColors.muted),
     ),

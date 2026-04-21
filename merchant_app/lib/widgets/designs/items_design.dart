@@ -3,11 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:merchant_app/extensions/extensions_import.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/models/items.dart';
 import 'package:merchant_app/widgets/sheets/edit_sheet_components.dart';
-import 'package:merchant_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 class ItemsDesignWidget extends StatelessWidget {
   final Items? model;
@@ -55,7 +55,8 @@ class ItemsDesignWidget extends StatelessWidget {
                           loadingBuilder: (context, child, progress) {
                             if (progress == null) return child;
                             return Container(
-                              color: brandColors.navy?.withValues(alpha: 0.05),
+                              color:
+                                  brandColors.primary?.withValues(alpha: 0.05),
                               child: Center(
                                 child: CircularProgressIndicator(
                                   value: progress.expectedTotalBytes != null
@@ -63,7 +64,7 @@ class ItemsDesignWidget extends StatelessWidget {
                                           progress.expectedTotalBytes!
                                       : null,
                                   strokeWidth: 2,
-                                  color: brandColors.navy,
+                                  color: brandColors.primary,
                                 ),
                               ),
                             );
@@ -82,7 +83,7 @@ class ItemsDesignWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: brandColors.accentGreen,
+                        color: brandColors.success,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -170,7 +171,7 @@ class ItemsDesignWidget extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
                                 color: model?.hasDiscount == true
-                                    ? brandColors.accentGreen
+                                    ? brandColors.success
                                     : null,
                               ),
                             ),
@@ -188,12 +189,12 @@ class ItemsDesignWidget extends StatelessWidget {
                     ),
                     onPressed: () => _openEditSheet(context),
                     child: Row(children: [
-                      Text(context.l10n.items_design_edit_button,
+                      Text(context.l10nCommon.edit,
                           style: TextStyle(
-                              color: brandColors.accentGreen,
+                              color: brandColors.success,
                               fontWeight: FontWeight.bold)),
                       const SizedBox(width: 10),
-                      Icon(Icons.change_circle, color: brandColors.accentGreen),
+                      Icon(Icons.change_circle, color: brandColors.success),
                     ]),
                   ),
                 ],
@@ -267,13 +268,13 @@ class _EditItemSheetState extends State<_EditItemSheet> {
     String? validationResult;
 
     if (tag.isEmpty) {
-      validationResult = context.l10n.items_tag_error_empty;
+      validationResult = context.l10nMerchant.items_tag_error_empty;
     } else if (!RegExp(r'^[A-Z]').hasMatch(tag)) {
-      validationResult = context.l10n.items_tag_error_capitalize;
+      validationResult = context.l10nMerchant.items_tag_error_capitalize;
     } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(tag)) {
-      validationResult = context.l10n.items_tag_error_letters;
+      validationResult = context.l10nMerchant.items_tag_error_letters;
     } else if (_tags.contains(tag)) {
-      validationResult = context.l10n.items_tag_error_duplicate;
+      validationResult = context.l10nMerchant.items_tag_error_duplicate;
     }
 
     setState(() {
@@ -346,15 +347,14 @@ class _EditItemSheetState extends State<_EditItemSheet> {
       if (imageChanged && oldUrl != null && oldUrl.isNotEmpty) {
         final String? errorMsg = await deleteOldFile(oldUrl);
         if (errorMsg != null && mounted) {
-          unifiedSnackBar(
-              context, context.l10n.items_design_image_cleanup_error,
+          unifiedSnackBar(context.l10nMerchant.image_cleanup_error,
               error: true);
         }
       }
 
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      final savedMsg = context.l10n.items_design_saved;
+      final savedMsg = context.l10nCommon.successSaved;
       Navigator.pop(context);
       messenger
         ..clearSnackBars()
@@ -382,7 +382,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
         );
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -392,15 +392,15 @@ class _EditItemSheetState extends State<_EditItemSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.items_design_delete_dialog_title),
-        content: Text(context.l10n.items_design_delete_dialog_body),
+        title: Text(context.l10nCommon.confirmDeleteTitle),
+        content: Text(context.l10nCommon.confirmDeleteBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text(context.l10n.items_design_delete_cancel)),
+              child: Text(context.l10nCommon.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(context.l10n.items_design_delete_confirm,
+            child: Text(context.l10nCommon.confirm,
                 style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
@@ -427,7 +427,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
           .delete();
 
       if (!mounted) return;
-      final deletedMsg = context.l10n.items_design_deleted;
+      final deletedMsg = context.l10nCommon.successDeleted;
       Navigator.pop(context);
       messenger
         ..clearSnackBars()
@@ -455,7 +455,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
         );
     } catch (e) {
       if (!mounted) return;
-      unifiedSnackBar(context, e.toString(), error: true);
+      unifiedSnackBar(e.toString(), error: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -484,7 +484,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.l10n.items_design_edit_sheet_title,
+                  Text(context.l10nMerchant.edit_sheet_title,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w700)),
                   Row(
@@ -495,7 +495,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                                 Colors.pink.withValues(alpha: 0.3)),
                         onPressed: _isLoading ? null : _delete,
                         child: Row(children: [
-                          Text(context.l10n.items_design_delete_button,
+                          Text(context.l10nCommon.delete,
                               style: const TextStyle(
                                   color: Colors.redAccent,
                                   fontWeight: FontWeight.bold)),
@@ -527,7 +527,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _imageBytes != null
-                          ? brandColors.navy!
+                          ? brandColors.primary!
                           : colorScheme.outline,
                       width: _imageBytes != null ? 2 : 1,
                     ),
@@ -546,7 +546,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               ),
               const SizedBox(height: 8),
               Center(
-                child: Text(context.l10n.items_design_change_image_hint,
+                child: Text(context.l10nCommon.changeImage,
                     style: TextStyle(fontSize: 11, color: brandColors.muted)),
               ),
               const SizedBox(height: 20),
@@ -554,11 +554,11 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               TextFormField(
                 controller: _titleController,
                 decoration: customInputDecoration(
-                    label: context.l10n.items_design_field_title_label,
+                    label: context.l10nMerchant.items_design_field_title_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.items_field_title_required
+                    ? context.l10nMerchant.items_field_title_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -566,12 +566,12 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               TextFormField(
                 controller: _shortInfoController,
                 decoration: customInputDecoration(
-                    label: context.l10n.items_design_field_info_label,
-                    hint: context.l10n.items_design_field_info_hint,
+                    label: context.l10nMerchant.items_design_field_info_label,
+                    hint: context.l10nMerchant.items_design_field_info_hint,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.items_field_info_required
+                    ? context.l10nMerchant.items_field_info_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -580,11 +580,11 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: customInputDecoration(
-                    label: context.l10n.items_design_field_desc_label,
+                    label: context.l10nMerchant.items_design_field_desc_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? context.l10n.items_field_desc_required
+                    ? context.l10nMerchant.items_field_desc_required
                     : null,
               ),
               const SizedBox(height: 16),
@@ -594,16 +594,18 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: customInputDecoration(
-                    label: context.l10n.items_design_field_price_label,
+                    label: context.l10nMerchant.items_design_field_price_label,
                     prefixText: 'PLN ',
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return context.l10n.items_design_field_price_required;
+                    return context
+                        .l10nMerchant.items_design_field_price_required;
                   }
                   if (double.tryParse(v.trim()) == null) {
-                    return context.l10n.items_design_field_price_invalid;
+                    return context
+                        .l10nMerchant.items_design_field_price_invalid;
                   }
                   return null;
                 },
@@ -617,8 +619,9 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     child: TextFormField(
                       controller: _tagController,
                       decoration: customInputDecoration(
-                        label: context.l10n.items_design_field_tags_label,
-                        hint: context.l10n.items_design_field_tags_hint,
+                        label:
+                            context.l10nMerchant.items_design_field_tags_label,
+                        hint: context.l10nMerchant.items_design_field_tags_hint,
                         colorScheme: colorScheme,
                         brandColors: brandColors,
                         errorText: _tagError,
@@ -638,7 +641,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                   IconButton(
                     onPressed: _addTag,
                     style: IconButton.styleFrom(
-                      backgroundColor: brandColors.navy,
+                      backgroundColor: brandColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
@@ -660,11 +663,11 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                                 const Icon(Icons.close_rounded, size: 14),
                             onDeleted: () => _removeTag(tag),
                             backgroundColor:
-                                brandColors.navy?.withValues(alpha: 0.1),
+                                brandColors.primary?.withValues(alpha: 0.1),
                             side: BorderSide(
-                                color:
-                                    brandColors.navy?.withValues(alpha: 0.3) ??
-                                        Colors.transparent),
+                                color: brandColors.primary
+                                        ?.withValues(alpha: 0.3) ??
+                                    Colors.transparent),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                           ))
                       .toList(),
@@ -676,12 +679,12 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               Container(
                 decoration: BoxDecoration(
                   color: _hasDiscount
-                      ? brandColors.accentGreen?.withValues(alpha: 0.08)
+                      ? brandColors.success?.withValues(alpha: 0.08)
                       : colorScheme.surfaceBright,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: _hasDiscount
-                        ? brandColors.accentGreen?.withValues(alpha: 0.4) ??
+                        ? brandColors.success?.withValues(alpha: 0.4) ??
                             colorScheme.outline
                         : colorScheme.outline,
                   ),
@@ -699,15 +702,15 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                             Icon(Icons.local_offer_rounded,
                                 size: 18,
                                 color: _hasDiscount
-                                    ? brandColors.accentGreen
+                                    ? brandColors.success
                                     : brandColors.muted),
                             const SizedBox(width: 10),
-                            Text(context.l10n.items_discount_toggle,
+                            Text(context.l10nMerchant.items_discount_toggle,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: _hasDiscount
-                                      ? brandColors.accentGreen
+                                      ? brandColors.success
                                       : brandColors.muted,
                                 )),
                             const Spacer(),
@@ -715,7 +718,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                               value: _hasDiscount,
                               onChanged: (v) =>
                                   setState(() => _hasDiscount = v ?? false),
-                              activeColor: brandColors.accentGreen,
+                              activeColor: brandColors.success,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4)),
                             ),
@@ -726,8 +729,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     if (_hasDiscount) ...[
                       Divider(
                           height: 1,
-                          color:
-                              brandColors.accentGreen?.withValues(alpha: 0.2)),
+                          color: brandColors.success?.withValues(alpha: 0.2)),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                         child: TextFormField(
@@ -735,7 +737,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),
                           decoration: InputDecoration(
-                            labelText: context.l10n.items_design_discount_label,
+                            labelText: context
+                                .l10nMerchant.items_design_discount_label,
                             suffixText: '%',
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
@@ -746,11 +749,12 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                             if (!_hasDiscount) return null;
                             if (v == null || v.trim().isEmpty) {
                               return context
-                                  .l10n.items_design_discount_required;
+                                  .l10nMerchant.items_design_discount_required;
                             }
                             final val = double.tryParse(v.trim());
                             if (val == null || val <= 0 || val > 100) {
-                              return context.l10n.items_design_discount_invalid;
+                              return context
+                                  .l10nMerchant.items_design_discount_invalid;
                             }
                             return null;
                           },
@@ -769,7 +773,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                                 style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: brandColors.accentGreen),
+                                    color: brandColors.success),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -794,7 +798,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: brandColors.navy,
+                    backgroundColor: brandColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -806,7 +810,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                           height: 20,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white))
-                      : Text(context.l10n.items_design_save_changes,
+                      : Text(context.l10nMerchant.items_design_saved,
                           style: const TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 15)),
                 ),

@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import "package:rider_app/models/language_model.dart";
-import "package:rider_app/global/global.dart";
+import 'package:shared_assets/models/language.dart';
+import 'package:rider_app/global/global.dart';
 
 class LocaleProvider with ChangeNotifier {
   Locale _locale = const Locale('en');

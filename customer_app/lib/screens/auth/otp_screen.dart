@@ -8,22 +8,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:user_app/extensions/context_translate_ext.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/screens/users/main_screen.dart';
-import 'package:user_app/widgets/dialogs/error_dialog.dart';
-import 'package:user_app/widgets/dialogs/loading_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
+import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
 
-/// All data collected on the register screen — passed here so account
-/// creation only happens after the phone is verified.
 class OtpScreenArgs {
   final String name;
   final String email;
   final String password;
-  final String phone; // international format e.g. +48 123 456 789
+  final String phone;
   final File photo;
-  final String downloadUrl; // empty until uploaded here
+  final String downloadUrl;
 
   const OtpScreenArgs({
     required this.name,
@@ -45,18 +43,15 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  // -- OTP boxes --------------------------------------------------------------
   final int _codeLength = 6;
   late final List<TextEditingController> _controllers;
   late final List<FocusNode> _focusNodes;
 
-  // -- Firebase ---------------------------------------------------------------
   String? _verificationId;
   int? _resendToken;
   bool _isLoading = false;
   String? _errorMsg;
 
-  // -- Resend countdown -------------------------------------------------------
   static const int _resendSeconds = 60;
   int _secondsLeft = _resendSeconds;
   Timer? _timer;
@@ -81,7 +76,6 @@ class _OtpScreenState extends State<OtpScreen> {
     super.dispose();
   }
 
-  // -- OTP sending ------------------------------------------------------------
   Future<void> _sendOtp({bool resend = false}) async {
     setState(() {
       _errorMsg = null;
@@ -93,14 +87,13 @@ class _OtpScreenState extends State<OtpScreen> {
       forceResendingToken: resend ? _resendToken : null,
       timeout: const Duration(seconds: _resendSeconds),
       verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto-verified on Android (SMS auto-read)
         await _createAccount(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
-          _errorMsg = e.message ?? 'Verification failed.';
+          _errorMsg = e.message ?? context.l10nCommon.errorVerificationFailed;
         });
       },
       codeSent: (String verificationId, int? resendToken) {
@@ -132,15 +125,15 @@ class _OtpScreenState extends State<OtpScreen> {
     });
   }
 
-  // -- Verify pressed ---------------------------------------------------------
   Future<void> _verify() async {
     final code = _controllers.map((c) => c.text.trim()).join();
     if (code.length < _codeLength) {
-      setState(() => _errorMsg = 'Please enter all 6 digits.');
+      setState(
+          () => _errorMsg = context.l10nCommon.otp_enter_digits(_codeLength));
       return;
     }
     if (_verificationId == null) {
-      setState(() => _errorMsg = 'Verification not started. Please resend.');
+      setState(() => _errorMsg = context.l10nCommon.otp_not_started);
       return;
     }
 
@@ -152,18 +145,17 @@ class _OtpScreenState extends State<OtpScreen> {
     await _createAccount(credential);
   }
 
-  // -- Account creation -------------------------------------------------------
   Future<void> _createAccount(PhoneAuthCredential phoneCredential) async {
     if (!mounted) return;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadingDialog(message: context.l10n.registeringAccount),
+      builder: (_) =>
+          LoadingDialog(message: context.l10nCommon.registeringAccount),
     );
 
     try {
-      // 1. Create email/password account
       final UserCredential auth =
           await firebaseAuth.createUserWithEmailAndPassword(
         email: widget.args.email.trim(),
@@ -173,10 +165,8 @@ class _OtpScreenState extends State<OtpScreen> {
       final User? user = auth.user;
       if (user == null) throw Exception('User creation failed.');
 
-      // 2. Link phone credential to the new account
       await user.linkWithCredential(phoneCredential);
 
-      // 3. Upload profile photo
       final fstorage.Reference ref = fstorage.FirebaseStorage.instance
           .ref()
           .child('users')
@@ -185,13 +175,14 @@ class _OtpScreenState extends State<OtpScreen> {
       final fstorage.TaskSnapshot snap = await ref.putFile(widget.args.photo);
       final String photoUrl = await snap.ref.getDownloadURL();
 
-      // 4. Save to Firestore
       final DocumentReference userRef =
           FirebaseFirestore.instance.collection('users').doc(user.uid);
 
+      final String cleanName = widget.args.name.trim();
+
       await userRef.set({
         'userID': user.uid,
-        'name': widget.args.name.trim(),
+        'name': cleanName,
         'email': user.email,
         'phone': widget.args.phone,
         'photoUrl': photoUrl.trim(),
@@ -204,24 +195,20 @@ class _OtpScreenState extends State<OtpScreen> {
 
       await userRef.collection('notifications').add({
         'userID': user.uid,
-        'title': context.l10n.welcomeNotifTitle,
-        'body': context.l10n.welcomeNotifBody(widget.args.name.trim()),
+        'title': context.l10nCustomer.welcomeNotifTitle,
+        'body': context.l10nCustomer.welcomeNotifBody(cleanName),
         'createdAt': DateTime.now(),
         'isRead': false,
       });
 
-      // 5. Save locally
       await sharedPreferences!.setString('uid', user.uid);
-
-      if (!mounted) return;
-      Provider.of<CartProvider>(context, listen: false).count;
-
       await saveUserPref<String>('email', user.email.toString());
-      await saveUserPref<String>('name', widget.args.name.trim());
+      await saveUserPref<String>('name', cleanName);
       await saveUserPref<String>('photoUrl', photoUrl.trim());
       await saveUserPref<String>('phone', widget.args.phone);
 
       if (!mounted) return;
+      Provider.of<CartProvider>(context, listen: false).loadCart();
       Navigator.pop(context);
       Navigator.pushAndRemoveUntil(
         context,
@@ -231,12 +218,12 @@ class _OtpScreenState extends State<OtpScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
-      // Wrong code — clear boxes and show error
       for (final c in _controllers) {
         c.clear();
       }
       _focusNodes.first.requestFocus();
-      setState(() => _errorMsg = e.message ?? 'Invalid code. Try again.');
+      setState(
+          () => _errorMsg = e.message ?? context.l10nCommon.otp_invalid_code);
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
@@ -247,12 +234,10 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-  // -- Helpers ----------------------------------------------------------------
   void _onDigitChanged(String value, int index) {
     if (value.length == 1 && index < _codeLength - 1) {
       _focusNodes[index + 1].requestFocus();
     }
-    // Handle paste — distribute digits across boxes
     if (value.length > 1) {
       final digits = value.replaceAll(RegExp(r'\D'), '');
       for (int i = 0; i < _codeLength && i < digits.length; i++) {
@@ -282,10 +267,9 @@ class _OtpScreenState extends State<OtpScreen> {
     return '${p.substring(0, p.length - 4)}****';
   }
 
-  // -- Build ------------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
+    final common = context.l10nCommon;
     final bool canResend = _secondsLeft <= 0 && !_isLoading;
 
     return Scaffold(
@@ -307,8 +291,6 @@ class _OtpScreenState extends State<OtpScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 16),
-
-                // Icon
                 Container(
                   width: 80,
                   height: 80,
@@ -320,21 +302,17 @@ class _OtpScreenState extends State<OtpScreen> {
                       size: 36, color: Colors.pink.shade300),
                 ),
                 const SizedBox(height: 24),
-
-                // Title
-                const Text(
-                  'Verify your number',
-                  style: TextStyle(
+                Text(
+                  common.otp_verify_title,
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 8),
-
-                // Subtitle
                 Text(
-                  'We sent a 6-digit code to\n$_maskedPhone',
+                  common.otp_sent_to(_maskedPhone),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -343,8 +321,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 36),
-
-                // OTP boxes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(_codeLength, (i) {
@@ -358,8 +334,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   }),
                 ),
                 const SizedBox(height: 16),
-
-                // Error message
                 if (_errorMsg != null)
                   Text(
                     _errorMsg!,
@@ -369,10 +343,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         fontWeight: FontWeight.w500),
                     textAlign: TextAlign.center,
                   ),
-
                 const SizedBox(height: 32),
-
-                // Verify button
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -392,28 +363,26 @@ class _OtpScreenState extends State<OtpScreen> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text(
-                            'Verify',
-                            style: TextStyle(
+                        : Text(
+                            common.verify,
+                            style: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Resend row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Didn't receive the code? ",
+                      common.otp_resend_prompt,
                       style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                     ),
                     canResend
                         ? GestureDetector(
                             onTap: () => _sendOtp(resend: true),
                             child: Text(
-                              'Resend',
+                              common.resend,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -422,7 +391,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             ),
                           )
                         : Text(
-                            'Resend in ${_secondsLeft}s',
+                            common.otp_resend_timer(_secondsLeft),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -440,7 +409,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 }
 
-// -- OTP single box -----------------------------------------------------------
 class _OtpBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -469,7 +437,7 @@ class _OtpBox extends StatelessWidget {
           focusNode: focusNode,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
-          maxLength: 6, // allows paste of full code
+          maxLength: 1,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: const TextStyle(
             fontSize: 22,

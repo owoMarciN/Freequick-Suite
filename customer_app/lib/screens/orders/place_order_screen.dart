@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/providers/amount_provider.dart';
 
@@ -20,7 +21,7 @@ import 'package:user_app/screens/users/main_screen.dart';
 
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/widgets/address/address_design.dart';
-import 'package:user_app/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 enum _PaymentMethod { cash, stripe }
 

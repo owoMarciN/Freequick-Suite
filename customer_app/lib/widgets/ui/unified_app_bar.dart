@@ -9,7 +9,7 @@ class UnifiedAppBar extends StatelessWidget implements PreferredSizeWidget {
   const UnifiedAppBar({
     super.key,
     this.leading,
-    this.title = "I-Eat",
+    this.title = "Freequick",
     this.actions,
     this.showBackButton = true,
   });

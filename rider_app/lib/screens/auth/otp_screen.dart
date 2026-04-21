@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rider_app/screens/auth/profile_setup_screen.dart';
 import 'package:rider_app/screens/main_screen.dart';
-import 'package:rider_app/utils/app_theme.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class OtpScreenArgs {
   final String email;
@@ -55,8 +55,12 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void dispose() {
     _countdownTimer?.cancel();
-    for (final c in _controllers) { c.dispose(); }
-    for (final f in _focusNodes) { f.dispose(); }
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -128,7 +132,9 @@ class _OtpScreenState extends State<OtpScreen> {
       );
       await _verifyWithCredential(credential);
     } on FirebaseAuthException catch (e) {
-      for (final c in _controllers) { c.clear(); }
+      for (final c in _controllers) {
+        c.clear();
+      }
       _focusNodes.first.requestFocus();
       if (!mounted) return;
       setState(() {
@@ -184,22 +190,25 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: scheme.surface,
         appBar: AppBar(
-          backgroundColor: AppTheme.background,
+          backgroundColor: scheme.surface,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded,
-                color: AppTheme.textPrimary),
+            icon: Icon(Icons.arrow_back_rounded,
+                color: brand.primary),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: _isSending
-            ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.primary))
+            ? Center(
+                child: CircularProgressIndicator(color: brand.primary))
             : SafeArea(
                 child: Padding(
                   padding:
@@ -215,14 +224,14 @@ class _OtpScreenState extends State<OtpScreen> {
                             ?.copyWith(
                                 fontSize: 32,
                                 height: 1.15,
-                                color: AppTheme.textPrimary),
+                                color: brand.primary),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Enter the 6-digit code sent to\n${widget.args.phone}',
                         style: TextStyle(
                             fontSize: 14,
-                            color: AppTheme.textSecondary,
+                            color: brand.primary,
                             height: 1.5),
                       ),
                       const SizedBox(height: 40),
@@ -235,21 +244,21 @@ class _OtpScreenState extends State<OtpScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppTheme.danger.withValues(alpha: 0.1),
+                            color: brand.danger!.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: AppTheme.danger.withValues(alpha: 0.3)),
+                                color: brand.danger!.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline_rounded,
-                                  color: AppTheme.danger, size: 16),
+                              Icon(Icons.error_outline_rounded,
+                                  color: brand.danger, size: 16),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _error!,
-                                  style: const TextStyle(
-                                      color: AppTheme.danger, fontSize: 13),
+                                  style: TextStyle(
+                                      color: brand.danger, fontSize: 13),
                                 ),
                               ),
                             ],
@@ -284,14 +293,14 @@ class _OtpScreenState extends State<OtpScreen> {
                                 'Resend code in $_secondsLeft s',
                                 style: TextStyle(
                                     fontSize: 13,
-                                    color: AppTheme.textSecondary),
+                                    color: brand.primary),
                               )
                             : TextButton(
                                 onPressed: () => _sendOtp(forceResend: true),
-                                child: const Text(
+                                child: Text(
                                   'Resend code',
                                   style: TextStyle(
-                                    color: AppTheme.primary,
+                                    color: brand.primary,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -307,6 +316,8 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   Widget _buildBox(int i) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+
     return SizedBox(
       width: 48,
       height: 58,
@@ -316,22 +327,22 @@ class _OtpScreenState extends State<OtpScreen> {
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         maxLength: 1,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w700,
-          color: AppTheme.textPrimary,
+          color: brand.primary,
         ),
         decoration: InputDecoration(
           counterText: '',
           filled: true,
-          fillColor: AppTheme.surfaceLight,
+          fillColor: brand.cardSurface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+            borderSide: BorderSide(color: brand.primary!, width: 2),
           ),
         ),
         onChanged: (v) {

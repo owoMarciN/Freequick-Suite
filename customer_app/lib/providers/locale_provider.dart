@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import "package:user_app/models/language.dart";
+import "package:shared_assets/models/language.dart";
 import "package:user_app/global/global.dart";
 
 class LocaleProvider with ChangeNotifier {
