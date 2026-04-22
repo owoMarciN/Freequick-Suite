@@ -300,6 +300,14 @@ class CommonLocalizationsEn extends CommonLocalizations {
   String get tapToUploadImage => 'Tap to upload image.';
 
   @override
+  String enterField(String field) {
+    return 'Enter $field';
+  }
+
+  @override
+  String get details => 'details';
+
+  @override
   String get loading_default => 'Loading...';
 
   @override

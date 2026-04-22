@@ -1084,6 +1084,18 @@ class MerchantLocalizationsEn extends MerchantLocalizations {
   }
 
   @override
+  String get pricing_tier_starter_range => '0-300 orders/month';
+
+  @override
+  String get pricing_tier_growing_range => '301-1500 orders/month';
+
+  @override
+  String get pricing_tier_established_range => '1501-4500 orders/month';
+
+  @override
+  String get pricing_tier_partner_range => '4500+ orders/month';
+
+  @override
   String get pricing_calc_fee_sub => 'Our commission';
 
   @override
@@ -1104,17 +1116,11 @@ class MerchantLocalizationsEn extends MerchantLocalizations {
   String get pricing_tier_starter_label => 'Starter';
 
   @override
-  String get pricing_tier_starter_range => '0–100 orders';
-
-  @override
   String get pricing_tier_starter_desc =>
       'Perfect for new restaurants and pop-up kitchens.';
 
   @override
   String get pricing_tier_growing_label => 'Growing';
-
-  @override
-  String get pricing_tier_growing_range => '101–500 orders';
 
   @override
   String get pricing_tier_growing_desc =>
@@ -1124,17 +1130,11 @@ class MerchantLocalizationsEn extends MerchantLocalizations {
   String get pricing_tier_established_label => 'Established';
 
   @override
-  String get pricing_tier_established_range => '501–1500 orders';
-
-  @override
   String get pricing_tier_established_desc =>
       'High-volume establishments with a loyal following.';
 
   @override
   String get pricing_tier_partner_label => 'Partner';
-
-  @override
-  String get pricing_tier_partner_range => '1500+ orders';
 
   @override
   String get pricing_tier_partner_desc =>

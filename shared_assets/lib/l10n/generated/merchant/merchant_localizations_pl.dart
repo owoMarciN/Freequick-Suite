@@ -1095,6 +1095,18 @@ class MerchantLocalizationsPl extends MerchantLocalizations {
   }
 
   @override
+  String get pricing_tier_starter_range => '0–100 zamówień';
+
+  @override
+  String get pricing_tier_growing_range => '101–500 zamówień';
+
+  @override
+  String get pricing_tier_established_range => '501–1500 zamówień';
+
+  @override
+  String get pricing_tier_partner_range => 'Ponad 1500 zamówień';
+
+  @override
   String get pricing_calc_fee_sub => 'Nasza prowizja';
 
   @override
@@ -1115,17 +1127,11 @@ class MerchantLocalizationsPl extends MerchantLocalizations {
   String get pricing_tier_starter_label => 'Rozrusznik';
 
   @override
-  String get pricing_tier_starter_range => '0–100 zamówień';
-
-  @override
   String get pricing_tier_starter_desc =>
       'Idealne dla nowych restauracji i tymczasowych kuchni.';
 
   @override
   String get pricing_tier_growing_label => 'Rozwój';
-
-  @override
-  String get pricing_tier_growing_range => '101–500 zamówień';
 
   @override
   String get pricing_tier_growing_desc =>
@@ -1135,17 +1141,11 @@ class MerchantLocalizationsPl extends MerchantLocalizations {
   String get pricing_tier_established_label => 'Przyjęty';
 
   @override
-  String get pricing_tier_established_range => '501–1500 zamówień';
-
-  @override
   String get pricing_tier_established_desc =>
       'Placówki o dużym obrocie i lojalnych klientach.';
 
   @override
   String get pricing_tier_partner_label => 'Partner';
-
-  @override
-  String get pricing_tier_partner_range => 'Ponad 1500 zamówień';
 
   @override
   String get pricing_tier_partner_desc =>

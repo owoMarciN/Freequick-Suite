@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ErrorDialog extends StatelessWidget {
   final String message;
@@ -42,8 +43,8 @@ class ErrorDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'OK',
+                child: Text(
+                  context.l10nCommon.confirm,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
               ),

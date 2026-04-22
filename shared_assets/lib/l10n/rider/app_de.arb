@@ -3,5 +3,7 @@
     "activeDelivery": "Aktive Zustellung",
     "tapToReturnToMap": "Tippen Sie hier, um zur Karte und Navigation zurückzukehren.",
     "youAreOnline": "Sie sind online",
-    "youAreOffline": "Du bist offline"
+    "youAreOffline": "Du bist offline",
+    "online": "Online",
+    "offline": "Offline"
 }

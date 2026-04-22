@@ -19,4 +19,10 @@ class RiderLocalizationsKo extends RiderLocalizations {
 
   @override
   String get youAreOffline => '현재 오프라인 상태입니다.';
+
+  @override
+  String get online => '온라인';
+
+  @override
+  String get offline => '오프라인';
 }

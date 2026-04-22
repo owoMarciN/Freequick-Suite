@@ -3,5 +3,7 @@
     "activeDelivery": "Активна доставка",
     "tapToReturnToMap": "Натисніть, щоб повернутися до карти та навігації",
     "youAreOnline": "Ви онлайн",
-    "youAreOffline": "Ви офлайн"
+    "youAreOffline": "Ви офлайн",
+    "online": "Онлайн",
+    "offline": "Офлайн"
 }

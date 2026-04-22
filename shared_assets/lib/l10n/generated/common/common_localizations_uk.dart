@@ -300,6 +300,14 @@ class CommonLocalizationsUk extends CommonLocalizations {
   String get tapToUploadImage => 'Натисніть, щоб завантажити зображення.';
 
   @override
+  String enterField(String field) {
+    return 'Введіть <x>email address<x>';
+  }
+
+  @override
+  String get details => 'деталі';
+
+  @override
   String get loading_default => 'Завантаження';
 
   @override

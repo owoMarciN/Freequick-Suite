@@ -300,6 +300,14 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get tapToUploadImage => 'Tippen Sie hier, um ein Bild hochzuladen.';
 
   @override
+  String enterField(String field) {
+    return 'E-Mail-Adresse eingeben<x>';
+  }
+
+  @override
+  String get details => 'Details';
+
+  @override
   String get loading_default => 'Laden';
 
   @override

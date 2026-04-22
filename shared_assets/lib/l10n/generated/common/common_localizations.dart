@@ -686,6 +686,18 @@ abstract class CommonLocalizations {
   /// **'Tap to upload image.'**
   String get tapToUploadImage;
 
+  /// Hint text for input fields
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {field}'**
+  String enterField(String field);
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'details'**
+  String get details;
+
   /// No description provided for @loading_default.
   ///
   /// In en, this message translates to:

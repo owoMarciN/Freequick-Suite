@@ -97,6 +97,8 @@
     "customers": "고객",
     "restaurants": "레스토랑",
     "tapToUploadImage": "이미지를 업로드하려면 탭하세요.",
+    "enterField": "{field}을 입력하세요",
+    "details": "세부",
     "loading_default": "로딩 중",
     "loading_status_message": "처리 중... 잠시 기다려 주세요.",
     "checkingCredentials": "자격 증명을 확인하는 중...",

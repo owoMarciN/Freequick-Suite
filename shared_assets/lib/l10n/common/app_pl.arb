@@ -97,6 +97,8 @@
     "customers": "Klienci",
     "restaurants": "Restauracje",
     "tapToUploadImage": "Kliknij, aby przesłać obraz.",
+    "enterField": "Wprowadź <x>email address<x>",
+    "details": "bliższe dane",
     "loading_default": "Załadunek",
     "loading_status_message": "{message}... Proszę czekać.",
     "checkingCredentials": "Sprawdzanie uprawnień...",

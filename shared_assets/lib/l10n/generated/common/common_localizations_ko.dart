@@ -300,6 +300,14 @@ class CommonLocalizationsKo extends CommonLocalizations {
   String get tapToUploadImage => '이미지를 업로드하려면 탭하세요.';
 
   @override
+  String enterField(String field) {
+    return '$field을 입력하세요';
+  }
+
+  @override
+  String get details => '세부';
+
+  @override
   String get loading_default => '로딩 중';
 
   @override

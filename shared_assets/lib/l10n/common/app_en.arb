@@ -111,6 +111,17 @@
   "customers": "Customers",
   "restaurants": "Restaurants",
   "tapToUploadImage": "Tap to upload image.",
+  "enterField": "Enter {field}",
+  "@enterField": {
+    "description": "Hint text for input fields",
+    "placeholders": {
+      "field": {
+        "type": "String",
+        "example": "email"
+      }
+    }
+  },
+  "details": "details",
 
   "@@_LOADING": {},
 

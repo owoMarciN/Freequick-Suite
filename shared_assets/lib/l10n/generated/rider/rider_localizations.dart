@@ -127,6 +127,18 @@ abstract class RiderLocalizations {
   /// In en, this message translates to:
   /// **'You\'re Offline'**
   String get youAreOffline;
+
+  /// No description provided for @online.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get online;
+
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
 }
 
 class _RiderLocalizationsDelegate

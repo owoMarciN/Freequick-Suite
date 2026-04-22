@@ -300,6 +300,14 @@ class CommonLocalizationsPl extends CommonLocalizations {
   String get tapToUploadImage => 'Kliknij, aby przesłać obraz.';
 
   @override
+  String enterField(String field) {
+    return 'Wprowadź <x>email address<x>';
+  }
+
+  @override
+  String get details => 'bliższe dane';
+
+  @override
   String get loading_default => 'Załadunek';
 
   @override

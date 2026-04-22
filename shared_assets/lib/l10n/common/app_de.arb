@@ -97,6 +97,8 @@
     "customers": "Kunden",
     "restaurants": "Restaurants",
     "tapToUploadImage": "Tippen Sie hier, um ein Bild hochzuladen.",
+    "enterField": "E-Mail-Adresse eingeben<x>",
+    "details": "Details",
     "loading_default": "Laden",
     "loading_status_message": "{message}... Bitte warten.",
     "checkingCredentials": "Anmeldeinformationen werden geprüft...",

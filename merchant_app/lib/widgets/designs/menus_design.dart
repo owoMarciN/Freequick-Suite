@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_assets/extensions/extensions.dart';
-import 'package:merchant_app/methods/assistant_methods.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 import 'package:merchant_app/models/menus.dart';
 import 'package:merchant_app/screens/restaurant/items_screen.dart';
 import 'package:merchant_app/widgets/sheets/edit_sheet_components.dart';

@@ -1028,6 +1028,18 @@ class MerchantLocalizationsKo extends MerchantLocalizations {
   }
 
   @override
+  String get pricing_tier_starter_range => '0~100건의 주문';
+
+  @override
+  String get pricing_tier_growing_range => '101~500건의 주문';
+
+  @override
+  String get pricing_tier_established_range => '501~1500건의 주문';
+
+  @override
+  String get pricing_tier_partner_range => '1500건 이상의 주문';
+
+  @override
   String get pricing_calc_fee_sub => '우리 위원회';
 
   @override
@@ -1047,16 +1059,10 @@ class MerchantLocalizationsKo extends MerchantLocalizations {
   String get pricing_tier_starter_label => '기동기';
 
   @override
-  String get pricing_tier_starter_range => '0~100건의 주문';
-
-  @override
   String get pricing_tier_starter_desc => '신규 레스토랑 및 팝업 키친에 안성맞춤입니다.';
 
   @override
   String get pricing_tier_growing_label => '성장';
-
-  @override
-  String get pricing_tier_growing_range => '101~500건의 주문';
 
   @override
   String get pricing_tier_growing_desc => '배달 서비스를 확장하려는 지역 인기 업체들을 위해.';
@@ -1065,16 +1071,10 @@ class MerchantLocalizationsKo extends MerchantLocalizations {
   String get pricing_tier_established_label => '확립된';
 
   @override
-  String get pricing_tier_established_range => '501~1500건의 주문';
-
-  @override
   String get pricing_tier_established_desc => '단골 고객층이 탄탄하고 매출이 높은 매장.';
 
   @override
   String get pricing_tier_partner_label => '파트너';
-
-  @override
-  String get pricing_tier_partner_range => '1500건 이상의 주문';
 
   @override
   String get pricing_tier_partner_desc => '도시 전역 레스토랑 그룹을 위한 심층적인 통합.';

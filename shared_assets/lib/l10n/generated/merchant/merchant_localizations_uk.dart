@@ -1095,6 +1095,18 @@ class MerchantLocalizationsUk extends MerchantLocalizations {
   }
 
   @override
+  String get pricing_tier_starter_range => '0–100 замовлень';
+
+  @override
+  String get pricing_tier_growing_range => '101–500 замовлень';
+
+  @override
+  String get pricing_tier_established_range => '501–1500 замовлень';
+
+  @override
+  String get pricing_tier_partner_range => '1500+ замовлень';
+
+  @override
   String get pricing_calc_fee_sub => 'Наша комісія';
 
   @override
@@ -1115,17 +1127,11 @@ class MerchantLocalizationsUk extends MerchantLocalizations {
   String get pricing_tier_starter_label => 'Стартер';
 
   @override
-  String get pricing_tier_starter_range => '0–100 замовлень';
-
-  @override
   String get pricing_tier_starter_desc =>
       'Ідеально підходить для нових ресторанів та тимчасових кухонь.';
 
   @override
   String get pricing_tier_growing_label => 'Зростання';
-
-  @override
-  String get pricing_tier_growing_range => '101–500 замовлень';
 
   @override
   String get pricing_tier_growing_desc =>
@@ -1135,17 +1141,11 @@ class MerchantLocalizationsUk extends MerchantLocalizations {
   String get pricing_tier_established_label => 'Засновано';
 
   @override
-  String get pricing_tier_established_range => '501–1500 замовлень';
-
-  @override
   String get pricing_tier_established_desc =>
       'Заклади з великою кількістю відвідувачів та лояльною аудиторією.';
 
   @override
   String get pricing_tier_partner_label => 'Партнер';
-
-  @override
-  String get pricing_tier_partner_range => '1500+ замовлень';
 
   @override
   String get pricing_tier_partner_desc =>

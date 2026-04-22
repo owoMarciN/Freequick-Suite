@@ -20,4 +20,10 @@ class RiderLocalizationsUk extends RiderLocalizations {
 
   @override
   String get youAreOffline => 'Ви офлайн';
+
+  @override
+  String get online => 'Онлайн';
+
+  @override
+  String get offline => 'Офлайн';
 }

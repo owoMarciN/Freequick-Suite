@@ -19,4 +19,10 @@ class RiderLocalizationsPl extends RiderLocalizations {
 
   @override
   String get youAreOffline => 'Jesteś offline';
+
+  @override
+  String get online => 'W sieci';
+
+  @override
+  String get offline => 'Niedostępny';
 }

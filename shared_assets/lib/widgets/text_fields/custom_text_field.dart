@@ -170,7 +170,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           color: scheme.onSurface,
         ),
         decoration: InputDecoration(
-          hintText: "Enter ${widget.hintText?.toLowerCase() ?? 'details'}",
+          hintText: context.l10nCommon.enterField(
+            widget.hintText ?? context.l10nCommon.details,
+          ),
           labelText: widget.labelText,
           hintStyle: TextStyle(color: brand.muted, fontSize: 14),
           contentPadding:

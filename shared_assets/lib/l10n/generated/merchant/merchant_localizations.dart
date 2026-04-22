@@ -1989,6 +1989,30 @@ abstract class MerchantLocalizations {
   /// **'Platform Fee ({pct})'**
   String pricing_calc_fee_label(String pct);
 
+  /// No description provided for @pricing_tier_starter_range.
+  ///
+  /// In en, this message translates to:
+  /// **'0-300 orders/month'**
+  String get pricing_tier_starter_range;
+
+  /// No description provided for @pricing_tier_growing_range.
+  ///
+  /// In en, this message translates to:
+  /// **'301-1500 orders/month'**
+  String get pricing_tier_growing_range;
+
+  /// No description provided for @pricing_tier_established_range.
+  ///
+  /// In en, this message translates to:
+  /// **'1501-4500 orders/month'**
+  String get pricing_tier_established_range;
+
+  /// No description provided for @pricing_tier_partner_range.
+  ///
+  /// In en, this message translates to:
+  /// **'4500+ orders/month'**
+  String get pricing_tier_partner_range;
+
   /// No description provided for @pricing_calc_fee_sub.
   ///
   /// In en, this message translates to:
@@ -2025,12 +2049,6 @@ abstract class MerchantLocalizations {
   /// **'Starter'**
   String get pricing_tier_starter_label;
 
-  /// No description provided for @pricing_tier_starter_range.
-  ///
-  /// In en, this message translates to:
-  /// **'0–100 orders'**
-  String get pricing_tier_starter_range;
-
   /// No description provided for @pricing_tier_starter_desc.
   ///
   /// In en, this message translates to:
@@ -2042,12 +2060,6 @@ abstract class MerchantLocalizations {
   /// In en, this message translates to:
   /// **'Growing'**
   String get pricing_tier_growing_label;
-
-  /// No description provided for @pricing_tier_growing_range.
-  ///
-  /// In en, this message translates to:
-  /// **'101–500 orders'**
-  String get pricing_tier_growing_range;
 
   /// No description provided for @pricing_tier_growing_desc.
   ///
@@ -2061,12 +2073,6 @@ abstract class MerchantLocalizations {
   /// **'Established'**
   String get pricing_tier_established_label;
 
-  /// No description provided for @pricing_tier_established_range.
-  ///
-  /// In en, this message translates to:
-  /// **'501–1500 orders'**
-  String get pricing_tier_established_range;
-
   /// No description provided for @pricing_tier_established_desc.
   ///
   /// In en, this message translates to:
@@ -2078,12 +2084,6 @@ abstract class MerchantLocalizations {
   /// In en, this message translates to:
   /// **'Partner'**
   String get pricing_tier_partner_label;
-
-  /// No description provided for @pricing_tier_partner_range.
-  ///
-  /// In en, this message translates to:
-  /// **'1500+ orders'**
-  String get pricing_tier_partner_range;
 
   /// No description provided for @pricing_tier_partner_desc.
   ///

@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:shared_assets/extensions/extensions.dart';
 import 'package:merchant_app/global/global.dart';
-import 'package:merchant_app/methods/assistant_methods.dart';
 import 'package:merchant_app/methods/validators.dart';
 import 'package:merchant_app/widgets/dialogs/map_dialog.dart';
 import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
 import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
 import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

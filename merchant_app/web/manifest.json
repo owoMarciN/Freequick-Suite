@@ -1,11 +1,11 @@
 {
-    "name": "admin_web",
-    "short_name": "admin_web",
+    "name": "Freequick Merchant",
+    "short_name": "Freequick Merchant",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Freequick restaurant console.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

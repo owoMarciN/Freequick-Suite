@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_assets/methods/shared_methods.dart';
 
 import 'package:user_app/global/global.dart';
 import 'package:shared_assets/providers/theme_provider.dart';
@@ -78,6 +79,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   Future<void> _saveProfile() async {
     final oldName = getUserPref<String>("name") ?? "";
     final oldPhone = getUserPref<String>("phone") ?? "";
+    final oldPhotoUrl = _currentPhotoUrl;
 
     final isNameChanged = _nameController.text.trim() != oldName;
     final isPhoneChanged = _phoneController?.value.toString() != oldPhone;
@@ -98,18 +100,23 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     try {
       final Map<String, dynamic> updateData = {};
+      // ignore: unused_local_variable
+      String? newUploadedUrl;
 
       if (isImageChanged) {
         final ref = fstorage.FirebaseStorage.instance
             .ref()
             .child('users')
             .child(currentUID!);
+
         final snap = await ref.putFile(_newPhoto!);
-        final newUrl = await snap.ref.getDownloadURL();
-        updateData["photoUrl"] = newUrl;
-        await saveUserPref<String>("photoUrl", newUrl);
+        final newUploadedUrl = await snap.ref.getDownloadURL();
+
+        updateData["photoUrl"] = newUploadedUrl;
+        await saveUserPref<String>("photoUrl", newUploadedUrl);
+
         setState(() {
-          _currentPhotoUrl = newUrl;
+          _currentPhotoUrl = newUploadedUrl;
           _newPhoto = null;
         });
       }
@@ -128,6 +135,12 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           .collection("users")
           .doc(currentUID)
           .update(updateData);
+
+      if (isImageChanged &&
+          oldPhotoUrl != null &&
+          oldPhotoUrl.isNotEmpty) {
+        await deleteOldFile(oldPhotoUrl);
+      }
 
       if (!mounted) return;
       Navigator.pop(context);

@@ -97,6 +97,8 @@
     "customers": "Клієнти",
     "restaurants": "Ресторани",
     "tapToUploadImage": "Натисніть, щоб завантажити зображення.",
+    "enterField": "Введіть <x>email address<x>",
+    "details": "деталі",
     "loading_default": "Завантаження",
     "loading_status_message": "{message}... Зачекайте.",
     "checkingCredentials": "Перевірка облікових даних...",
