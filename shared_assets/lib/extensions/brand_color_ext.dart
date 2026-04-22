@@ -99,6 +99,7 @@ extension BrandColorsContext on BuildContext {
 abstract class _AppPalette {
   // Blue
   static const blue500 = Color(0xFF2563EB);
+  // ignore: unused_field
   static const blue600 = Color(0xFF1D4ED8);
   static const blue700 = Color(0xFF1E3A8A);
   static const blue900 = Color(0xFF0F1F4A);
@@ -107,6 +108,7 @@ abstract class _AppPalette {
 
   // Red
   static const red500 = Color(0xFFEF4444);
+  // ignore: unused_field
   static const red600 = Color(0xFFDC2626);
   static const red700 = Color(0xFFB91C1C);
   static const redSoft = Color(0xFFFFE4E4); // light only
