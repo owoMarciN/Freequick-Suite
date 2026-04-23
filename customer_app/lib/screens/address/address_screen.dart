@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:user_app/screens/address/save_address_screen.dart';
 import 'package:user_app/models/address.dart';
@@ -15,9 +16,11 @@ class AddressScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10nCustomer;
+
     return Scaffold(
       appBar: UnifiedAppBar(
-        title: "Address Manager",
+        title: l10n.addressManager,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -32,9 +35,12 @@ class AddressScreen extends StatelessWidget {
           context,
           MaterialPageRoute(builder: (_) => SaveAddressScreen()),
         ),
-        label: const Text(
-          "Add New Address",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        label: Text(
+          l10n.addNewAddress,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.blue,
         icon: const Icon(Icons.add_location, size: 26, color: Colors.white),
@@ -59,7 +65,7 @@ class AddressScreen extends StatelessWidget {
                 addressProvider.setTotalSavedAddresses(docs.length);
               });
 
-              //  Empty state
+              // Empty state
               if (docs.isEmpty) {
                 return Center(
                   child: Padding(
@@ -73,9 +79,9 @@ class AddressScreen extends StatelessWidget {
                           color: Colors.grey[300],
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          "No addresses yet",
-                          style: TextStyle(
+                        Text(
+                          l10n.noAddressesYet,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: Colors.black87,
@@ -83,7 +89,7 @@ class AddressScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Add a delivery address to start placing orders.",
+                          l10n.addDeliveryAddressHint,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -97,7 +103,7 @@ class AddressScreen extends StatelessWidget {
                 );
               }
 
-              //  Address list
+              // Address list
               return ListView.builder(
                 padding: const EdgeInsets.fromLTRB(12, 16, 12, 100),
                 itemCount: docs.length,
@@ -106,8 +112,9 @@ class AddressScreen extends StatelessWidget {
                   return AddressDesign(
                     value: index,
                     addressID: doc.id,
-                    model:
-                        Address.fromJson(doc.data()! as Map<String, dynamic>),
+                    model: Address.fromJson(
+                      doc.data()! as Map<String, dynamic>,
+                    ),
                   );
                 },
               );

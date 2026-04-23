@@ -79,6 +79,29 @@ class CustomerLocalizationsKo extends CustomerLocalizations {
   }
 
   @override
+  String get fav_pleaseLoginFor => '즐겨찾기를 추가하려면 로그인하세요.';
+
+  @override
+  String get fav_removed => '즐겨찾기에서 삭제됨';
+
+  @override
+  String get fav_added => '즐겨찾기에 추가됨';
+
+  @override
+  String get fav_error_update => '즐겨찾기 업데이트 오류';
+
+  @override
+  String get paymentNotCompleted => '결제가 완료되지 않았습니다.';
+
+  @override
+  String get paymentCancelled => '결제 취소됨';
+
+  @override
+  String paymentFailed(String error) {
+    return '결제 실패: $error';
+  }
+
+  @override
   String get categoryDiscounts => '할인';
 
   @override
@@ -175,6 +198,36 @@ class CustomerLocalizationsKo extends CustomerLocalizations {
   String get categoryExclusiveDeals => '독점 할인';
 
   @override
+  String get jalebi => '잘레비';
+
+  @override
+  String get kajuBarfi => '카주 바르피';
+
+  @override
+  String get gulabJamun => '굴랍 자문';
+
+  @override
+  String get softDrinks => '청량음료';
+
+  @override
+  String get laddoo => '라두';
+
+  @override
+  String get shake => '떨림';
+
+  @override
+  String get pastries => '페이스트리';
+
+  @override
+  String get momos => '모모스';
+
+  @override
+  String get chocolate => '초콜릿';
+
+  @override
+  String get pizza => '피자';
+
+  @override
   String get cartItemAdded => '상품이 장바구니에 추가되었습니다.';
 
   @override
@@ -203,4 +256,42 @@ class CustomerLocalizationsKo extends CustomerLocalizations {
 
   @override
   String get orderCancelledSuccess => '주문이 취소되었습니다.';
+
+  @override
+  String get addressManager => '주소 관리자';
+
+  @override
+  String get addNewAddress => '새 주소 추가';
+
+  @override
+  String get noAddressesYet => '아직 주소가 없습니다.';
+
+  @override
+  String get addDeliveryAddressHint => '주문을 시작하려면 배송 주소를 추가하세요.';
+
+  @override
+  String get itemNotFound => '해당 상품을 찾을 수 없습니다.';
+
+  @override
+  String get unknownItem => '알 수 없는 항목';
+
+  @override
+  String get description => '설명';
+
+  @override
+  String get noDescription => '설명 없음';
+
+  @override
+  String get quantity => '수량';
+
+  @override
+  String addToCartTotal(Object total) {
+    return '장바구니에 담기 - ${total}zł';
+  }
+
+  @override
+  String get menuNotFound => '메뉴를 찾을 수 없습니다';
+
+  @override
+  String get noItemsFound => '이 메뉴에는 항목이 없습니다.';
 }

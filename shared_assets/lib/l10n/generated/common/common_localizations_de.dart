@@ -329,6 +329,11 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get uploading => 'Wird hochgeladen...';
 
   @override
+  String error(Object message) {
+    return 'Fehler: $message';
+  }
+
+  @override
   String get errorRequired => 'Dieses Feld ist erforderlich';
 
   @override
@@ -645,6 +650,50 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get addrDeleted => 'Adresse erfolgreich entfernt';
 
   @override
+  String get addressLabel => 'Adressaufkleber';
+
+  @override
+  String get locationDetails => 'Standortdetails';
+
+  @override
+  String get house => 'Haus/Gebäude*';
+
+  @override
+  String get flat => 'Boden/Wohnung';
+
+  @override
+  String get street => 'Straße / Bereich';
+
+  @override
+  String get city => 'Stadt';
+
+  @override
+  String get postcode => 'Postleitzahl';
+
+  @override
+  String get state => 'Zustand';
+
+  @override
+  String get saveAddress => 'Adresse speichern';
+
+  @override
+  String get addressSavedSuccess => 'Adresse erfolgreich gespeichert!';
+
+  @override
+  String addressSaveError(Object error) {
+    return 'Fehler: $error';
+  }
+
+  @override
+  String get aptPrefix => 'Geeignet';
+
+  @override
+  String get work => 'Arbeiten';
+
+  @override
+  String get other => 'Andere';
+
+  @override
   String get orderDetails => 'Bestelldetails';
 
   @override
@@ -749,6 +798,19 @@ class CommonLocalizationsDe extends CommonLocalizations {
 
   @override
   String get orders => 'Bestellungen';
+
+  @override
+  String get items => 'Artikel';
+
+  @override
+  String itemsTitle(Object items) {
+    return 'Artikel $items';
+  }
+
+  @override
+  String menusTitle(Object name) {
+    return '$name Menüs';
+  }
 
   @override
   String get favorites => 'Favoriten';

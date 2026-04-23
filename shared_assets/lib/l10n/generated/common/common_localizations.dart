@@ -734,6 +734,12 @@ abstract class CommonLocalizations {
   /// **'Uploading...'**
   String get uploading;
 
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String error(Object message);
+
   /// No description provided for @errorRequired.
   ///
   /// In en, this message translates to:
@@ -1238,6 +1244,90 @@ abstract class CommonLocalizations {
   /// **'Address removed successfully'**
   String get addrDeleted;
 
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Label'**
+  String get addressLabel;
+
+  /// No description provided for @locationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Details'**
+  String get locationDetails;
+
+  /// No description provided for @house.
+  ///
+  /// In en, this message translates to:
+  /// **'House/Bldg*'**
+  String get house;
+
+  /// No description provided for @flat.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor/Flat'**
+  String get flat;
+
+  /// No description provided for @street.
+  ///
+  /// In en, this message translates to:
+  /// **'Street / Area'**
+  String get street;
+
+  /// No description provided for @city.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get city;
+
+  /// No description provided for @postcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Postcode'**
+  String get postcode;
+
+  /// No description provided for @state.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get state;
+
+  /// No description provided for @saveAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Address'**
+  String get saveAddress;
+
+  /// No description provided for @addressSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Address saved successfully!'**
+  String get addressSavedSuccess;
+
+  /// No description provided for @addressSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String addressSaveError(Object error);
+
+  /// No description provided for @aptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Apt'**
+  String get aptPrefix;
+
+  /// No description provided for @work.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get work;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
   /// No description provided for @orderDetails.
   ///
   /// In en, this message translates to:
@@ -1447,6 +1537,24 @@ abstract class CommonLocalizations {
   /// In en, this message translates to:
   /// **'Orders'**
   String get orders;
+
+  /// No description provided for @items.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get items;
+
+  /// No description provided for @itemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Items {items}'**
+  String itemsTitle(Object items);
+
+  /// No description provided for @menusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} Menus'**
+  String menusTitle(Object name);
 
   /// No description provided for @favorites.
   ///

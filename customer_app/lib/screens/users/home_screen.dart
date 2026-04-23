@@ -150,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.deepOrange,
                     ),
                     ...List.generate(
-                      homePageItemsLenght(),
+                      homePageItemsLength(context),
                       (index) => SizedBox(
                         height: 100,
                         width: double.infinity,

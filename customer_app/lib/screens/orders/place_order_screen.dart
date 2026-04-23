@@ -288,7 +288,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
         return;
       }
 
+      if (!mounted) return;
       final paymentType = await processStripePayment(
+        context: context,
         clientSecret: clientSecret,
         paymentIntentId: paymentIntentId,
       );

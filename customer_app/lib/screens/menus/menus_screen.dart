@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/menus.dart';
 import 'package:user_app/widgets/designs/menus_design.dart';
 import 'package:shared_assets/widgets/ui/progress_bar.dart';
@@ -19,10 +20,9 @@ class MenusScreen extends StatefulWidget {
 class _MenusScreenState extends State<MenusScreen> {
   @override
   Widget build(BuildContext context) {
-    debugPrint("LOG: Restaurant ID: ${widget.model!.restaurantID}");
     return Scaffold(
       appBar: UnifiedAppBar(
-        title: "${widget.model!.name} Menus",
+        title: context.l10nCommon.menusTitle("${widget.model!.name}"),
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);

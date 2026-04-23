@@ -1,15 +1,16 @@
 import "package:flutter/material.dart";
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:user_app/global/global.dart';
 
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
-Future<void> toggleFavorite(
-    String restaurantID, String menuID, String itemID) async {
+Future<void> toggleFavorite(BuildContext context, String restaurantID,
+    String menuID, String itemID) async {
   if (currentUID == null) {
-    unifiedSnackBar("Please login to add favorites");
+    unifiedSnackBar(context.l10nCustomer.fav_pleaseLoginFor);
     return;
   }
 
@@ -40,7 +41,7 @@ Future<void> toggleFavorite(
         SetOptions(merge: true),
       );
 
-      unifiedSnackBar("Removed from favorites");
+      unifiedSnackBar(context.l10nCustomer.fav_removed);
     } else {
       // Add to favorites
       await favoriteRef.set({
@@ -56,11 +57,11 @@ Future<void> toggleFavorite(
         SetOptions(merge: true),
       );
 
-      unifiedSnackBar("Added to favorites");
+      unifiedSnackBar(context.l10nCustomer.fav_added);
     }
   } catch (e) {
     debugPrint("Error toggling favorite: $e");
-    unifiedSnackBar("Error updating favorites");
+    unifiedSnackBar(context.l10nCustomer.fav_error_update);
   }
 }
 

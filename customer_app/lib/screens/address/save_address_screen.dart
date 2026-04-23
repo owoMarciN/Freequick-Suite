@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:user_app/global/global.dart';
 import 'package:user_app/models/address.dart';
@@ -28,7 +29,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   final TextEditingController _state = TextEditingController();
   final TextEditingController _completeAddress = TextEditingController();
 
-  String _selectedLabel = "Home"; // Default label
+  String _selectedLabel = "Home"; // default (will be overridden by UI selection)
   bool isLoading = false;
   bool _isAddressFetched = false;
   double lat = 0.0;
@@ -43,6 +44,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   }
 
   void _assignAddressData(Map<String, dynamic> result) {
+    final l10n = context.l10nCommon;
+
     setState(() {
       _city.text = result['city'] ?? '';
       _state.text = result['state'] ?? '';
@@ -51,7 +54,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       _houseNumber.text = result['houseNumber'] ?? '';
 
       String sub = result['subpremise'] ?? '';
-      _flatNumber.text = sub.isNotEmpty ? "Apt $sub" : "";
+      _flatNumber.text = sub.isNotEmpty ? "${l10n.aptPrefix} $sub" : "";
       _completeAddress.text = result['fullAddress'] ?? '';
 
       lat = result['lat'] ?? 0.0;
@@ -80,15 +83,16 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     }
   }
 
-  // --- UI Components ---
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Text(
         title,
         style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.blueGrey,
+        ),
       ),
     );
   }
@@ -111,15 +115,19 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       validator: (value) =>
-          (required && (value == null || value.isEmpty)) ? "Required" : null,
+          (required && (value == null || value.isEmpty))
+              ? context.l10nCommon.required
+              : null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10nCommon;
+
     return Scaffold(
       appBar: UnifiedAppBar(
-        title: "Delivery Address",
+        title: l10n.deliveryAddress,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -137,6 +145,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   }
 
   Widget _buildForm() {
+    final l10n = context.l10nCommon;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
@@ -144,33 +154,41 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Map Summary / Re-fetch
             Card(
               elevation: 0,
               color: Colors.cyan.withValues(alpha: 0.1),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
+                borderRadius: BorderRadius.circular(15),
+              ),
               child: ListTile(
                 leading: const Icon(Icons.location_on, color: Colors.cyan),
-                title: Text(_completeAddress.text,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13)),
+                title: Text(
+                  _completeAddress.text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13),
+                ),
                 trailing: TextButton(
-                    onPressed: _handleMapResult, child: const Text("Change")),
+                  onPressed: _handleMapResult,
+                  child: Text(l10n.change),
+                ),
               ),
             ),
 
-            _buildSectionTitle("Address Label"),
+            _buildSectionTitle(l10n.addressLabel),
+
             Row(
-              children: ["Home", "Work", "Other"].map((label) {
+              children: [
+                l10n.home,
+                l10n.work,
+                l10n.other,
+              ].map((label) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ChoiceChip(
                     label: Text(label),
                     selected: _selectedLabel == label,
-                    onSelected: (selected) =>
-                        setState(() => _selectedLabel = label),
+                    onSelected: (_) => setState(() => _selectedLabel = label),
                     selectedColor: Colors.cyan.withValues(alpha: 0.3),
                   ),
                 );
@@ -178,45 +196,65 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
             ),
 
             const Divider(height: 32),
-            _buildSectionTitle("Location Details"),
+            _buildSectionTitle(l10n.locationDetails),
 
             Row(
               children: [
                 Expanded(
-                    child: _buildField(
-                        label: "House/Bldg*",
-                        controller: _houseNumber,
-                        icon: Icons.home)),
+                  child: _buildField(
+                    label: l10n.house,
+                    controller: _houseNumber,
+                    icon: Icons.home,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: _buildField(
-                        label: "Floor/Flat",
-                        controller: _flatNumber,
-                        required: false)),
+                  child: _buildField(
+                    label: l10n.flat,
+                    controller: _flatNumber,
+                    required: false,
+                  ),
+                ),
               ],
             ),
+
             const SizedBox(height: 16),
+
             _buildField(
-                label: "Street / Area",
-                controller: _street,
-                icon: Icons.add_road),
+              label: l10n.street,
+              controller: _street,
+              icon: Icons.add_road,
+            ),
+
             const SizedBox(height: 16),
 
             Row(
               children: [
-                Expanded(child: _buildField(label: "City", controller: _city)),
+                Expanded(
+                  child: _buildField(
+                    label: l10n.city,
+                    controller: _city,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: _buildField(
-                        label: "Postcode",
-                        controller: _postCode,
-                        type: TextInputType.number)),
+                  child: _buildField(
+                    label: l10n.postcode,
+                    controller: _postCode,
+                    type: TextInputType.number,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-            _buildField(label: "State", controller: _state),
 
-            const SizedBox(height: 100), // Space for FAB
+            const SizedBox(height: 16),
+
+            _buildField(
+              label: l10n.state,
+              controller: _state,
+            ),
+
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -224,6 +262,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   }
 
   Widget _buildSaveButton() {
+    final l10n = context.l10nCommon;
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: ElevatedButton(
@@ -231,24 +271,31 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.cyan,
           minimumSize: const Size(double.infinity, 54),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
         ),
         child: isLoading
             ? const CircularProgressIndicator(color: Colors.white)
-            : const Text("Save Address",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold)),
+            : Text(
+                l10n.saveAddress,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }
 
   Future<void> _validateAndSave() async {
+    final l10n = context.l10nCommon;
+
     if (!formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
+
     try {
       final docRef = FirebaseFirestore.instance
           .collection("users")
@@ -257,7 +304,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
           .doc();
 
       final model = Address(
-        label: _selectedLabel, // Using chip selection
+        label: _selectedLabel,
         country: _completeAddress.text.split(',').last.trim(),
         state: _state.text.trim(),
         city: _city.text.trim(),
@@ -272,12 +319,16 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       ).toJson();
 
       await docRef.set(model);
+
       if (mounted) {
-        unifiedSnackBar("Address saved successfully!");
+        unifiedSnackBar(l10n.addressSavedSuccess);
         Navigator.pop(context);
       }
     } catch (e) {
-      unifiedSnackBar("Error: $e", error: true);
+      unifiedSnackBar(
+        l10n.addressSaveError(e.toString()),
+        error: true,
+      );
     } finally {
       if (mounted) setState(() => isLoading = false);
     }

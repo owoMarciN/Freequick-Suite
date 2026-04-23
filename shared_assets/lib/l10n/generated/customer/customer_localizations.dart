@@ -231,6 +231,48 @@ abstract class CustomerLocalizations {
   /// **'See less {category}'**
   String seeLess(String category);
 
+  /// No description provided for @fav_pleaseLoginFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to add favorites'**
+  String get fav_pleaseLoginFor;
+
+  /// No description provided for @fav_removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get fav_removed;
+
+  /// No description provided for @fav_added.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get fav_added;
+
+  /// No description provided for @fav_error_update.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating favorites'**
+  String get fav_error_update;
+
+  /// Shown when the payment intent does not succeed
+  ///
+  /// In en, this message translates to:
+  /// **'Payment was not completed'**
+  String get paymentNotCompleted;
+
+  /// Shown when the user cancels the Stripe payment sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled'**
+  String get paymentCancelled;
+
+  /// Shown when an unexpected error occurs during payment
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed: {error}'**
+  String paymentFailed(String error);
+
   /// No description provided for @categoryDiscounts.
   ///
   /// In en, this message translates to:
@@ -423,6 +465,66 @@ abstract class CustomerLocalizations {
   /// **'Exclusive Deals'**
   String get categoryExclusiveDeals;
 
+  /// No description provided for @jalebi.
+  ///
+  /// In en, this message translates to:
+  /// **'Jalebi'**
+  String get jalebi;
+
+  /// No description provided for @kajuBarfi.
+  ///
+  /// In en, this message translates to:
+  /// **'Kaju Barfi'**
+  String get kajuBarfi;
+
+  /// No description provided for @gulabJamun.
+  ///
+  /// In en, this message translates to:
+  /// **'Gulab Jamun'**
+  String get gulabJamun;
+
+  /// No description provided for @softDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft Drinks'**
+  String get softDrinks;
+
+  /// No description provided for @laddoo.
+  ///
+  /// In en, this message translates to:
+  /// **'Laddoo'**
+  String get laddoo;
+
+  /// No description provided for @shake.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake'**
+  String get shake;
+
+  /// No description provided for @pastries.
+  ///
+  /// In en, this message translates to:
+  /// **'Pastries'**
+  String get pastries;
+
+  /// No description provided for @momos.
+  ///
+  /// In en, this message translates to:
+  /// **'Momos'**
+  String get momos;
+
+  /// No description provided for @chocolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Chocolate'**
+  String get chocolate;
+
+  /// No description provided for @pizza.
+  ///
+  /// In en, this message translates to:
+  /// **'Pizza'**
+  String get pizza;
+
   /// No description provided for @cartItemAdded.
   ///
   /// In en, this message translates to:
@@ -482,6 +584,78 @@ abstract class CustomerLocalizations {
   /// In en, this message translates to:
   /// **'Your order has been cancelled.'**
   String get orderCancelledSuccess;
+
+  /// No description provided for @addressManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Manager'**
+  String get addressManager;
+
+  /// No description provided for @addNewAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get addNewAddress;
+
+  /// No description provided for @noAddressesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No addresses yet'**
+  String get noAddressesYet;
+
+  /// No description provided for @addDeliveryAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a delivery address to start placing orders.'**
+  String get addDeliveryAddressHint;
+
+  /// No description provided for @itemNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Item not found'**
+  String get itemNotFound;
+
+  /// No description provided for @unknownItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Item'**
+  String get unknownItem;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @noDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description available'**
+  String get noDescription;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @addToCartTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Cart - {total}zł'**
+  String addToCartTotal(Object total);
+
+  /// No description provided for @menuNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu not found'**
+  String get menuNotFound;
+
+  /// No description provided for @noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found in this menu.'**
+  String get noItemsFound;
 }
 
 class _CustomerLocalizationsDelegate

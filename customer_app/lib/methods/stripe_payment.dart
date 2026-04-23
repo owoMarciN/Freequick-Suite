@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:cloud_functions/cloud_functions.dart';
-
 import 'package:flutter_stripe/flutter_stripe.dart';
-
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 
 Future<String?> processStripePayment({
+  required BuildContext context,
   required String clientSecret,
   required String paymentIntentId,
 }) async {
@@ -42,7 +41,8 @@ Future<String?> processStripePayment({
     await Stripe.instance.presentPaymentSheet();
 
     // 3. Verify the payment status
-    final paymentIntent = await Stripe.instance.retrievePaymentIntent(clientSecret);
+    final paymentIntent =
+        await Stripe.instance.retrievePaymentIntent(clientSecret);
 
     if (paymentIntent.status == PaymentIntentsStatus.Succeeded) {
       final callable = FirebaseFunctions.instanceFor(
@@ -56,15 +56,24 @@ Future<String?> processStripePayment({
       return result.data['paymentMethodType'] as String? ?? 'card';
     }
 
-    unifiedSnackBar("Payment was not completed", error: true);
+    unifiedSnackBar(
+      context.l10nCustomer.paymentNotCompleted,
+      error: true,
+    );
     return null;
-  } on StripeException catch (e) {
+  } on StripeException catch (_) {
     // Stripe-specific errors (like user cancellation)
-    unifiedSnackBar(e.error.message ?? "Payment cancelled", error: true);
+    unifiedSnackBar(
+      context.l10nCustomer.paymentCancelled,
+      error: true,
+    );
     return null;
   } catch (e) {
     // General errors
-    unifiedSnackBar("Payment failed: $e", error: true);
+    unifiedSnackBar(
+      context.l10nCustomer.paymentFailed(e.toString()),
+      error: true,
+    );
     return null;
   }
 }

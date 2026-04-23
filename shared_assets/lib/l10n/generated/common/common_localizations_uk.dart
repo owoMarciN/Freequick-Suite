@@ -329,6 +329,11 @@ class CommonLocalizationsUk extends CommonLocalizations {
   String get uploading => 'Завантаження...';
 
   @override
+  String error(Object message) {
+    return 'Помилка: $message';
+  }
+
+  @override
   String get errorRequired => 'Це поле обов\'язкове';
 
   @override
@@ -639,6 +644,50 @@ class CommonLocalizationsUk extends CommonLocalizations {
   String get addrDeleted => 'Адресу успішно видалено';
 
   @override
+  String get addressLabel => 'Адресна етикетка';
+
+  @override
+  String get locationDetails => 'Деталі місцезнаходження';
+
+  @override
+  String get house => 'Будинок/корпус*';
+
+  @override
+  String get flat => 'Поверх/Квартира';
+
+  @override
+  String get street => 'Вулиця / Район';
+
+  @override
+  String get city => 'Місто';
+
+  @override
+  String get postcode => 'Поштовий індекс';
+
+  @override
+  String get state => 'Штат';
+
+  @override
+  String get saveAddress => 'Зберегти адресу';
+
+  @override
+  String get addressSavedSuccess => 'Адресу успішно збережено!';
+
+  @override
+  String addressSaveError(Object error) {
+    return 'Помилка: $error';
+  }
+
+  @override
+  String get aptPrefix => 'Квартира';
+
+  @override
+  String get work => 'Робота';
+
+  @override
+  String get other => 'Інше';
+
+  @override
   String get orderDetails => 'Деталі замовлення';
 
   @override
@@ -742,6 +791,19 @@ class CommonLocalizationsUk extends CommonLocalizations {
 
   @override
   String get orders => 'Замовлення';
+
+  @override
+  String get items => 'Елементи';
+
+  @override
+  String itemsTitle(Object items) {
+    return 'Елементи $items';
+  }
+
+  @override
+  String menusTitle(Object name) {
+    return '$name Меню';
+  }
 
   @override
   String get favorites => 'Улюблені';

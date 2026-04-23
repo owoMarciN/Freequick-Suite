@@ -328,6 +328,11 @@ class CommonLocalizationsKo extends CommonLocalizations {
   String get uploading => '업로드 중...';
 
   @override
+  String error(Object message) {
+    return '오류: $message';
+  }
+
+  @override
   String get errorRequired => '이 항목은 필수 입력 사항입니다.';
 
   @override
@@ -624,6 +629,50 @@ class CommonLocalizationsKo extends CommonLocalizations {
   String get addrDeleted => '주소가 성공적으로 삭제되었습니다.';
 
   @override
+  String get addressLabel => '주소 라벨';
+
+  @override
+  String get locationDetails => '위치 정보';
+
+  @override
+  String get house => '주택/건물*';
+
+  @override
+  String get flat => '층/평면';
+
+  @override
+  String get street => '거리/지역';
+
+  @override
+  String get city => '도시';
+
+  @override
+  String get postcode => '우편번호';
+
+  @override
+  String get state => '상태';
+
+  @override
+  String get saveAddress => '주소 저장';
+
+  @override
+  String get addressSavedSuccess => '주소가 성공적으로 저장되었습니다!';
+
+  @override
+  String addressSaveError(Object error) {
+    return '오류: $error';
+  }
+
+  @override
+  String get aptPrefix => '적절한';
+
+  @override
+  String get work => '일하다';
+
+  @override
+  String get other => '다른';
+
+  @override
   String get orderDetails => '주문 상세 정보';
 
   @override
@@ -727,6 +776,19 @@ class CommonLocalizationsKo extends CommonLocalizations {
 
   @override
   String get orders => '명령';
+
+  @override
+  String get items => '품목';
+
+  @override
+  String itemsTitle(Object items) {
+    return '항목 $items';
+  }
+
+  @override
+  String menusTitle(Object name) {
+    return '$name 메뉴';
+  }
 
   @override
   String get favorites => '즐겨찾기';

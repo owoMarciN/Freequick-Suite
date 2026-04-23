@@ -252,7 +252,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                   if (item.itemID != null &&
                                       item.menuID != null &&
                                       item.restaurantID != null) {
-                                    toggleFavorite(item.restaurantID!,
+                                    toggleFavorite(context, item.restaurantID!,
                                         item.menuID!, item.itemID!);
                                   }
                                 },

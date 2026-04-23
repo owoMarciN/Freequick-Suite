@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/models/menus.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
@@ -20,7 +21,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: UnifiedAppBar(
-        title: "Items ${widget.model!.title}",
+        title: context.l10nCommon.itemsTitle("${widget.model!.title}"),
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -47,7 +48,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return SliverToBoxAdapter(
-                  child: Center(child: Text("Error: ${snapshot.error}")),
+                  child: Center(child: Text(context.l10nCommon.error('${snapshot.error}'))),
                 );
               }
 
@@ -56,8 +57,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
               }
 
               if (snapshot.data!.docs.isEmpty) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text("No items found in this menu.")),
+                return SliverToBoxAdapter(
+                  child: Center(child: Text(context.l10nCustomer.noItemsFound)),
                 );
               }
               return !snapshot.hasData

@@ -79,6 +79,29 @@ class CustomerLocalizationsEn extends CustomerLocalizations {
   }
 
   @override
+  String get fav_pleaseLoginFor => 'Please login to add favorites';
+
+  @override
+  String get fav_removed => 'Removed from favorites';
+
+  @override
+  String get fav_added => 'Added to favorites';
+
+  @override
+  String get fav_error_update => 'Error updating favorites';
+
+  @override
+  String get paymentNotCompleted => 'Payment was not completed';
+
+  @override
+  String get paymentCancelled => 'Payment cancelled';
+
+  @override
+  String paymentFailed(String error) {
+    return 'Payment failed: $error';
+  }
+
+  @override
   String get categoryDiscounts => 'Discounts';
 
   @override
@@ -175,6 +198,36 @@ class CustomerLocalizationsEn extends CustomerLocalizations {
   String get categoryExclusiveDeals => 'Exclusive Deals';
 
   @override
+  String get jalebi => 'Jalebi';
+
+  @override
+  String get kajuBarfi => 'Kaju Barfi';
+
+  @override
+  String get gulabJamun => 'Gulab Jamun';
+
+  @override
+  String get softDrinks => 'Soft Drinks';
+
+  @override
+  String get laddoo => 'Laddoo';
+
+  @override
+  String get shake => 'Shake';
+
+  @override
+  String get pastries => 'Pastries';
+
+  @override
+  String get momos => 'Momos';
+
+  @override
+  String get chocolate => 'Chocolate';
+
+  @override
+  String get pizza => 'Pizza';
+
+  @override
   String get cartItemAdded => 'Item has been added to your cart.';
 
   @override
@@ -205,4 +258,43 @@ class CustomerLocalizationsEn extends CustomerLocalizations {
 
   @override
   String get orderCancelledSuccess => 'Your order has been cancelled.';
+
+  @override
+  String get addressManager => 'Address Manager';
+
+  @override
+  String get addNewAddress => 'Add New Address';
+
+  @override
+  String get noAddressesYet => 'No addresses yet';
+
+  @override
+  String get addDeliveryAddressHint =>
+      'Add a delivery address to start placing orders.';
+
+  @override
+  String get itemNotFound => 'Item not found';
+
+  @override
+  String get unknownItem => 'Unknown Item';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get noDescription => 'No description available';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String addToCartTotal(Object total) {
+    return 'Add to Cart - ${total}zł';
+  }
+
+  @override
+  String get menuNotFound => 'Menu not found';
+
+  @override
+  String get noItemsFound => 'No items found in this menu.';
 }

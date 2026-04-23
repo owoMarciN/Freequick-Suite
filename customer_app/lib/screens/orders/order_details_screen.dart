@@ -22,15 +22,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   void _maybeShowRatingPrompt(Map<String, dynamic> data) {
     if (_ratingPrompted) return;
+
     final status = data['status']?.toString() ?? '';
     final bool isDelivered = status == 'Delivered';
     final bool alreadyRated = data['rating'] != null;
+
     if (!isDelivered || alreadyRated) return;
 
     _ratingPrompted = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+
       showRateOrderSheet(
         context,
         orderID: widget.orderID ?? '',
@@ -42,14 +45,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final common = context.l10nCommon;
+    final t = context.l10nCommon;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6FB),
       appBar: UnifiedAppBar(
-        title: common.orderDetails,
+        title: t.orderDetails,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Colors.white, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -77,24 +81,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               children: [
                 _OrderProgressCard(status: status),
                 const SizedBox(height: 20),
-                _SectionLabel(common.orderSummary),
+                _SectionLabel(t.orderSummary),
                 const SizedBox(height: 10),
                 _SummaryCard(data: data, orderID: widget.orderID),
                 const SizedBox(height: 20),
+
                 if (data['rating'] != null)
                   _RatedBadge(
                     foodRating: (data['rating'] as num).toInt(),
-                    driverRating: (data['driverRating'] as num?)?.toInt() ?? 0,
+                    driverRating:
+                        (data['driverRating'] as num?)?.toInt() ?? 0,
                   ),
+
                 if (data['rating'] != null) const SizedBox(height: 20),
+
                 if (data["orderType"] != "pickup") ...[
-                  _SectionLabel(common.deliveryAddress),
+                  _SectionLabel(t.deliveryAddress),
                   const SizedBox(height: 10),
                   _AddressSection(data: data),
                 ] else ...[
-                  _SectionLabel(common.pickupLocation),
+                  _SectionLabel(t.pickupLocation),
                   const SizedBox(height: 10),
-                  _PickupCard(),
+                  const _PickupCard(),
                 ],
               ],
             ),
@@ -110,29 +118,30 @@ class _OrderProgressCard extends StatelessWidget {
   const _OrderProgressCard({required this.status});
 
   List<_Step> _getSteps(BuildContext context) {
-    final common = context.l10nCommon;
+    final t = context.l10nCommon;
+
     return [
       _Step(
-        label: common.labelProcessing,
-        sublabel: common.sublabelProcessing,
+        label: t.labelProcessing,
+        sublabel: t.sublabelProcessing,
         icon: Icons.receipt_long_rounded,
         value: "Pending",
       ),
       _Step(
-        label: common.labelAccepted,
-        sublabel: common.sublabelAccepted,
+        label: t.labelAccepted,
+        sublabel: t.sublabelAccepted,
         icon: Icons.restaurant_rounded,
         value: "In Progress",
       ),
       _Step(
-        label: common.labelOnWay,
-        sublabel: common.sublabelOnWay,
+        label: t.labelOnWay,
+        sublabel: t.sublabelOnWay,
         icon: Icons.delivery_dining_rounded,
         value: "Ready",
       ),
       _Step(
-        label: common.statusDelivered,
-        sublabel: common.labelEnjoy,
+        label: t.statusDelivered,
+        sublabel: t.labelEnjoy,
         icon: Icons.check_circle_rounded,
         value: "Delivered",
       ),
@@ -142,6 +151,7 @@ class _OrderProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final steps = _getSteps(context);
+
     int currentIndex = 0;
     for (int i = steps.length - 1; i >= 0; i--) {
       if (status == steps[i].value) {
@@ -168,26 +178,29 @@ class _OrderProgressCard extends StatelessWidget {
                   color: Colors.redAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.local_shipping_rounded, size: 16, color: Colors.redAccent),
+                child: const Icon(Icons.local_shipping_rounded,
+                    size: 16, color: Colors.redAccent),
               ),
               const SizedBox(width: 10),
               Text(
                 context.l10nCommon.orderStatus,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
               const Spacer(),
               _StatusBadge(status: status),
             ],
           ),
           const SizedBox(height: 24),
-          ...List.generate(steps.length, (i) {
-            return _TimelineRow(
+          ...List.generate(
+            steps.length,
+            (i) => _TimelineRow(
               step: steps[i],
               isDone: i <= currentIndex,
               isActive: i == currentIndex,
               isLast: i == steps.length - 1,
-            );
-          }),
+            ),
+          ),
         ],
       ),
     );
@@ -197,7 +210,13 @@ class _OrderProgressCard extends StatelessWidget {
 class _Step {
   final String label, sublabel, value;
   final IconData icon;
-  const _Step({required this.label, required this.sublabel, required this.icon, required this.value});
+
+  const _Step({
+    required this.label,
+    required this.sublabel,
+    required this.icon,
+    required this.value,
+  });
 }
 
 class _TimelineRow extends StatelessWidget {

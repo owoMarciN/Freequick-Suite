@@ -37,6 +37,30 @@
     "placeholders": { "category": { "type": "String" } }
   },
 
+  "fav_pleaseLoginFor": "Please login to add favorites",
+  "fav_removed": "Removed from favorites",
+  "fav_added": "Added to favorites",
+  "fav_error_update": "Error updating favorites",
+  "paymentNotCompleted": "Payment was not completed",
+  "@paymentNotCompleted": {
+    "description": "Shown when the payment intent does not succeed"
+  },
+
+  "paymentCancelled": "Payment cancelled",
+  "@paymentCancelled": {
+    "description": "Shown when the user cancels the Stripe payment sheet"
+  },
+
+  "paymentFailed": "Payment failed: {error}",
+  "@paymentFailed": {
+    "description": "Shown when an unexpected error occurs during payment",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
 
   "@@_CATEGORIES": {},
 
@@ -73,6 +97,17 @@
   "categoryNewOffers": "New Offers",
   "categoryExclusiveDeals": "Exclusive Deals",
 
+  "jalebi": "Jalebi",
+  "kajuBarfi": "Kaju Barfi",
+  "gulabJamun": "Gulab Jamun",
+  "softDrinks": "Soft Drinks",
+  "laddoo": "Laddoo",
+  "shake": "Shake",
+  "pastries": "Pastries",
+  "momos": "Momos",
+  "chocolate": "Chocolate",
+  "pizza": "Pizza",
+
   "@@_CART": {},
 
   "cartItemAdded": "Item has been added to your cart.",
@@ -87,6 +122,22 @@
 
   "customerOrderHistory": "My Orders",
   "orderPlacedSuccess": "Your order has been placed successfully.",
-  "orderCancelledSuccess": "Your order has been cancelled."
+  "orderCancelledSuccess": "Your order has been cancelled.",
+
+  "addressManager": "Address Manager",
+  "addNewAddress": "Add New Address",
+  "noAddressesYet": "No addresses yet",
+  "addDeliveryAddressHint": "Add a delivery address to start placing orders.",
+
+  "itemNotFound": "Item not found",
+  "unknownItem": "Unknown Item",
+  "description": "Description",
+  "noDescription": "No description available",
+  "quantity": "Quantity",
+  "addToCartTotal": "Add to Cart - {total}zł",
+
+
+  "menuNotFound": "Menu not found",
+  "noItemsFound": "No items found in this menu."
 
 }

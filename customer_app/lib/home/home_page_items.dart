@@ -8,7 +8,7 @@ class HomePageItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = getHomePageItems(itemsIndex);
+    final items = getHomePageItems(context, itemsIndex);
 
     return Material(
       child: GridView.builder(

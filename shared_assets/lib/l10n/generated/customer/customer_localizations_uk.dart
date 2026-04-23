@@ -80,6 +80,30 @@ class CustomerLocalizationsUk extends CustomerLocalizations {
   }
 
   @override
+  String get fav_pleaseLoginFor =>
+      'Будь ласка, увійдіть, щоб додати до обраного';
+
+  @override
+  String get fav_removed => 'Видалено з обраного';
+
+  @override
+  String get fav_added => 'Додано до обраного';
+
+  @override
+  String get fav_error_update => 'Помилка оновлення обраного';
+
+  @override
+  String get paymentNotCompleted => 'Оплату не завершено';
+
+  @override
+  String get paymentCancelled => 'Платіж скасовано';
+
+  @override
+  String paymentFailed(String error) {
+    return 'Платіж не вдалося: $error';
+  }
+
+  @override
   String get categoryDiscounts => 'Знижки';
 
   @override
@@ -176,6 +200,36 @@ class CustomerLocalizationsUk extends CustomerLocalizations {
   String get categoryExclusiveDeals => 'Ексклюзивні пропозиції';
 
   @override
+  String get jalebi => 'Джалебі';
+
+  @override
+  String get kajuBarfi => 'Каджу Барфі';
+
+  @override
+  String get gulabJamun => 'Гулаб Джамун';
+
+  @override
+  String get softDrinks => 'Безалкогольні напої';
+
+  @override
+  String get laddoo => 'Ладду';
+
+  @override
+  String get shake => 'Струсити';
+
+  @override
+  String get pastries => 'Випічка';
+
+  @override
+  String get momos => 'Момос';
+
+  @override
+  String get chocolate => 'Шоколад';
+
+  @override
+  String get pizza => 'Піца';
+
+  @override
   String get cartItemAdded => 'Товар додано до вашого кошика.';
 
   @override
@@ -206,4 +260,43 @@ class CustomerLocalizationsUk extends CustomerLocalizations {
 
   @override
   String get orderCancelledSuccess => 'Ваше замовлення скасовано.';
+
+  @override
+  String get addressManager => 'Менеджер адрес';
+
+  @override
+  String get addNewAddress => 'Додати нову адресу';
+
+  @override
+  String get noAddressesYet => 'Адрес ще немає';
+
+  @override
+  String get addDeliveryAddressHint =>
+      'Додайте адресу доставки, щоб почати робити замовлення.';
+
+  @override
+  String get itemNotFound => 'Елемент не знайдено';
+
+  @override
+  String get unknownItem => 'Невідомий елемент';
+
+  @override
+  String get description => 'Опис';
+
+  @override
+  String get noDescription => 'Опис недоступний';
+
+  @override
+  String get quantity => 'Кількість';
+
+  @override
+  String addToCartTotal(Object total) {
+    return 'Додати до кошика - ${total}zł';
+  }
+
+  @override
+  String get menuNotFound => 'Меню не знайдено';
+
+  @override
+  String get noItemsFound => 'У цьому меню не знайдено жодного елемента.';
 }

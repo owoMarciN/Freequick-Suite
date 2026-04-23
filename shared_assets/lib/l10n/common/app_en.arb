@@ -139,6 +139,7 @@
 
   "@@_GENERIC_ERRORS": {},
 
+  "error": "Error: {message}",
   "errorRequired": "This field is required",
   "errorInvalidFormat": "Invalid format",
   "errorInvalidEmail": "Please enter a valid email address",
@@ -308,6 +309,21 @@
   },
   "addrDeleted": "Address removed successfully",
 
+  "addressLabel": "Address Label",
+  "locationDetails": "Location Details",
+  "house": "House/Bldg*",
+  "flat": "Floor/Flat",
+  "street": "Street / Area",
+  "city": "City",
+  "postcode": "Postcode",
+  "state": "State",
+  "saveAddress": "Save Address",
+  "addressSavedSuccess": "Address saved successfully!",
+  "addressSaveError": "Error: {error}",
+  "aptPrefix": "Apt",
+  "work": "Work",
+  "other": "Other",
+
   "@@_ORDERS_COMMON": {},
 
   "orderDetails": "Order Details",
@@ -347,6 +363,9 @@
   "home": "Home",
   "profile": "Profile",
   "orders": "Orders",
+  "items": "Items",
+  "itemsTitle": "Items {items}",
+  "menusTitle": "{name} Menus",
   "favorites": "Favorites",
   "questionAppExit": "Are you sure you want to exit the app?",
   "testCloudFunctions": "Test Cloud Functions"

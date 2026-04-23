@@ -80,6 +80,30 @@ class CustomerLocalizationsDe extends CustomerLocalizations {
   }
 
   @override
+  String get fav_pleaseLoginFor =>
+      'Bitte melden Sie sich an, um Favoriten hinzuzufügen.';
+
+  @override
+  String get fav_removed => 'Aus den Favoriten entfernt';
+
+  @override
+  String get fav_added => 'Zu Favoriten hinzugefügt';
+
+  @override
+  String get fav_error_update => 'Fehler beim Aktualisieren der Favoriten';
+
+  @override
+  String get paymentNotCompleted => 'Die Zahlung wurde nicht abgeschlossen.';
+
+  @override
+  String get paymentCancelled => 'Zahlung storniert';
+
+  @override
+  String paymentFailed(String error) {
+    return 'Zahlung fehlgeschlagen: $error';
+  }
+
+  @override
   String get categoryDiscounts => 'Rabatte';
 
   @override
@@ -176,6 +200,36 @@ class CustomerLocalizationsDe extends CustomerLocalizations {
   String get categoryExclusiveDeals => 'Exklusive Angebote';
 
   @override
+  String get jalebi => 'Jalebi';
+
+  @override
+  String get kajuBarfi => 'Kaju Barfi';
+
+  @override
+  String get gulabJamun => 'Gulab Jamun';
+
+  @override
+  String get softDrinks => 'Erfrischungsgetränke';
+
+  @override
+  String get laddoo => 'Laddoo';
+
+  @override
+  String get shake => 'Shake';
+
+  @override
+  String get pastries => 'Gebäck';
+
+  @override
+  String get momos => 'Momos';
+
+  @override
+  String get chocolate => 'Schokolade';
+
+  @override
+  String get pizza => 'Pizza';
+
+  @override
   String get cartItemAdded => 'Der Artikel wurde Ihrem Warenkorb hinzugefügt.';
 
   @override
@@ -208,4 +262,43 @@ class CustomerLocalizationsDe extends CustomerLocalizations {
 
   @override
   String get orderCancelledSuccess => 'Ihre Bestellung wurde storniert.';
+
+  @override
+  String get addressManager => 'Adressmanager';
+
+  @override
+  String get addNewAddress => 'Neue Adresse hinzufügen';
+
+  @override
+  String get noAddressesYet => 'Noch keine Adressen.';
+
+  @override
+  String get addDeliveryAddressHint =>
+      'Geben Sie eine Lieferadresse an, um Bestellungen aufzugeben.';
+
+  @override
+  String get itemNotFound => 'Artikel nicht gefunden';
+
+  @override
+  String get unknownItem => 'Unbekannter Gegenstand';
+
+  @override
+  String get description => 'Beschreibung';
+
+  @override
+  String get noDescription => 'Keine Beschreibung verfügbar';
+
+  @override
+  String get quantity => 'Menge';
+
+  @override
+  String addToCartTotal(Object total) {
+    return 'In den Warenkorb - ${total}zł';
+  }
+
+  @override
+  String get menuNotFound => 'Menü nicht gefunden';
+
+  @override
+  String get noItemsFound => 'In diesem Menü wurden keine Artikel gefunden.';
 }

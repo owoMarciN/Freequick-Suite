@@ -432,7 +432,7 @@ class _ItemTile extends StatelessWidget {
                       if (item.itemID != null &&
                           item.menuID != null &&
                           item.restaurantID != null) {
-                        toggleFavorite(
+                        toggleFavorite(context, 
                             item.restaurantID!, item.menuID!, item.itemID!);
                       }
                     },
