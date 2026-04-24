@@ -29,33 +29,33 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> loginNow() async {
-    // 1. Show the loading dialog immediately
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadingDialog(message: context.l10nCommon.checkingCredentials),
+      builder: (_) =>
+          LoadingDialog(message: context.l10nCommon.checkingCredentials),
     );
 
     try {
-      // 2. Attempt Authentication
       final authResult = await firebaseAuth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      
-      final currentUser = authResult.user;
-      if (currentUser == null) throw Exception(context.l10nCommon.errorLoginFailed);
 
-      // 3. Wait for ALL data to load and be set
+      final currentUser = authResult.user;
+      if (currentUser == null) {
+        if (!mounted) return;
+        throw Exception(context.l10nCommon.errorLoginFailed);
+      }
+
       await readDataAndSetDataLocally(currentUser);
 
-      // 4. EVERYTHING is loaded successfully. 
       if (!mounted) return;
-      
-      // Pop the loading dialog FIRST
-      Navigator.pop(context); 
-      
-      // Then navigate to the Main Screen
+      Navigator.pop(context);
+
+      await Future.delayed(const Duration(milliseconds: 150));
+
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -64,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (error) {
       _handleErrorUI(error.message ?? context.l10nCommon.errorLoginFailed);
     } catch (e) {
-      // Catch ALL other errors (Firestore, blocked user, etc.)
       _handleErrorUI(e.toString());
     }
   }
@@ -73,14 +72,15 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleErrorUI(String errorMessage) {
     if (!mounted) return;
     Navigator.pop(context); // Always dismiss the loading dialog
-    
+
     // Custom handling for the blocked account thrown from below
     if (errorMessage.contains("ACCOUNT_BLOCKED")) {
       unifiedSnackBar(context.l10nCommon.errorAccountBlocked, error: true);
     } else {
       showDialog(
         context: context,
-        builder: (_) => ErrorDialog(message: errorMessage.replaceAll("Exception: ", "")),
+        builder: (_) =>
+            ErrorDialog(message: errorMessage.replaceAll("Exception: ", "")),
       );
     }
   }
@@ -91,7 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       showDialog(
         context: context,
-        builder: (_) => ErrorDialog(message: context.l10nCommon.errorEnterEmailPassword),
+        builder: (_) =>
+            ErrorDialog(message: context.l10nCommon.errorEnterEmailPassword),
       );
     }
   }
@@ -100,34 +101,43 @@ class _LoginScreenState extends State<LoginScreen> {
     // Force token refresh to ensure Firestore rules see the latest auth state
     await currentUser.getIdToken(true);
 
-    final docRef = FirebaseFirestore.instance.collection("users").doc(currentUser.uid);
-    final snapshot = await docRef.get(const GetOptions(source: Source.serverAndCache));
+    await sharedPreferences!.setString("uid", currentUser.uid);
+
+    final docRef =
+        FirebaseFirestore.instance.collection("users").doc(currentUser.uid);
+    final snapshot =
+        await docRef.get(const GetOptions(source: Source.serverAndCache));
 
     if (!snapshot.exists) {
       await firebaseAuth.signOut();
+      await sharedPreferences!.remove("uid");
       throw Exception(context.l10nCommon.errorNoRecordFound);
     }
 
     final data = snapshot.data()!;
     if (data["role"] != "customer" || data["status"] != "approved") {
       await firebaseAuth.signOut();
+      await sharedPreferences!.remove("uid");
       throw Exception("ACCOUNT_BLOCKED"); // Caught by loginNow()
     }
 
     // Save preferences
-    await sharedPreferences!.setString("uid", currentUser.uid);
     await saveUserPref<String>("email", data["email"]);
     await saveUserPref<String>("name", data["name"]);
     await saveUserPref<String>("phone", data["phone"]);
     await saveUserPref<String>("photoUrl", data["photoUrl"]);
 
-    // Init Providers 
+    // Init Providers
     if (!mounted) return;
-    Provider.of<CartProvider>(context, listen: false).count; 
-    
-    // CRITICAL: If loadSavedAddress() returns a Future, you MUST await it 
+    await Provider.of<CartProvider>(context, listen: false).loadCart();
+
+    // CRITICAL: If loadSavedAddress() returns a Future, you MUST await it
     // to guarantee it finishes before navigating to MainScreen.
-    await Provider.of<AddressProvider>(context, listen: false).loadSavedAddress();
+    if (!mounted) return;
+    await Provider.of<AddressProvider>(context, listen: false)
+        .loadSavedAddress();
+
+    sessionReady = true;
   }
 
   @override
@@ -144,48 +154,60 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.bottomCenter,
-                padding: const EdgeInsets.all(15),
-                child: Image.asset(
-                  'images/login.png',
-                  package: 'shared_assets',
-                  height: 270,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.bottomCenter,
+                      padding: const EdgeInsets.all(15),
+                      child: Image.asset(
+                        'images/login.png',
+                        package: 'shared_assets',
+                        height: 270,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              data: Icons.email,
+                              controller: _emailController,
+                              hintText: context.l10nCommon.email,
+                              isObsecure: false,
+                            ),
+                            CustomPasswordField(
+                              controller: _passwordController,
+                              label: context.l10nCommon.password,
+                              isRequired: true,
+                              isConfirmation: true,
+                            ),
+                            const SizedBox(height: 10),
+                            AuthButton(
+                              label: context.l10nCommon.login,
+                              onPressed: () async {
+                                FocusScope.of(context).unfocus();
+                                await formValidation();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsetsGeometry.symmetric(horizontal: 32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      CustomTextField(
-                        data: Icons.email,
-                        controller: _emailController,
-                        hintText: context.l10nCommon.email,
-                        isObsecure: false,
-                      ),
-                      CustomPasswordField(
-                        controller: _passwordController,
-                        label: context.l10nCommon.password,
-                        isRequired: true,
-                        isConfirmation: true,
-                      ),
-                      const SizedBox(height: 10),
-                      AuthButton(
-                        label: context.l10nCommon.login,
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus(); // Close keyboard before loading
-                          await formValidation();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

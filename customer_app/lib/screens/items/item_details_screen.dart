@@ -86,10 +86,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 ),
               ],
             ),
-            child: StreamBuilder<bool>(
-              stream: isFavoriteStream(itemID),
+            child: StreamBuilder<ItemState>(
+              stream: itemStateStream(
+                item.restaurantID ?? '',
+                item.menuID ?? '',
+                item.itemID ?? '',
+              ),
               builder: (context, snapshot) {
-                bool isFavorite = snapshot.data ?? false;
+                bool isFavorite = snapshot.data?.isFavorite ?? false;
 
                 return IconButton(
                   icon: Icon(

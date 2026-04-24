@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:user_app/global/global.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/items/item_details_screen.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
@@ -49,39 +49,52 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         drawer: MyDrawer(),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection("users")
-              .doc(currentUID)
-              .collection("favorites")
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 60, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      context.l10nCustomer.errorLoadingFavorites,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
+        body: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, authSnapshot) {
+            if (authSnapshot.connectionState == ConnectionState.waiting) {
               return Center(child: circularProgress());
             }
-
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            if (authSnapshot.data == null) {
               return _buildEmpty();
             }
 
-            return _buildFavoritesList(snapshot.data!.docs);
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(authSnapshot.data!.uid)
+                  .collection("favorites")
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            size: 60, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10nCustomer.errorLoadingFavorites,
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.grey[700]),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: circularProgress());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return _buildEmpty();
+                }
+
+                return _buildFavoritesList(snapshot.data!.docs);
+              },
+            );
           },
         ),
       ),
@@ -179,7 +192,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image
                 Stack(
                   children: [
                     ClipRRect(
@@ -219,7 +231,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                 const SizedBox(width: 12),
 
-                // Details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,13 +248,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          // Unfavorite button
-                          StreamBuilder<bool>(
-                            stream: isFavoriteStream(item.itemID ?? ''),
+                          StreamBuilder<ItemState>(
+                            stream: itemStateStream(
+                              item.restaurantID ?? '',
+                              item.menuID ?? '',
+                              item.itemID ?? '',
+                            ),
                             builder: (context, snapshot) {
                               return IconButton(
                                 icon: Icon(
-                                  snapshot.data == true
+                                  snapshot.data?.isFavorite == true
                                       ? Icons.favorite
                                       : Icons.favorite_border,
                                   color: Colors.red,
@@ -253,8 +267,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                   if (item.itemID != null &&
                                       item.menuID != null &&
                                       item.restaurantID != null) {
-                                    toggleFavorite(context, item.restaurantID!,
-                                        item.menuID!, item.itemID!);
+                                    toggleFavorite(
+                                        context,
+                                        item.restaurantID!,
+                                        item.menuID!,
+                                        item.itemID!);
                                   }
                                 },
                               );
@@ -275,7 +292,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                 color: Colors.green.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color: Colors.green.withValues(alpha: 0.3)),
+                                    color:
+                                        Colors.green.withValues(alpha: 0.3)),
                               ),
                               child: Text(
                                 tag,
@@ -291,7 +309,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                       const SizedBox(height: 8),
 
-                      // Price
                       Row(
                         children: [
                           if (item.hasDiscount) ...[

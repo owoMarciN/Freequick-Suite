@@ -416,41 +416,45 @@ class _ItemTile extends StatelessWidget {
                   ),
                 ),
               ),
-            Positioned(
-              top: 4,
-              right: 4,
-              child: StreamBuilder<bool>(
-                stream: isFavoriteStream(item.itemID ?? ''),
-                builder: (context, snap) {
-                  final bool fav = snap.data ?? false;
-                  return GestureDetector(
-                    onTap: () {
-                      if (item.itemID != null &&
-                          item.menuID != null &&
-                          item.restaurantID != null) {
-                        toggleFavorite(context, 
-                            item.restaurantID!, item.menuID!, item.itemID!);
-                      }
-                    },
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        shape: BoxShape.circle,
+              Positioned(
+                top: 4,
+                right: 4,
+                child: StreamBuilder<ItemState>(
+                  stream: itemStateStream(
+                    item.restaurantID ?? '',
+                    item.menuID ?? '',
+                    item.itemID ?? '',
+                  ),
+                  builder: (context, snap) {
+                    final bool fav = snap.data?.isFavorite ?? false;
+                    return GestureDetector(
+                      onTap: () {
+                        if (item.itemID != null &&
+                            item.menuID != null &&
+                            item.restaurantID != null) {
+                          toggleFavorite(
+                              context, item.restaurantID!, item.menuID!, item.itemID!);
+                        }
+                      },
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          fav
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          size: 14,
+                          color: fav ? Colors.redAccent : Colors.grey.shade400,
+                        ),
                       ),
-                      child: Icon(
-                        fav
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        size: 14,
-                        color: fav ? Colors.redAccent : Colors.grey.shade400,
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),

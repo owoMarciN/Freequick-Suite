@@ -31,6 +31,7 @@ import 'package:shared_assets/l10n/l10n.dart';
 import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
+import 'package:user_app/screens/auth/session_init_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +45,6 @@ Future<void> main() async {
   sharedPreferences = await SharedPreferences.getInstance();
 
   final storageBridge = AppStorageBridge();
-
 
   // Used to format the phone numbers
   await init();
@@ -99,16 +99,13 @@ class MyApp extends StatelessWidget {
       title: 'Freequick Cunstomer',
       debugShowCheckedModeBanner: false,
       navigatorKey: snackBarNavigatorKey,
-      
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeProvider.themeMode,
-
       locale: localeProvider.locale,
       supportedLocales: Language.languageList.map((lang) {
         return Locale(lang.code, lang.countryCode);
       }).toList(),
-
       localizationsDelegates: const [
         CommonLocalizations.delegate,
         CustomerLocalizations.delegate,
@@ -116,7 +113,6 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
       localeResolutionCallback: (locale, supportedLocales) {
         if (locale == null) return supportedLocales.first;
         for (var supportedLocale in supportedLocales) {
@@ -133,7 +129,11 @@ class MyApp extends StatelessWidget {
             return const MySplashScreen();
           }
           if (snapshot.data == null) {
+            sessionReady = false;
             return const AuthScreen();
+          }
+          if (!sessionReady) {
+            return SessionInitScreen(user: snapshot.data!);
           }
           return const MainScreen();
         },
