@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/global/global.dart';
 
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
+import 'package:rxdart/rxdart.dart';
 
 Future<void> toggleFavorite(BuildContext context, String restaurantID,
     String menuID, String itemID) async {
@@ -66,17 +68,16 @@ Future<void> toggleFavorite(BuildContext context, String restaurantID,
 }
 
 Stream<bool> isFavoriteStream(String itemID) {
-  if (currentUID == null) {
-    return Stream.value(false);
-  }
-
-  return FirebaseFirestore.instance
-      .collection("users")
-      .doc(currentUID)
-      .collection("favorites")
-      .doc(itemID)
-      .snapshots()
-      .map((doc) => doc.exists);
+  return FirebaseAuth.instance.authStateChanges().switchMap((user) {
+    if (user == null) return Stream.value(false);
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .collection("favorites")
+        .doc(itemID)
+        .snapshots()
+        .map((doc) => doc.exists);
+  });
 }
 
 Stream<int> itemLikesStream(String restaurantID, String menuID, String itemID) {

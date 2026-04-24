@@ -28,27 +28,32 @@ class RestaurantCard extends StatelessWidget {
       builder: (context, restSnap) {
         if (!restSnap.hasData) return const SizedBox.shrink();
         
-        // Use the model to handle data mapping
-        final Restaurants restaurant = Restaurants.fromJson(
-          restSnap.data!.data() as Map<String, dynamic>
-        );
+        final data = restSnap.data!.data() as Map<String, dynamic>?;
+        if (data == null) return const SizedBox.shrink();
+
+        final Restaurants restaurant = Restaurants.fromJson(data);
 
         return Container(
+          margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFEEEEEE)),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _RestaurantHeader(
-                model: restaurant,
-                totalRatings: (restSnap.data!.data() as Map<String, dynamic>)['totalRatings'] ?? 0,
-              ),
-              _ItemsScroller(restaurantID: restaurantID),
-            ],
+          child: SingleChildScrollView(
+            // The safety valve: allows the card to grow internally if parents are tight
+            physics: const NeverScrollableScrollPhysics(), 
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _RestaurantHeader(
+                  model: restaurant,
+                  totalRatings: data['totalRatings'] ?? 0,
+                ),
+                _ItemsScroller(restaurantID: restaurantID),
+              ],
+            ),
           ),
         );
       },
@@ -77,6 +82,7 @@ class _RestaurantHeader extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start, 
           children: [
             Container(
               width: 52,
@@ -96,6 +102,7 @@ class _RestaurantHeader extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -108,27 +115,28 @@ class _RestaurantHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  Row(
+                  const SizedBox(height: 4),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
-                      Icon(Icons.delivery_dining_rounded,
-                          size: 13, color: Colors.grey.shade400),
-                      const SizedBox(width: 3),
-                      Text(
-                        context.l10nCustomer.deliveryTime("20", "35"),
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.grey.shade500),
+                      _buildInfoTag(
+                        icon: Icons.delivery_dining_rounded,
+                        label: context.l10nCustomer.deliveryTime("20", "35"),
                       ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.circle, size: 4, color: Colors.grey.shade400),
-                      const SizedBox(width: 8),
-                      Icon(Icons.storefront_rounded,
-                          size: 13, color: Colors.grey.shade400),
-                      const SizedBox(width: 3),
-                      Text(
-                        context.l10nCustomer.freeDelivery,
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.grey.shade500),
+                      // We use a container for the dot so it's easier to manage in wraps
+                      Container(
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      _buildInfoTag(
+                        icon: Icons.storefront_rounded,
+                        label: context.l10nCustomer.freeDelivery,
                       ),
                     ],
                   ),
@@ -136,68 +144,28 @@ class _RestaurantHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            GestureDetector(
+            _RatingBadge(
+              avgRating: model.avgRating ?? 0,
+              totalRatings: totalRatings,
               onTap: () => _openRatingSheet(context),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: (model.avgRating ?? 0) >= 4
-                      ? const Color(0xFF00C48C).withValues(alpha: 0.1)
-                      : (model.avgRating ?? 0) >= 3
-                          ? Colors.amber.withValues(alpha: 0.1)
-                          : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: (model.avgRating ?? 0) >= 4
-                        ? const Color(0xFF00C48C).withValues(alpha: 0.3)
-                        : (model.avgRating ?? 0) >= 3
-                            ? Colors.amber.withValues(alpha: 0.3)
-                            : Colors.grey.shade200,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: (model.avgRating ?? 0) >= 4
-                          ? const Color(0xFF00C48C)
-                          : (model.avgRating ?? 0) >= 3
-                              ? Colors.amber.shade700
-                              : Colors.grey.shade400,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      totalRatings == 0
-                          ? context.l10nCustomer.newStatus
-                          : model.avgRating!.toStringAsFixed(1),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: (model.avgRating ?? 0) >= 4
-                            ? const Color(0xFF00C48C)
-                            : (model.avgRating ?? 0) >= 3
-                                ? Colors.amber.shade700
-                                : Colors.grey.shade500,
-                      ),
-                    ),
-                    if (totalRatings > 0) ...[
-                      const SizedBox(width: 3),
-                      Text(
-                        '($totalRatings)',
-                        style: TextStyle(
-                            fontSize: 10, color: Colors.grey.shade400),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoTag({required IconData icon, required String label}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: Colors.grey.shade400),
+        const SizedBox(width: 3),
+        Text(
+          label,
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+        ),
+      ],
     );
   }
 
@@ -219,6 +187,63 @@ class _RestaurantHeader extends StatelessWidget {
         child: Icon(Icons.restaurant_rounded,
             size: 26, color: Colors.grey.shade300),
       );
+}
+
+class _RatingBadge extends StatelessWidget {
+  final double avgRating;
+  final int totalRatings;
+  final VoidCallback onTap;
+
+  const _RatingBadge({
+    required this.avgRating,
+    required this.totalRatings,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color = avgRating >= 4
+        ? const Color(0xFF00C48C)
+        : avgRating >= 3
+            ? Colors.amber.shade700
+            : Colors.grey.shade400;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star_rounded, size: 14, color: color),
+            const SizedBox(width: 3),
+            Text(
+              totalRatings == 0
+                  ? context.l10nCustomer.newStatus
+                  : avgRating.toStringAsFixed(1),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+            if (totalRatings > 0) ...[
+              const SizedBox(width: 3),
+              Text(
+                '($totalRatings)',
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ItemsScroller extends StatelessWidget {
@@ -258,6 +283,7 @@ class _ItemsScroller extends StatelessWidget {
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Divider(height: 1, color: Colors.grey.shade100),
                 SizedBox(
