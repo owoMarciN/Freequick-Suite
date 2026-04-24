@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/models/address.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ShipmentAddressDesign extends StatelessWidget {
   final Address? model;
@@ -40,7 +41,7 @@ class ShipmentAddressDesign extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      model?.label ?? "Recipient Name",
+                      model?.label ?? context.l10nCustomer.recipientName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -49,7 +50,7 @@ class ShipmentAddressDesign extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      getUserPref<String>("phone") ?? "No Phone Number",
+                      getUserPref<String>("phone") ?? context.l10nCustomer.noPhoneNumber,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade500,
@@ -68,18 +69,17 @@ class ShipmentAddressDesign extends StatelessWidget {
 
           // Address Details
           Text(
-            "Delivery Address",
+            context.l10nCustomer.deliveryAddress.toUpperCase(),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade400,
               letterSpacing: 0.5,
-              textBaseline: TextBaseline.alphabetic,
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            model?.fullAddress ?? "Address not specified",
+            model?.fullAddress ?? context.l10nCustomer.addressNotSpecified,
             style: const TextStyle(
               fontSize: 14,
               height: 1.5,
@@ -88,7 +88,6 @@ class ShipmentAddressDesign extends StatelessWidget {
             ),
           ),
           
-          // If your model has city/state, you can add them here
           if (model?.city != null)
             Text(
               "${model?.city}",

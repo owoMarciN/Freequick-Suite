@@ -297,9 +297,6 @@ class CommonLocalizationsEn extends CommonLocalizations {
   String get restaurants => 'Restaurants';
 
   @override
-  String get tapToUploadImage => 'Tap to upload image.';
-
-  @override
   String enterField(String field) {
     return 'Enter $field';
   }
@@ -806,4 +803,22 @@ class CommonLocalizationsEn extends CommonLocalizations {
 
   @override
   String get testCloudFunctions => 'Test Cloud Functions';
+
+  @override
+  String get tapToUploadImage => 'Tap to upload image.';
+
+  @override
+  String get cropPhotoTitle => 'Crop Photo';
+
+  @override
+  String get imagePickerChooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get imagePickerChooseFromGallerySubtitle => 'Pick an existing photo';
+
+  @override
+  String get imagePickerTakePhoto => 'Take a Photo';
+
+  @override
+  String get imagePickerTakePhotoSubtitle => 'Use your camera';
 }

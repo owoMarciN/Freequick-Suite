@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/items/item_details_screen.dart';
 import 'package:user_app/screens/menus/menus_screen.dart';
@@ -25,12 +26,12 @@ class RestaurantCard extends StatelessWidget {
           .doc(restaurantID)
           .snapshots(),
       builder: (context, restSnap) {
-        final restData = restSnap.data?.data() as Map<String, dynamic>? ?? {};
-        final String logoUrl = (restData['logoUrl'] as String?) ?? '';
-        final String name = (restData['name'] as String?) ?? restaurantName;
-        final double avgRating =
-            ((restData['avgRating'] as num?) ?? 0).toDouble();
-        final int totalRatings = (restData['totalRatings'] as int?) ?? 0;
+        if (!restSnap.hasData) return const SizedBox.shrink();
+        
+        // Use the model to handle data mapping
+        final Restaurants restaurant = Restaurants.fromJson(
+          restSnap.data!.data() as Map<String, dynamic>
+        );
 
         return Container(
           decoration: BoxDecoration(
@@ -42,16 +43,10 @@ class RestaurantCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //  Header
               _RestaurantHeader(
-                restaurantID: restaurantID,
-                name: name,
-                logoUrl: logoUrl,
-                avgRating: avgRating,
-                totalRatings: totalRatings,
+                model: restaurant,
+                totalRatings: (restSnap.data!.data() as Map<String, dynamic>)['totalRatings'] ?? 0,
               ),
-
-              //  Items scroller
               _ItemsScroller(restaurantID: restaurantID),
             ],
           ),
@@ -61,18 +56,12 @@ class RestaurantCard extends StatelessWidget {
   }
 }
 
-//  Header
-
 class _RestaurantHeader extends StatelessWidget {
-  final String restaurantID, name, logoUrl;
-  final double avgRating;
+  final Restaurants model;
   final int totalRatings;
 
   const _RestaurantHeader({
-    required this.restaurantID,
-    required this.name,
-    required this.logoUrl,
-    required this.avgRating,
+    required this.model,
     required this.totalRatings,
   });
 
@@ -82,23 +71,13 @@ class _RestaurantHeader extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => MenusScreen(
-            model: Restaurants(
-              restaurantID: restaurantID,
-              name: name,
-              logoUrl: logoUrl,
-              bannerUrl: '',
-              email: '',
-              status: '',
-            ),
-          ),
+          builder: (_) => MenusScreen(model: model),
         ),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
         child: Row(
           children: [
-            // Logo
             Container(
               width: 52,
               height: 52,
@@ -108,22 +87,19 @@ class _RestaurantHeader extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFEEEEEE)),
               ),
               clipBehavior: Clip.antiAlias,
-              child: logoUrl.isNotEmpty
-                  ? Image.network(logoUrl,
+              child: (model.logoUrl?.isNotEmpty == true)
+                  ? Image.network(model.logoUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _logoFallback())
                   : _logoFallback(),
             ),
-
             const SizedBox(width: 12),
-
-            // Name + address
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    model.name ?? '',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -138,43 +114,44 @@ class _RestaurantHeader extends StatelessWidget {
                       Icon(Icons.delivery_dining_rounded,
                           size: 13, color: Colors.grey.shade400),
                       const SizedBox(width: 3),
-                      Text("20–35 min",
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey.shade500)),
+                      Text(
+                        context.l10nCustomer.deliveryTime("20", "35"),
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.grey.shade500),
+                      ),
                       const SizedBox(width: 8),
                       Icon(Icons.circle, size: 4, color: Colors.grey.shade400),
                       const SizedBox(width: 8),
                       Icon(Icons.storefront_rounded,
                           size: 13, color: Colors.grey.shade400),
                       const SizedBox(width: 3),
-                      Text("Free delivery",
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey.shade500)),
+                      Text(
+                        context.l10nCustomer.freeDelivery,
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.grey.shade500),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-
             const SizedBox(width: 8),
-
-            // Rating chip — tappable
             GestureDetector(
               onTap: () => _openRatingSheet(context),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: avgRating >= 4
+                  color: (model.avgRating ?? 0) >= 4
                       ? const Color(0xFF00C48C).withValues(alpha: 0.1)
-                      : avgRating >= 3
+                      : (model.avgRating ?? 0) >= 3
                           ? Colors.amber.withValues(alpha: 0.1)
                           : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: avgRating >= 4
+                    color: (model.avgRating ?? 0) >= 4
                         ? const Color(0xFF00C48C).withValues(alpha: 0.3)
-                        : avgRating >= 3
+                        : (model.avgRating ?? 0) >= 3
                             ? Colors.amber.withValues(alpha: 0.3)
                             : Colors.grey.shade200,
                   ),
@@ -185,21 +162,23 @@ class _RestaurantHeader extends StatelessWidget {
                     Icon(
                       Icons.star_rounded,
                       size: 14,
-                      color: avgRating >= 4
+                      color: (model.avgRating ?? 0) >= 4
                           ? const Color(0xFF00C48C)
-                          : avgRating >= 3
+                          : (model.avgRating ?? 0) >= 3
                               ? Colors.amber.shade700
                               : Colors.grey.shade400,
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      totalRatings == 0 ? 'New' : avgRating.toStringAsFixed(1),
+                      totalRatings == 0
+                          ? context.l10nCustomer.newStatus
+                          : model.avgRating!.toStringAsFixed(1),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: avgRating >= 4
+                        color: (model.avgRating ?? 0) >= 4
                             ? const Color(0xFF00C48C)
-                            : avgRating >= 3
+                            : (model.avgRating ?? 0) >= 3
                                 ? Colors.amber.shade700
                                 : Colors.grey.shade500,
                       ),
@@ -228,9 +207,9 @@ class _RestaurantHeader extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => RatingSheet(
-        restaurantID: restaurantID,
-        restaurantName: name,
-        logoUrl: logoUrl,
+        restaurantID: model.restaurantID!,
+        restaurantName: model.name!,
+        logoUrl: model.logoUrl!,
       ),
     );
   }
@@ -241,8 +220,6 @@ class _RestaurantHeader extends StatelessWidget {
             size: 26, color: Colors.grey.shade300),
       );
 }
-
-//  Items scroller
 
 class _ItemsScroller extends StatelessWidget {
   final String restaurantID;
@@ -309,8 +286,6 @@ class _ItemsScroller extends StatelessWidget {
   }
 }
 
-//  Item tile
-
 class _ItemTile extends StatelessWidget {
   final Items item;
   const _ItemTile({required this.item});
@@ -335,7 +310,6 @@ class _ItemTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image
                 ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(12)),
@@ -367,7 +341,7 @@ class _ItemTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       if (item.hasDiscount) ...[
                         Text(
-                          '${item.price!.toStringAsFixed(2)} zł',
+                          context.l10nCustomer.currencyFormat(item.price!.toStringAsFixed(2)),
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.grey.shade400,
@@ -375,7 +349,7 @@ class _ItemTile extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${item.discountedPrice.toStringAsFixed(2)} zł',
+                          context.l10nCustomer.currencyFormat(item.discountedPrice.toStringAsFixed(2)),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -384,7 +358,7 @@ class _ItemTile extends StatelessWidget {
                         ),
                       ] else
                         Text(
-                          '${item.price?.toStringAsFixed(2) ?? '0.00'} zł',
+                          context.l10nCustomer.currencyFormat(item.price?.toStringAsFixed(2) ?? '0.00'),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -396,8 +370,6 @@ class _ItemTile extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Discount badge
             if (item.hasDiscount)
               Positioned(
                 top: 6,
@@ -410,7 +382,7 @@ class _ItemTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '${item.discount!.toInt()}% OFF',
+                    context.l10nCustomer.discountPercent(item.discount!.toInt()),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
@@ -418,8 +390,6 @@ class _ItemTile extends StatelessWidget {
                   ),
                 ),
               ),
-
-            // Favourite button
             Positioned(
               top: 4,
               right: 4,

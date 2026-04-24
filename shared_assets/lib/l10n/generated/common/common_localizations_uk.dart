@@ -297,9 +297,6 @@ class CommonLocalizationsUk extends CommonLocalizations {
   String get restaurants => 'Ресторани';
 
   @override
-  String get tapToUploadImage => 'Натисніть, щоб завантажити зображення.';
-
-  @override
   String enterField(String field) {
     return 'Введіть <x>email address<x>';
   }
@@ -813,4 +810,22 @@ class CommonLocalizationsUk extends CommonLocalizations {
 
   @override
   String get testCloudFunctions => 'Тестування хмарних функцій';
+
+  @override
+  String get tapToUploadImage => 'Натисніть, щоб завантажити зображення.';
+
+  @override
+  String get cropPhotoTitle => 'Обрізати фото';
+
+  @override
+  String get imagePickerChooseFromGallery => 'Виберіть з галереї';
+
+  @override
+  String get imagePickerChooseFromGallerySubtitle => 'Виберіть існуюче фото';
+
+  @override
+  String get imagePickerTakePhoto => 'Зробіть фотографію';
+
+  @override
+  String get imagePickerTakePhotoSubtitle => 'Використовуйте свою камеру';
 }

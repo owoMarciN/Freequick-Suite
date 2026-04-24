@@ -680,12 +680,6 @@ abstract class CommonLocalizations {
   /// **'Restaurants'**
   String get restaurants;
 
-  /// No description provided for @tapToUploadImage.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to upload image.'**
-  String get tapToUploadImage;
-
   /// Hint text for input fields
   ///
   /// In en, this message translates to:
@@ -1573,6 +1567,42 @@ abstract class CommonLocalizations {
   /// In en, this message translates to:
   /// **'Test Cloud Functions'**
   String get testCloudFunctions;
+
+  /// No description provided for @tapToUploadImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to upload image.'**
+  String get tapToUploadImage;
+
+  /// No description provided for @cropPhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Photo'**
+  String get cropPhotoTitle;
+
+  /// No description provided for @imagePickerChooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get imagePickerChooseFromGallery;
+
+  /// No description provided for @imagePickerChooseFromGallerySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing photo'**
+  String get imagePickerChooseFromGallerySubtitle;
+
+  /// No description provided for @imagePickerTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a Photo'**
+  String get imagePickerTakePhoto;
+
+  /// No description provided for @imagePickerTakePhotoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your camera'**
+  String get imagePickerTakePhotoSubtitle;
 }
 
 class _CommonLocalizationsDelegate

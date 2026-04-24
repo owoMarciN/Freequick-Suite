@@ -3,6 +3,7 @@ import 'package:user_app/screens/users/favorites_screen.dart';
 import 'package:user_app/screens/users/home_screen.dart';
 import 'package:user_app/screens/orders/orders_screen.dart';
 import 'package:user_app/screens/users/search_screen.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -36,11 +37,19 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.reorder), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favs'),
+        items: [
+          BottomNavigationBarItem(
+              icon: const Icon(Icons.home),
+              label: context.l10nCustomer.navHome),
+          BottomNavigationBarItem(
+              icon: const Icon(Icons.reorder),
+              label: context.l10nCustomer.navOrders),
+          BottomNavigationBarItem(
+              icon: const Icon(Icons.search),
+              label: context.l10nCustomer.navSearch),
+          BottomNavigationBarItem(
+              icon: const Icon(Icons.favorite),
+              label: context.l10nCustomer.navFavorites),
         ],
       ),
     );

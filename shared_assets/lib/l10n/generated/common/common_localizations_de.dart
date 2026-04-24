@@ -297,9 +297,6 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get restaurants => 'Restaurants';
 
   @override
-  String get tapToUploadImage => 'Tippen Sie hier, um ein Bild hochzuladen.';
-
-  @override
   String enterField(String field) {
     return 'E-Mail-Adresse eingeben<x>';
   }
@@ -820,4 +817,23 @@ class CommonLocalizationsDe extends CommonLocalizations {
 
   @override
   String get testCloudFunctions => 'Cloud-Funktionen testen';
+
+  @override
+  String get tapToUploadImage => 'Tippen Sie hier, um ein Bild hochzuladen.';
+
+  @override
+  String get cropPhotoTitle => 'Zugeschnittenes Foto';
+
+  @override
+  String get imagePickerChooseFromGallery => 'Aus der Galerie auswählen';
+
+  @override
+  String get imagePickerChooseFromGallerySubtitle =>
+      'Wählen Sie ein vorhandenes Foto aus';
+
+  @override
+  String get imagePickerTakePhoto => 'Mach ein Foto';
+
+  @override
+  String get imagePickerTakePhotoSubtitle => 'Verwenden Sie Ihre Kamera';
 }

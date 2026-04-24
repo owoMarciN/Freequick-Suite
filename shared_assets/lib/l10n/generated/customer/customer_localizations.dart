@@ -656,6 +656,906 @@ abstract class CustomerLocalizations {
   /// In en, this message translates to:
   /// **'No items found in this menu.'**
   String get noItemsFound;
+
+  /// No description provided for @profileSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Settings'**
+  String get profileSettingsTitle;
+
+  /// No description provided for @noChangesDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes detected.'**
+  String get noChangesDetected;
+
+  /// No description provided for @updatingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating profile...'**
+  String get updatingProfile;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully!'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @notificationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsSection;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which notifications you receive'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @notifOrderStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Status Updates'**
+  String get notifOrderStatusLabel;
+
+  /// No description provided for @notifOrderStatusSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notified when your order status changes'**
+  String get notifOrderStatusSubtitle;
+
+  /// No description provided for @notifPromotionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions & Offers'**
+  String get notifPromotionsLabel;
+
+  /// No description provided for @notifPromotionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts and deals from restaurants'**
+  String get notifPromotionsSubtitle;
+
+  /// No description provided for @notifNearbyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Restaurants Nearby'**
+  String get notifNearbyLabel;
+
+  /// No description provided for @notifNearbySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When a new restaurant opens in your area'**
+  String get notifNearbySubtitle;
+
+  /// No description provided for @notifAppNewsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App News & Updates'**
+  String get notifAppNewsLabel;
+
+  /// No description provided for @notifAppNewsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature announcements and app news'**
+  String get notifAppNewsSubtitle;
+
+  /// No description provided for @appearanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSection;
+
+  /// No description provided for @darkModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkModeLabel;
+
+  /// No description provided for @darkModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to dark theme'**
+  String get darkModeSubtitle;
+
+  /// No description provided for @accountSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountSection;
+
+  /// No description provided for @accountSecurityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Security'**
+  String get accountSecurityLabel;
+
+  /// No description provided for @accountSecuritySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password, 2FA settings'**
+  String get accountSecuritySubtitle;
+
+  /// No description provided for @deleteAccountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountLabel;
+
+  /// No description provided for @deleteAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently remove your account and data'**
+  String get deleteAccountSubtitle;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{feature} — coming soon!'**
+  String comingSoon(Object feature);
+
+  /// No description provided for @deleteAccountDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountDialogTitle;
+
+  /// No description provided for @deleteAccountDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete your account and all your data. This cannot be undone.'**
+  String get deleteAccountDialogContent;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @personalInformationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformationSection;
+
+  /// No description provided for @cartScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping Cart'**
+  String get cartScreenTitle;
+
+  /// No description provided for @errorLoadingCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading cart'**
+  String get errorLoadingCart;
+
+  /// No description provided for @addItemsToGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Add items to get started'**
+  String get addItemsToGetStarted;
+
+  /// No description provided for @originalTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original Total:'**
+  String get originalTotal;
+
+  /// No description provided for @youSave.
+  ///
+  /// In en, this message translates to:
+  /// **'You Save:'**
+  String get youSave;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total:'**
+  String get total;
+
+  /// No description provided for @clearCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cart'**
+  String get clearCart;
+
+  /// No description provided for @proceedToCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed to Checkout'**
+  String get proceedToCheckout;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @errorLoadingFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading favorites'**
+  String get errorLoadingFavorites;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavoritesYet;
+
+  /// No description provided for @noFavoritesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart icon on any item to save it here'**
+  String get noFavoritesSubtitle;
+
+  /// No description provided for @topRestaurantsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Restaurants'**
+  String get topRestaurantsTitle;
+
+  /// No description provided for @inTheSpotlightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All open restaurants'**
+  String get inTheSpotlightSubtitle;
+
+  /// No description provided for @offersAndPromotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers & Promotions'**
+  String get offersAndPromotions;
+
+  /// No description provided for @promotionsLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get promotionsLive;
+
+  /// No description provided for @orderAgainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Again'**
+  String get orderAgainTitle;
+
+  /// No description provided for @promotionBannerPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion banners are displayed here'**
+  String get promotionBannerPlaceholder;
+
+  /// No description provided for @noActivePromotions.
+  ///
+  /// In en, this message translates to:
+  /// **'No active promotions right now'**
+  String get noActivePromotions;
+
+  /// No description provided for @restaurantsDisplayedHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants are displayed here'**
+  String get restaurantsDisplayedHere;
+
+  /// No description provided for @noRestaurantsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'No restaurants are open right now'**
+  String get noRestaurantsOpen;
+
+  /// No description provided for @unknownRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get unknownRestaurant;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get navOrders;
+
+  /// No description provided for @navSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get navSearch;
+
+  /// No description provided for @navFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favs'**
+  String get navFavorites;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get noNotifications;
+
+  /// No description provided for @allCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up!'**
+  String get allCaughtUp;
+
+  /// No description provided for @unreadCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread'**
+  String unreadCount(int count);
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllAsRead;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String timeMinutesAgo(int count);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String timeHoursAgo(int count);
+
+  /// No description provided for @timeYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get timeYesterday;
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String timeDaysAgo(int count);
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search!'**
+  String get searchTitle;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search restaurants or items...'**
+  String get searchHint;
+
+  /// No description provided for @searchResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} results ({ms}ms)'**
+  String searchResultCount(int count, int ms);
+
+  /// No description provided for @searchSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching...'**
+  String get searchSearching;
+
+  /// No description provided for @searchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String searchError(String message);
+
+  /// No description provided for @searchRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get searchRetry;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchNoResults;
+
+  /// No description provided for @searchTypeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get searchTypeItem;
+
+  /// No description provided for @searchTypeRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get searchTypeRestaurant;
+
+  /// No description provided for @searchItemIdMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Item ID missing'**
+  String get searchItemIdMissing;
+
+  /// No description provided for @searchRestaurantIdMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant ID missing'**
+  String get searchRestaurantIdMissing;
+
+  /// No description provided for @searchFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get searchFiltersTitle;
+
+  /// No description provided for @searchFilterResetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All'**
+  String get searchFilterResetAll;
+
+  /// No description provided for @searchFilterCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get searchFilterCategories;
+
+  /// No description provided for @searchFilterNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Names'**
+  String get searchFilterNames;
+
+  /// No description provided for @searchFilterPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Range: {min} - {max} PLN'**
+  String searchFilterPriceRange(int min, int max);
+
+  /// No description provided for @searchFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get searchFilterApply;
+
+  /// No description provided for @orderIdMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{id}'**
+  String orderIdMessage(String id);
+
+  /// No description provided for @itemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String itemCount(int count);
+
+  /// No description provided for @quantityMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty: {qty}'**
+  String quantityMessage(int qty);
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get viewDetails;
+
+  /// No description provided for @currencyFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}zł'**
+  String currencyFormat(String price);
+
+  /// No description provided for @deliveryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}-{max} min'**
+  String deliveryTime(String min, String max);
+
+  /// No description provided for @freeDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery'**
+  String get freeDelivery;
+
+  /// No description provided for @newStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newStatus;
+
+  /// No description provided for @discountPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% OFF'**
+  String discountPercent(int percent);
+
+  /// No description provided for @saveAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {amount} zł'**
+  String saveAmount(String amount);
+
+  /// No description provided for @removeItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Item'**
+  String get removeItemTitle;
+
+  /// No description provided for @removeItemConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove {item} from your cart?'**
+  String removeItemConfirm(String item);
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @itemRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Item removed from cart'**
+  String get itemRemoved;
+
+  /// No description provided for @errorInvalidId.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot remove item: Invalid item ID'**
+  String get errorInvalidId;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @discountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'-{percent}%'**
+  String discountValue(String percent);
+
+  /// No description provided for @untitledMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled Menu'**
+  String get untitledMenu;
+
+  /// No description provided for @browse.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get browse;
+
+  /// No description provided for @recipientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient Name'**
+  String get recipientName;
+
+  /// No description provided for @noPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No Phone Number'**
+  String get noPhoneNumber;
+
+  /// No description provided for @deliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Address'**
+  String get deliveryAddress;
+
+  /// No description provided for @addressNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Address not specified'**
+  String get addressNotSpecified;
+
+  /// No description provided for @rateOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your order'**
+  String get rateOrderTitle;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @foodQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Quality'**
+  String get foodQuality;
+
+  /// No description provided for @deliveryDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Driver'**
+  String get deliveryDriver;
+
+  /// No description provided for @leaveCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a comment (optional)...'**
+  String get leaveCommentHint;
+
+  /// No description provided for @submitRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Rating'**
+  String get submitRating;
+
+  /// No description provided for @thanksFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your feedback!'**
+  String get thanksFeedback;
+
+  /// No description provided for @ratingValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please rate both food and driver.'**
+  String get ratingValidation;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorOccurred(Object error);
+
+  /// No description provided for @ratingsAndReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings & Reviews'**
+  String get ratingsAndReviews;
+
+  /// No description provided for @reviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
+  String reviewCount(num count);
+
+  /// No description provided for @ratingTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating Trend — Last 7 Days'**
+  String get ratingTrend;
+
+  /// No description provided for @notEnoughData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet'**
+  String get notEnoughData;
+
+  /// No description provided for @recentReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Reviews'**
+  String get recentReviews;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get noReviewsYet;
+
+  /// No description provided for @beTheFirstToRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to rate this restaurant'**
+  String get beTheFirstToRate;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d ago'**
+  String daysAgo(Object days);
+
+  /// No description provided for @unknownCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get unknownCustomer;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @drawerAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get drawerAccount;
+
+  /// No description provided for @profileSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Settings'**
+  String get profileSettings;
+
+  /// No description provided for @myOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get myOrders;
+
+  /// No description provided for @favourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get favourites;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @drawerSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get drawerSupport;
+
+  /// No description provided for @helpFaq.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & FAQ'**
+  String get helpFaq;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUs;
+
+  /// No description provided for @drawerLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get drawerLegal;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get termsConditions;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOut;
+
+  /// No description provided for @policyIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Introduction'**
+  String get policyIntroTitle;
+
+  /// No description provided for @policyIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Freequick. By using our app you agree to these terms. Please read them carefully before placing an order or using any of our services.'**
+  String get policyIntroBody;
+
+  /// No description provided for @policyDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Data We Collect'**
+  String get policyDataTitle;
+
+  /// No description provided for @policyDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect information you provide directly, such as your name, email address, phone number, delivery address, and payment information. We also collect usage data to improve our service.'**
+  String get policyDataBody;
+
+  /// No description provided for @policyUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'3. How We Use Your Data'**
+  String get policyUsageTitle;
+
+  /// No description provided for @policyUsageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is used to process orders, communicate order updates, personalise your experience, and improve our platform. We do not sell your personal data to third parties.'**
+  String get policyUsageBody;
+
+  /// No description provided for @policyRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Your Rights'**
+  String get policyRightsTitle;
+
+  /// No description provided for @policyRightsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have the right to access, correct, or delete your personal data at any time. You can manage your preferences in Profile Settings or contact our support team.'**
+  String get policyRightsBody;
+
+  /// No description provided for @policyContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'5. Contact'**
+  String get policyContactTitle;
+
+  /// No description provided for @policyContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have questions about this policy, contact us at support@freequick.app.'**
+  String get policyContactBody;
 }
 
 class _CustomerLocalizationsDelegate

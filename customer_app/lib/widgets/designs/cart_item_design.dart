@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/methods/assistant_methods.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
@@ -121,7 +122,8 @@ class _CartItemDesignState extends State<CartItemDesign> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                '${widget.model!.discount!.toInt()}% OFF',
+                context.l10nCustomer
+                    .discountPercent(widget.model!.discount!.toInt()),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -140,7 +142,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          widget.model!.title ?? 'Item',
+          widget.model!.title ?? context.l10nCustomer.unknownItem,
           style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -256,7 +258,8 @@ class _CartItemDesignState extends State<CartItemDesign> {
       children: [
         if (widget.model!.hasDiscount)
           Text(
-            '${originalPerItem.toStringAsFixed(2)} zł',
+            context.l10nCustomer
+                .currencyFormat(originalPerItem.toStringAsFixed(2)),
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey[600],
@@ -277,7 +280,8 @@ class _CartItemDesignState extends State<CartItemDesign> {
             ),
           ),
           child: Text(
-            '${pricePerItem.toStringAsFixed(2)} zł',
+            context.l10nCustomer
+                .currencyFormat(pricePerItem.toStringAsFixed(2)),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -290,7 +294,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
         if (widget.model!.hasDiscount) ...[
           const SizedBox(height: 4),
           Text(
-            'Save ${savedAmount.toStringAsFixed(2)} zł',
+            context.l10nCustomer.saveAmount(savedAmount.toStringAsFixed(2)),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -317,7 +321,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
 
   void _showDeleteConfirmation() {
     if (widget.model?.itemID == null) {
-      unifiedSnackBar("Cannot remove item: Invalid item ID", error: true);
+      unifiedSnackBar(context.l10nCustomer.errorInvalidId, error: true);
       return;
     }
 
@@ -340,13 +344,14 @@ class _CartItemDesignState extends State<CartItemDesign> {
                   topRight: Radius.circular(20),
                 ),
               ),
-              child: const Column(
+              child: Column(
                 children: [
-                  Icon(Icons.delete_outline, color: Colors.white, size: 48),
-                  SizedBox(height: 8),
+                  const Icon(Icons.delete_outline,
+                      color: Colors.white, size: 48),
+                  const SizedBox(height: 8),
                   Text(
-                    'Remove Item',
-                    style: TextStyle(
+                    context.l10nCustomer.removeItemTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -370,7 +375,9 @@ class _CartItemDesignState extends State<CartItemDesign> {
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Text(
-                      'Are you sure you want to remove ${widget.model!.title ?? 'this item'} from your cart?',
+                      context.l10nCustomer.removeItemConfirm(
+                          widget.model!.title ??
+                              context.l10nCustomer.unknownItem),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 15, color: Colors.black87, height: 1.5),
@@ -393,7 +400,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
                                   borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
-                              'Cancel',
+                              context.l10nCustomer.cancel,
                               style: TextStyle(
                                   color: Colors.grey[800],
                                   fontWeight: FontWeight.w600),
@@ -407,7 +414,8 @@ class _CartItemDesignState extends State<CartItemDesign> {
                               Navigator.pop(context);
                               await removeItemFromCart(
                                   context, widget.model!.itemID!);
-                              unifiedSnackBar("Item removed from cart");
+                              if (!mounted) return;
+                              unifiedSnackBar(context.l10nCustomer.itemRemoved);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
@@ -416,9 +424,9 @@ class _CartItemDesignState extends State<CartItemDesign> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text(
-                              'Remove',
-                              style: TextStyle(
+                            child: Text(
+                              context.l10nCustomer.remove,
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),

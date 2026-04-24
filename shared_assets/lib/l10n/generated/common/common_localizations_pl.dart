@@ -297,9 +297,6 @@ class CommonLocalizationsPl extends CommonLocalizations {
   String get restaurants => 'Restauracje';
 
   @override
-  String get tapToUploadImage => 'Kliknij, aby przesłać obraz.';
-
-  @override
   String enterField(String field) {
     return 'Wprowadź <x>email address<x>';
   }
@@ -809,4 +806,23 @@ class CommonLocalizationsPl extends CommonLocalizations {
 
   @override
   String get testCloudFunctions => 'Testowanie funkcji chmury';
+
+  @override
+  String get tapToUploadImage => 'Kliknij, aby przesłać obraz.';
+
+  @override
+  String get cropPhotoTitle => 'Przytnij zdjęcie';
+
+  @override
+  String get imagePickerChooseFromGallery => 'Wybierz z Galerii';
+
+  @override
+  String get imagePickerChooseFromGallerySubtitle =>
+      'Wybierz istniejące zdjęcie';
+
+  @override
+  String get imagePickerTakePhoto => 'Zrób zdjęcie';
+
+  @override
+  String get imagePickerTakePhotoSubtitle => 'Użyj aparatu';
 }

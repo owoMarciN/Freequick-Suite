@@ -95,23 +95,23 @@ class RestaurantDesignWidget extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          // if (model?.address != null && model!.address!.isNotEmpty) ...[
-                          //   const SizedBox(height: 2),
-                          //   Row(
-                          //     children: [
-                          //       Icon(Icons.location_on_rounded, size: 12, color: Colors.grey[500]),
-                          //       const SizedBox(width: 2),
-                          //       Flexible(
-                          //         child: Text(
-                          //           model!.address!,
-                          //           style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                          //           maxLines: 1,
-                          //           overflow: TextOverflow.ellipsis,
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ],
+                          if (model?.address != null && model!.address!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on_rounded, size: 12, color: Colors.grey[500]),
+                                const SizedBox(width: 2),
+                                Flexible(
+                                  child: Text(
+                                    model!.address!,
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),

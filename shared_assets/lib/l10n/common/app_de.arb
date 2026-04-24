@@ -96,7 +96,6 @@
     "customer": "Kunde",
     "customers": "Kunden",
     "restaurants": "Restaurants",
-    "tapToUploadImage": "Tippen Sie hier, um ein Bild hochzuladen.",
     "enterField": "E-Mail-Adresse eingeben<x>",
     "details": "Details",
     "loading_default": "Laden",
@@ -244,5 +243,11 @@
     "menusTitle": "{name} Menüs",
     "favorites": "Favoriten",
     "questionAppExit": "Möchten Sie die App wirklich beenden?",
-    "testCloudFunctions": "Cloud-Funktionen testen"
+    "testCloudFunctions": "Cloud-Funktionen testen",
+    "tapToUploadImage": "Tippen Sie hier, um ein Bild hochzuladen.",
+    "cropPhotoTitle": "Zugeschnittenes Foto",
+    "imagePickerChooseFromGallery": "Aus der Galerie auswählen",
+    "imagePickerChooseFromGallerySubtitle": "Wählen Sie ein vorhandenes Foto aus",
+    "imagePickerTakePhoto": "Mach ein Foto",
+    "imagePickerTakePhotoSubtitle": "Verwenden Sie Ihre Kamera"
 }

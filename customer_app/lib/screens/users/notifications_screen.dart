@@ -2,13 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
-
-//  Notification source → preference key mapping
-// source: 'order'  → notif_order_status
-// source: 'admin'  → notif_promotions  (admin broadcasts)
-// source: 'nearby' → notif_nearby
-// source: 'news'   → notif_app_news
-// source: 'welcome'→ always shown
+import 'package:shared_assets/extensions/extensions.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -25,7 +19,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       'admin' => getUserPref<bool>('notif_promotions') ?? true,
       'nearby' => getUserPref<bool>('notif_nearby') ?? true,
       'news' => getUserPref<bool>('notif_app_news') ?? true,
-      _ => true, // 'welcome' and unknown sources always shown
+      _ => true,
     };
   }
 
@@ -68,16 +62,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     };
   }
 
-  String _formatTime(dynamic ts) {
+  String _formatTime(BuildContext context, dynamic ts) {
     if (ts == null) return '';
     try {
+      final t = context.l10nCustomer;
       final dt = ts is Timestamp ? ts.toDate() : DateTime.now();
       final diff = DateTime.now().difference(dt);
-      if (diff.inMinutes < 1) return 'Just now';
-      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-      if (diff.inHours < 24) return '${diff.inHours}h ago';
-      if (diff.inDays == 1) return 'Yesterday';
-      return '${diff.inDays}d ago';
+      if (diff.inMinutes < 1) return t.timeJustNow;
+      if (diff.inMinutes < 60) return t.timeMinutesAgo(diff.inMinutes);
+      if (diff.inHours < 24) return t.timeHoursAgo(diff.inHours);
+      if (diff.inDays == 1) return t.timeYesterday;
+      return t.timeDaysAgo(diff.inDays);
     } catch (_) {
       return '';
     }
@@ -85,10 +80,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.l10nCustomer;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6FB),
       appBar: UnifiedAppBar(
-        title: "Notifications",
+        title: t.notificationsTitle,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new,
               color: Colors.white, size: 22),
@@ -111,7 +108,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
           final allDocs = snapshot.data!.docs;
 
-          // Filter by user prefs
           final visible = allDocs.where((doc) {
             return _shouldShow(doc.data() as Map<String, dynamic>);
           }).toList();
@@ -128,13 +124,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Icon(Icons.notifications_off_outlined,
                       size: 64, color: Colors.grey.shade200),
                   const SizedBox(height: 16),
-                  Text("No notifications",
+                  Text(t.noNotifications,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade500)),
                   const SizedBox(height: 6),
-                  Text("You're all caught up!",
+                  Text(t.allCaughtUp,
                       style:
                           TextStyle(fontSize: 13, color: Colors.grey.shade400)),
                 ],
@@ -144,7 +140,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
           return Column(
             children: [
-              //  Header row
               if (unread.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -152,7 +147,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "${unread.length} unread",
+                        t.unreadCount(unread.length),
                         style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -161,7 +156,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       GestureDetector(
                         onTap: () => _markAllRead(visible),
                         child: Text(
-                          "Mark all as read",
+                          t.markAllAsRead,
                           style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -172,7 +167,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ),
 
-              //  List
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -218,7 +212,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Icon badge
                               Container(
                                 width: 40,
                                 height: 40,
@@ -231,7 +224,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               const SizedBox(width: 12),
 
-                              // Content
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +244,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          _formatTime(data['timestamp']),
+                                          _formatTime(context, data['timestamp']),
                                           style: TextStyle(
                                               fontSize: 10,
                                               color: Colors.grey.shade400),
@@ -276,7 +268,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                               ),
 
-                              // Unread dot
                               if (!isRead) ...[
                                 const SizedBox(width: 8),
                                 Container(

@@ -138,6 +138,259 @@
 
 
   "menuNotFound": "Menu not found",
-  "noItemsFound": "No items found in this menu."
+  "noItemsFound": "No items found in this menu.",
+
+  "profileSettingsTitle": "Profile Settings",
+  "noChangesDetected": "No changes detected.",
+  "updatingProfile": "Updating profile...",
+  "profileUpdatedSuccessfully": "Profile updated successfully!",
+  "fullName": "Full Name",
+  "phoneNumber": "Phone Number",
+  "saveChanges": "Save Changes",
+  "notificationsSection": "Notifications",
+  "notificationsSubtitle": "Choose which notifications you receive",
+  "notifOrderStatusLabel": "Order Status Updates",
+  "notifOrderStatusSubtitle": "Notified when your order status changes",
+  "notifPromotionsLabel": "Promotions & Offers",
+  "notifPromotionsSubtitle": "Discounts and deals from restaurants",
+  "notifNearbyLabel": "New Restaurants Nearby",
+  "notifNearbySubtitle": "When a new restaurant opens in your area",
+  "notifAppNewsLabel": "App News & Updates",
+  "notifAppNewsSubtitle": "Feature announcements and app news",
+  "appearanceSection": "Appearance",
+  "darkModeLabel": "Dark Mode",
+  "darkModeSubtitle": "Switch to dark theme",
+  "accountSection": "Account",
+  "accountSecurityLabel": "Account Security",
+  "accountSecuritySubtitle": "Change password, 2FA settings",
+  "deleteAccountLabel": "Delete Account",
+  "deleteAccountSubtitle": "Permanently remove your account and data",
+  "comingSoon": "{feature} — coming soon!",
+  "deleteAccountDialogTitle": "Delete Account",
+  "deleteAccountDialogContent": "This will permanently delete your account and all your data. This cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "personalInformationSection": "Personal Information",
+
+  "cartScreenTitle": "Shopping Cart",
+  "errorLoadingCart": "Error loading cart",
+  "addItemsToGetStarted": "Add items to get started",
+  "originalTotal": "Original Total:",
+  "youSave": "You Save:",
+  "total": "Total:",
+  "clearCart": "Clear Cart",
+  "proceedToCheckout": "Proceed to Checkout",
+
+  "favoritesTitle": "Favorites",
+  "errorLoadingFavorites": "Error loading favorites",
+  "noFavoritesYet": "No favorites yet",
+  "noFavoritesSubtitle": "Tap the heart icon on any item to save it here",
+
+  "topRestaurantsTitle": "Top Restaurants",
+  "inTheSpotlightSubtitle": "All open restaurants",
+  "offersAndPromotions": "Offers & Promotions",
+  "promotionsLive": "Live",
+  "orderAgainTitle": "Order Again",
+  "promotionBannerPlaceholder": "Promotion banners are displayed here",
+  "noActivePromotions": "No active promotions right now",
+  "restaurantsDisplayedHere": "Restaurants are displayed here",
+  "noRestaurantsOpen": "No restaurants are open right now",
+  "unknownRestaurant": "Restaurant",
+
+  "navHome": "Home",
+  "navOrders": "Orders",
+  "navSearch": "Search",
+  "navFavorites": "Favs",
+
+  "notificationsTitle": "Notifications",
+  "noNotifications": "No notifications",
+  "allCaughtUp": "You're all caught up!",
+  "unreadCount": "{count} unread",
+  "markAllAsRead": "Mark all as read",
+  "@unreadCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeJustNow": "Just now",
+  "timeMinutesAgo": "{count}m ago",
+  "timeHoursAgo": "{count}h ago",
+  "timeYesterday": "Yesterday",
+  "timeDaysAgo": "{count}d ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+
+  "searchTitle": "Search!",
+  "searchHint": "Search restaurants or items...",
+  "searchResultCount": "{count} results ({ms}ms)",
+  "searchSearching": "Searching...",
+  "searchError": "Error: {message}",
+  "searchRetry": "Retry",
+  "searchNoResults": "No results found",
+  "searchTypeItem": "Item",
+  "searchTypeRestaurant": "Restaurant",
+  "searchItemIdMissing": "Item ID missing",
+  "searchRestaurantIdMissing": "Restaurant ID missing",
+  "searchFiltersTitle": "Filters",
+  "searchFilterResetAll": "Reset All",
+  "searchFilterCategories": "Categories",
+  "searchFilterNames": "Names",
+  "searchFilterPriceRange": "Price Range: {min} - {max} PLN",
+  "searchFilterApply": "Apply Filters",
+  "@searchResultCount": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "ms": { "type": "int" }
+    }
+  },
+  "@searchError": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "@searchFilterPriceRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+
+
+  "orderIdMessage": "Order #{id}",
+  "@orderIdMessage": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "quantityMessage": "Qty: {qty}",
+  "@quantityMessage": {
+    "placeholders": {
+      "qty": { "type": "int" }
+    }
+  },
+
+  "viewDetails": "View Details",
+  "currencyFormat": "{price}zł",
+  "@currencyFormat": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+
+  "deliveryTime": "{min}-{max} min",
+  "@deliveryTime": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "freeDelivery": "Free delivery",
+  "newStatus": "New",
+  "discountPercent": "{percent}% OFF",
+  "@discountPercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+
+
+  "saveAmount": "Save {amount} zł",
+  "@saveAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "removeItemTitle": "Remove Item",
+  "removeItemConfirm": "Are you sure you want to remove {item} from your cart?",
+  "@removeItemConfirm": {
+    "placeholders": {
+      "item": { "type": "String" }
+    }
+  },
+  "remove": "Remove",
+  "itemRemoved": "Item removed from cart",
+  "errorInvalidId": "Cannot remove item: Invalid item ID",
+
+  "details": "Details",
+  "discountValue": "-{percent}%",
+  "@discountValue": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+
+  "untitledMenu": "Untitled Menu",
+  "browse": "Browse",
+
+  "recipientName": "Recipient Name",
+  "noPhoneNumber": "No Phone Number",
+  "deliveryAddress": "Delivery Address",
+  "addressNotSpecified": "Address not specified",
+
+  "rateOrderTitle": "Rate your order",
+  "skip": "Skip",
+  "foodQuality": "Food Quality",
+  "deliveryDriver": "Delivery Driver",
+  "leaveCommentHint": "Leave a comment (optional)...",
+  "submitRating": "Submit Rating",
+  "thanksFeedback": "Thanks for your feedback!",
+  "ratingValidation": "Please rate both food and driver.",
+  "errorOccurred": "Error: {error}",
+
+  "ratingsAndReviews": "Ratings & Reviews",
+  "reviewCount": "{count, plural, =1{1 review} other{{count} reviews}}",
+  "ratingTrend": "Rating Trend — Last 7 Days",
+  "notEnoughData": "Not enough data yet",
+  "recentReviews": "Recent Reviews",
+  "noReviewsYet": "No reviews yet",
+  "beTheFirstToRate": "Be the first to rate this restaurant",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "daysAgo": "{days}d ago",
+  "unknownCustomer": "Customer",
+  "noData": "No data",
+
+  "drawerAccount": "Account",
+  "profileSettings": "Profile Settings",
+  "myOrders": "My Orders",
+  "favourites": "Favourites",
+  "language": "Language",
+  "drawerSupport": "Support",
+  "helpFaq": "Help & FAQ",
+  "contactUs": "Contact Us",
+  "drawerLegal": "Legal",
+  "privacyPolicy": "Privacy Policy",
+  "termsConditions": "Terms & Conditions",
+  "signOut": "Sign Out",
+  "policyIntroTitle": "1. Introduction",
+  "policyIntroBody": "Welcome to Freequick. By using our app you agree to these terms. Please read them carefully before placing an order or using any of our services.",
+  "policyDataTitle": "2. Data We Collect",
+  "policyDataBody": "We collect information you provide directly, such as your name, email address, phone number, delivery address, and payment information. We also collect usage data to improve our service.",
+  "policyUsageTitle": "3. How We Use Your Data",
+  "policyUsageBody": "Your data is used to process orders, communicate order updates, personalise your experience, and improve our platform. We do not sell your personal data to third parties.",
+  "policyRightsTitle": "4. Your Rights",
+  "policyRightsBody": "You have the right to access, correct, or delete your personal data at any time. You can manage your preferences in Profile Settings or contact our support team.",
+  "policyContactTitle": "5. Contact",
+  "policyContactBody": "If you have questions about this policy, contact us at support@freequick.app."
 
 }

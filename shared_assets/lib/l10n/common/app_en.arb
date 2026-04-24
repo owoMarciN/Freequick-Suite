@@ -110,7 +110,6 @@
   "customer": "Customer",
   "customers": "Customers",
   "restaurants": "Restaurants",
-  "tapToUploadImage": "Tap to upload image.",
   "enterField": "Enter {field}",
   "@enterField": {
     "description": "Hint text for input fields",
@@ -368,5 +367,16 @@
   "menusTitle": "{name} Menus",
   "favorites": "Favorites",
   "questionAppExit": "Are you sure you want to exit the app?",
-  "testCloudFunctions": "Test Cloud Functions"
+  "testCloudFunctions": "Test Cloud Functions",
+
+  "tapToUploadImage": "Tap to upload image.",
+  "cropPhotoTitle": "Crop Photo",
+  "imagePickerChooseFromGallery": "Choose from Gallery",
+  "imagePickerChooseFromGallerySubtitle": "Pick an existing photo",
+  "imagePickerTakePhoto": "Take a Photo",
+  "imagePickerTakePhotoSubtitle": "Use your camera"
+
+
+
+
 }

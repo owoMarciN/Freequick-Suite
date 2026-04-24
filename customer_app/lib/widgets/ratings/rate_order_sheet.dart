@@ -1,17 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
-/// Simple rating submission sheet.
-/// Shows when an order is delivered and has not yet been rated.
-///
-/// Rates:
-///   • Food (1–5 stars)
-///   • Driver (1–5 stars)
-///   • Optional comment
-///
-/// On submit:
-///   • Writes rating/driverRating/ratingComment/ratedAt to the order doc
-///   • Updates restaurants/{id} avgRating + totalRatings via transaction
 void showRateOrderSheet(
   BuildContext context, {
   required String orderID,
@@ -62,7 +52,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
   Future<void> _submit() async {
     if (_foodRating == 0 || _driverRating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please rate both food and driver.')),
+        SnackBar(content: Text(context.l10nCustomer.ratingValidation)),
       );
       return;
     }
@@ -70,7 +60,6 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
     setState(() => _submitting = true);
 
     try {
-      // 1. Write rating to order document
       await FirebaseFirestore.instance
           .collection('orders')
           .doc(widget.orderID)
@@ -81,7 +70,6 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
         'ratedAt': Timestamp.now(),
       });
 
-      // 2. Update restaurant avgRating via transaction
       final restaurantRef = FirebaseFirestore.instance
           .collection('restaurants')
           .doc(widget.restaurantID);
@@ -105,15 +93,14 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
       if (!mounted) return;
       Navigator.pop(context);
 
-      // Show thank-you snack
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.check_circle_outline_rounded,
+              const Icon(Icons.check_circle_outline_rounded,
                   color: Colors.white, size: 18),
-              SizedBox(width: 10),
-              Text('Thanks for your feedback!'),
+              const SizedBox(width: 10),
+              Text(context.l10nCustomer.thanksFeedback),
             ],
           ),
           backgroundColor: const Color(0xFF00C48C),
@@ -128,7 +115,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
       if (!mounted) return;
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(content: Text(context.l10nCustomer.errorOccurred(e.toString()))),
       );
     }
   }
@@ -148,7 +135,6 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle
             Center(
               child: Container(
                 width: 40,
@@ -160,8 +146,6 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Title
             Row(
               children: [
                 Container(
@@ -178,9 +162,9 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Rate your order',
-                        style: TextStyle(
+                      Text(
+                        context.l10nCustomer.rateOrderTitle,
+                        style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w800),
                       ),
                       Text(
@@ -191,45 +175,36 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                     ],
                   ),
                 ),
-                // Skip button
                 TextButton(
                   onPressed: _submitting ? null : () => Navigator.pop(context),
-                  child: Text('Skip',
-                      style:
-                          TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+                  child: Text(
+                    context.l10nCustomer.skip,
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  ),
                 ),
               ],
             ),
-
             const SizedBox(height: 28),
-
-            // Food rating
             _RatingRow(
               icon: Icons.restaurant_rounded,
-              label: 'Food Quality',
+              label: context.l10nCustomer.foodQuality,
               rating: _foodRating,
               onChanged: (v) => setState(() => _foodRating = v),
             ),
-
             const SizedBox(height: 20),
-
-            // Driver rating
             _RatingRow(
               icon: Icons.delivery_dining_rounded,
-              label: 'Delivery Driver',
+              label: context.l10nCustomer.deliveryDriver,
               rating: _driverRating,
               onChanged: (v) => setState(() => _driverRating = v),
             ),
-
             const SizedBox(height: 20),
-
-            // Comment
             TextField(
               controller: _commentController,
               maxLines: 3,
               maxLength: 200,
               decoration: InputDecoration(
-                hintText: 'Leave a comment (optional)...',
+                hintText: context.l10nCustomer.leaveCommentHint,
                 hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -249,10 +224,7 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                     TextStyle(fontSize: 10, color: Colors.grey.shade400),
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Submit
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -274,9 +246,9 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text(
-                        'Submit Rating',
-                        style: TextStyle(
+                    : Text(
+                        context.l10nCustomer.submitRating,
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700),
                       ),
               ),
@@ -287,8 +259,6 @@ class _RateOrderSheetState extends State<_RateOrderSheet> {
     );
   }
 }
-
-//  Star selector row
 
 class _RatingRow extends StatelessWidget {
   final IconData icon;
@@ -324,7 +294,6 @@ class _RatingRow extends StatelessWidget {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
-        // 5 tappable stars
         Row(
           children: List.generate(5, (i) {
             final filled = i < rating;

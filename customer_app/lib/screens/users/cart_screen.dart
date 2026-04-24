@@ -28,7 +28,6 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-
     Provider.of<CartProvider>(context, listen: false).loadCart();
   }
 
@@ -58,12 +57,10 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.l10nCommon;
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: UnifiedAppBar(
-        title: t.shoppingCart,
+        title: context.l10nCustomer.cartScreenTitle,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -88,7 +85,7 @@ class _CartScreenState extends State<CartScreen> {
                   const Icon(Icons.error_outline, size: 60, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
-                    "Error loading cart",
+                    context.l10nCustomer.errorLoadingCart,
                     style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                   ),
                 ],
@@ -136,7 +133,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Add items to get started",
+                  context.l10nCustomer.addItemsToGetStarted,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[500],
@@ -184,8 +181,8 @@ class _CartScreenState extends State<CartScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("Original Total:",
-                              style: TextStyle(
+                          Text(context.l10nCustomer.originalTotal,
+                              style: const TextStyle(
                                   fontSize: 14, color: Colors.white70)),
                           Text(
                               "${amountProvider.originalAmount.toStringAsFixed(2)}zł",
@@ -199,8 +196,8 @@ class _CartScreenState extends State<CartScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("You Save:",
-                              style: TextStyle(
+                          Text(context.l10nCustomer.youSave,
+                              style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600)),
@@ -225,8 +222,8 @@ class _CartScreenState extends State<CartScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("Total:",
-                            style: TextStyle(
+                        Text(context.l10nCustomer.total,
+                            style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white)),
@@ -288,7 +285,6 @@ class _CartScreenState extends State<CartScreen> {
                   : (model.price ?? 0);
               final originalPricePerItem = model.price ?? 0;
 
-              // Only add to totals once per item per snapshot
               if (itemSnapshot.connectionState == ConnectionState.done) {
                 loadedCount++;
                 tempTotal += pricePerItem * quantity;
@@ -337,9 +333,9 @@ class _CartScreenState extends State<CartScreen> {
                 elevation: 2,
               ),
               icon: const Icon(Icons.delete),
-              label: const Text(
-                "Clear Cart",
-                style: TextStyle(
+              label: Text(
+                context.l10nCustomer.clearCart,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -361,9 +357,9 @@ class _CartScreenState extends State<CartScreen> {
                 elevation: 4,
               ),
               icon: const Icon(Icons.shopping_bag),
-              label: const Text(
-                "Proceed to Checkout",
-                style: TextStyle(
+              label: Text(
+                context.l10nCustomer.proceedToCheckout,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

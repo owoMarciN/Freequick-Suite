@@ -96,7 +96,6 @@
     "customer": "고객",
     "customers": "고객",
     "restaurants": "레스토랑",
-    "tapToUploadImage": "이미지를 업로드하려면 탭하세요.",
     "enterField": "{field}을 입력하세요",
     "details": "세부",
     "loading_default": "로딩 중",
@@ -244,5 +243,11 @@
     "menusTitle": "{name} 메뉴",
     "favorites": "즐겨찾기",
     "questionAppExit": "앱을 종료하시겠습니까?",
-    "testCloudFunctions": "클라우드 함수 테스트"
+    "testCloudFunctions": "클라우드 함수 테스트",
+    "tapToUploadImage": "이미지를 업로드하려면 탭하세요.",
+    "cropPhotoTitle": "사진 자르기",
+    "imagePickerChooseFromGallery": "갤러리에서 선택하세요",
+    "imagePickerChooseFromGallerySubtitle": "기존 사진을 선택하세요",
+    "imagePickerTakePhoto": "사진을 찍으세요",
+    "imagePickerTakePhotoSubtitle": "카메라를 사용하세요"
 }

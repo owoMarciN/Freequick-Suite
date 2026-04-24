@@ -12,12 +12,10 @@ import 'package:user_app/models/items.dart';
 import 'package:user_app/models/restaurants.dart';
 import 'package:user_app/widgets/icons/cart_icon.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class SearchScreen extends StatefulWidget {
   final String initialText;
-
-  /// Pre-select a category tag filter (e.g. 'Pizza', 'Burgers').
-  /// Shown as an active chip and applied immediately on load.
   final String? categoryFilter;
 
   /// 0 = All, 1 = Restaurants, 2 = Items
@@ -83,7 +81,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     _client = SearchClient(appId: appId, apiKey: apiKey);
 
-    // Pre-apply category filter if provided
     if (widget.categoryFilter != null && widget.categoryFilter!.isNotEmpty) {
       _selectedCategories.add(widget.categoryFilter!);
     }
@@ -99,8 +96,6 @@ class _SearchScreenState extends State<SearchScreen> {
         .where((c) => _availableItemCategories.contains(c))
         .toList();
 
-    // If we have a pre-set category filter not yet in available list
-    // (first load), apply it directly
     final presetTag = widget.categoryFilter;
     if (itemTags.isEmpty &&
         presetTag != null &&
@@ -230,7 +225,7 @@ class _SearchScreenState extends State<SearchScreen> {
       final item = Items.fromJson(result);
       final itemID = (result['objectID'] ?? result['itemID'] ?? '') as String;
       if (itemID.isEmpty) {
-        unifiedSnackBar("Item ID missing", error: true);
+        unifiedSnackBar(context.l10nCustomer.searchItemIdMissing, error: true);
         return;
       }
       item.itemID = itemID;
@@ -242,17 +237,12 @@ class _SearchScreenState extends State<SearchScreen> {
       final restaurantID =
           (result['objectID'] ?? result['restaurantID'] ?? '') as String;
       if (restaurantID.isEmpty) {
-        unifiedSnackBar("Restaurant ID missing", error: true);
+        unifiedSnackBar(context.l10nCustomer.searchRestaurantIdMissing,
+            error: true);
         return;
       }
-      final restaurant = Restaurants(
-        restaurantID: restaurantID,
-        name: result['name'] ?? '',
-        logoUrl: result['logoUrl'] ?? '',
-        bannerUrl: result['bannerUrl'] ?? '',
-        email: result['email'] ?? '',
-        status: result['status'] ?? '',
-      );
+      final restaurant = Restaurants.fromJson(result);
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => MenusScreen(model: restaurant)),
@@ -270,6 +260,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchTabs = getSearchTabs(context);
+    final t = context.l10nCustomer;
 
     return DefaultTabController(
       length: searchTabs.length,
@@ -285,7 +276,7 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: UnifiedAppBar(
-            title: "Search!",
+            title: t.searchTitle,
             leading: Builder(
               builder: (context) => IconButton(
                 icon: Icon(
@@ -308,7 +299,6 @@ class _SearchScreenState extends State<SearchScreen> {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // -- Search bar -----------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -320,7 +310,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             widget.categoryFilter == null,
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: 'Search restaurants or items...',
+                          hintText: t.searchHint,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -348,14 +338,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.only(top: 12, right: 8),
                     child: IconButton(
                       onPressed: _showFilterBottomSheet,
-                      icon:
-                          const Icon(Icons.tune, color: Colors.black, size: 32),
+                      icon: const Icon(Icons.tune, color: Colors.black, size: 32),
                     ),
                   ),
                 ],
               ),
 
-              // -- Active category chip -------------------------------------
               if (_selectedCategories.isNotEmpty)
                 Padding(
                   padding:
@@ -383,7 +371,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
 
-              // -- Tab bar --------------------------------------------------
               TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
@@ -395,7 +382,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 indicatorSize: TabBarIndicatorSize.label,
                 physics: const ClampingScrollPhysics(),
                 padding: EdgeInsets.zero,
-                tabs: searchTabs.map((t) => Tab(text: t.label)).toList(),
+                tabs: searchTabs.map((tab) => Tab(text: tab.label)).toList(),
                 onTap: (index) {
                   setState(() => _selectedTabIndex = index);
                   _performSearch(_searchController.text);
@@ -404,12 +391,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
               const SizedBox(height: 16),
 
-              // -- Result count ---------------------------------------------
               if (!_isLoading && _error == null)
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Text(
-                    '$_totalHits results (${_processingTime}ms)',
+                    t.searchResultCount(_totalHits, _processingTime),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -428,14 +414,16 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildContent() {
+    final t = context.l10nCustomer;
+
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Colors.redAccent),
-            SizedBox(height: 16),
-            Text('Searching...'),
+            const CircularProgressIndicator(color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(t.searchSearching),
           ],
         ),
       );
@@ -448,11 +436,11 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
-            Text('Error: $_error'),
+            Text(t.searchError(_error!)),
             const SizedBox(height: 16),
             ElevatedButton(
                 onPressed: () => _performSearch(_searchController.text),
-                child: const Text('Retry')),
+                child: Text(t.searchRetry)),
           ],
         ),
       );
@@ -465,7 +453,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Icon(Icons.search_off, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            Text('No results found',
+            Text(t.searchNoResults,
                 style: TextStyle(
                     color: Colors.grey[500],
                     fontSize: 15,
@@ -500,7 +488,6 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Image
                   Stack(
                     children: [
                       ClipRRect(
@@ -534,7 +521,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(width: 12),
 
-                  // Content
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,7 +549,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                         : Colors.green),
                               ),
                               child: Text(
-                                type == 'item' ? 'Item' : 'Restaurant',
+                                type == 'item'
+                                    ? t.searchTypeItem
+                                    : t.searchTypeRestaurant,
                                 style: TextStyle(
                                     fontSize: 10,
                                     color: type == 'item'
@@ -641,106 +629,115 @@ class _SearchScreenState extends State<SearchScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Filters",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setModalState(() {
-                        _selectedCategories.clear();
-                        _currentPriceRange = const RangeValues(0, 500);
-                      });
-                      _clearAllFilters(onComplete: () => setModalState(() {}));
-                    },
-                    icon: const Icon(Icons.refresh,
-                        size: 18, color: Colors.redAccent),
-                    label: const Text("Reset All",
-                        style: TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[50],
-                      elevation: 0,
-                      side: const BorderSide(color: Colors.redAccent),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+        builder: (context, setModalState) {
+          final t = context.l10nCustomer;
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(t.searchFiltersTitle,
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setModalState(() {
+                          _selectedCategories.clear();
+                          _currentPriceRange = const RangeValues(0, 500);
+                        });
+                        _clearAllFilters(
+                            onComplete: () => setModalState(() {}));
+                      },
+                      icon: const Icon(Icons.refresh,
+                          size: 18, color: Colors.redAccent),
+                      label: Text(t.searchFilterResetAll,
+                          style: const TextStyle(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[50],
+                        elevation: 0,
+                        side: const BorderSide(color: Colors.redAccent),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(_selectedTabIndex == 1 ? "Names" : "Categories",
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: _availableCategories.map((cat) {
-                  final isSelected = _selectedCategories.contains(cat);
-                  return FilterChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    selectedColor: Colors.red.shade50,
-                    checkmarkColor: Colors.redAccent,
-                    side: BorderSide(
-                        color: isSelected
-                            ? Colors.redAccent
-                            : Colors.grey.shade300),
-                    onSelected: (val) {
-                      setModalState(() => val
-                          ? _selectedCategories.add(cat)
-                          : _selectedCategories.remove(cat));
-                    },
-                  );
-                }).toList(),
-              ),
-              if (_selectedTabIndex != 1) ...[
+                  ],
+                ),
                 const SizedBox(height: 20),
                 Text(
-                    "Price Range: ${_currentPriceRange.start.round()} - ${_currentPriceRange.end.round()} PLN",
+                    _selectedTabIndex == 1
+                        ? t.searchFilterNames
+                        : t.searchFilterCategories,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
-                RangeSlider(
-                  values: _currentPriceRange,
-                  min: 0,
-                  max: 500,
-                  divisions: 10,
-                  activeColor: Colors.redAccent,
-                  onChanged: (values) =>
-                      setModalState(() => _currentPriceRange = values),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: _availableCategories.map((cat) {
+                    final isSelected = _selectedCategories.contains(cat);
+                    return FilterChip(
+                      label: Text(cat),
+                      selected: isSelected,
+                      selectedColor: Colors.red.shade50,
+                      checkmarkColor: Colors.redAccent,
+                      side: BorderSide(
+                          color: isSelected
+                              ? Colors.redAccent
+                              : Colors.grey.shade300),
+                      onSelected: (val) {
+                        setModalState(() => val
+                            ? _selectedCategories.add(cat)
+                            : _selectedCategories.remove(cat));
+                      },
+                    );
+                  }).toList(),
                 ),
-              ],
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                if (_selectedTabIndex != 1) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                      t.searchFilterPriceRange(
+                          _currentPriceRange.start.round(),
+                          _currentPriceRange.end.round()),
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  RangeSlider(
+                    values: _currentPriceRange,
+                    min: 0,
+                    max: 500,
+                    divisions: 10,
+                    activeColor: Colors.redAccent,
+                    onChanged: (values) =>
+                        setModalState(() => _currentPriceRange = values),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _performSearch(_searchController.text);
-                  },
-                  child: const Text("Apply Filters",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _performSearch(_searchController.text);
+                    },
+                    child: Text(t.searchFilterApply,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

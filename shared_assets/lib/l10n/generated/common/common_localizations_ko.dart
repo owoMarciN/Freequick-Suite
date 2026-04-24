@@ -297,9 +297,6 @@ class CommonLocalizationsKo extends CommonLocalizations {
   String get restaurants => '레스토랑';
 
   @override
-  String get tapToUploadImage => '이미지를 업로드하려면 탭하세요.';
-
-  @override
   String enterField(String field) {
     return '$field을 입력하세요';
   }
@@ -798,4 +795,22 @@ class CommonLocalizationsKo extends CommonLocalizations {
 
   @override
   String get testCloudFunctions => '클라우드 함수 테스트';
+
+  @override
+  String get tapToUploadImage => '이미지를 업로드하려면 탭하세요.';
+
+  @override
+  String get cropPhotoTitle => '사진 자르기';
+
+  @override
+  String get imagePickerChooseFromGallery => '갤러리에서 선택하세요';
+
+  @override
+  String get imagePickerChooseFromGallerySubtitle => '기존 사진을 선택하세요';
+
+  @override
+  String get imagePickerTakePhoto => '사진을 찍으세요';
+
+  @override
+  String get imagePickerTakePhotoSubtitle => '카메라를 사용하세요';
 }

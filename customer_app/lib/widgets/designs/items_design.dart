@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/items.dart';
 import 'package:user_app/screens/items/item_details_screen.dart';
 
@@ -79,7 +80,7 @@ class ItemsDesignWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          '-${model!.discount!.toStringAsFixed(0)}%',
+                          context.l10nCustomer.discountValue(model!.discount!.toStringAsFixed(0)),
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
                       ),
@@ -123,7 +124,7 @@ class ItemsDesignWidget extends StatelessWidget {
                           Row(
                             children: [
                                Text(
-                                model?.title ?? 'Untitled Item',
+                                model?.title ?? context.l10nCustomer.unknownItem,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -186,7 +187,7 @@ class ItemsDesignWidget extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                'PLN ${model?.discountedPrice.toStringAsFixed(2) ?? '0.00'}',
+                                context.l10nCustomer.currencyFormat(model?.discountedPrice.toStringAsFixed(2) ?? '0.00'),
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -196,7 +197,7 @@ class ItemsDesignWidget extends StatelessWidget {
                               if (model?.hasDiscount == true) ...[
                                 const SizedBox(width: 8),
                                 Text(
-                                  'PLN ${model!.price!.toStringAsFixed(2)}',
+                                  context.l10nCustomer.currencyFormat(model!.price!.toStringAsFixed(2)),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[400],
@@ -218,11 +219,14 @@ class ItemsDesignWidget extends StatelessWidget {
                         color: Colors.orange.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Text('Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.orange)),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.orange),
+                          Text(
+                            context.l10nCustomer.details, 
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.orange),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.orange),
                         ],
                       ),
                     ),

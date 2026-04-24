@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:user_app/models/items.dart';
 import '../../screens/orders/order_details_screen.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class OrderCard extends StatelessWidget {
   final int? itemCount;
@@ -50,7 +51,7 @@ class OrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Order #${orderID?.substring(0, 8)}",
+                  context.l10nCustomer.orderIdMessage(orderID?.substring(0, 8) ?? ""),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -64,7 +65,7 @@ class OrderCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    "$itemCount ${itemCount == 1 ? 'item' : 'items'}",
+                    context.l10nCustomer.itemCount(itemCount ?? 0),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -105,7 +106,7 @@ class OrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  "View Details",
+                  context.l10nCustomer.viewDetails,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -169,7 +170,7 @@ class OrderCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    "Qty: $quantity",
+                    context.l10nCustomer.quantityMessage(quantity),
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -186,7 +187,7 @@ class OrderCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "${model.price}zł",
+                    context.l10nCustomer.currencyFormat(model.price.toString()),
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -197,7 +198,7 @@ class OrderCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                "${(model.price! * quantity).toStringAsFixed(2)}zł",
+                context.l10nCustomer.currencyFormat((model.price! * quantity).toStringAsFixed(2)),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

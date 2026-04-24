@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ImagePickerService {
   static final ImagePicker _picker = ImagePicker();
@@ -12,7 +13,7 @@ class ImagePickerService {
   static Future<File?> pickAndCrop(
     BuildContext context, {
     CropStyle cropStyle = CropStyle.circle,
-    Color toolbarColor = const Color(0xFFEF5350), // Colors.redAccent
+    Color toolbarColor = const Color(0xFFEF5350),
   }) async {
     final source = await _showSourceSheet(context);
     if (source == null) return null;
@@ -24,12 +25,14 @@ class ImagePickerService {
     );
     if (picked == null) return null;
 
+    final t = context.l10nCommon;
+
     final CroppedFile? cropped = await ImageCropper().cropImage(
       sourcePath: picked.path,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Crop Photo',
+          toolbarTitle: t.cropPhotoTitle,
           toolbarColor: toolbarColor,
           toolbarWidgetColor: Colors.white,
           activeControlsWidgetColor: toolbarColor,
@@ -38,19 +41,20 @@ class ImagePickerService {
           hideBottomControls: false,
         ),
         IOSUiSettings(
-          title: 'Crop Photo',
+          title: t.cropPhotoTitle,
           cropStyle: cropStyle,
           aspectRatioLockEnabled: true,
           resetAspectRatioEnabled: false,
         ),
       ],
     );
-
     if (cropped == null) return null;
     return File(cropped.path);
   }
 
   static Future<ImageSource?> _showSourceSheet(BuildContext context) {
+    final t = context.l10nCommon;
+
     return showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -78,12 +82,12 @@ class ImagePickerService {
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.photo_library_rounded,
+                  child: const Icon(Icons.photo_library_rounded,
                       color: Colors.redAccent),
                 ),
-                title: const Text('Choose from Gallery',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('Pick an existing photo'),
+                title: Text(t.imagePickerChooseFromGallery,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(t.imagePickerChooseFromGallerySubtitle),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
               ListTile(
@@ -93,12 +97,12 @@ class ImagePickerService {
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child:
-                      Icon(Icons.camera_alt_rounded, color: Colors.redAccent),
+                  child: const Icon(Icons.camera_alt_rounded,
+                      color: Colors.redAccent),
                 ),
-                title: const Text('Take a Photo',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('Use your camera'),
+                title: Text(t.imagePickerTakePhoto,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(t.imagePickerTakePhotoSubtitle),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               const SizedBox(height: 8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:user_app/screens/auth/auth_screen.dart';
 import 'package:user_app/global/global.dart';
@@ -27,74 +28,70 @@ class MyDrawer extends StatelessWidget {
       backgroundColor: Colors.white,
       child: Column(
         children: [
-          //  Header
           _DrawerHeader(name: name, email: email, photoUrl: photoUrl),
-
-          //  Menu items
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionLabel("Account"),
+                  _SectionLabel(context.l10nCustomer.drawerAccount),
                   _DrawerTile(
                     icon: Icons.manage_accounts_rounded,
-                    label: "Profile Settings",
+                    label: context.l10nCustomer.profileSettings,
                     onTap: () => _push(context, const ProfileSettingsScreen()),
                   ),
                   _DrawerTile(
                     icon: Icons.receipt_long_rounded,
-                    label: "My Orders",
+                    label: context.l10nCustomer.myOrders,
                     onTap: () => _push(context, const OrdersScreen()),
                   ),
                   _DrawerTile(
                     icon: Icons.favorite_rounded,
-                    label: "Favourites",
+                    label: context.l10nCustomer.favourites,
                     onTap: () => _push(context, const FavoritesScreen()),
                   ),
                   _DrawerTile(
                     icon: Icons.location_on_rounded,
-                    label: "Address Manager",
+                    label: context.l10nCustomer.addressManager,
                     onTap: () => _push(context, AddressScreen()),
                   ),
                   _DrawerTile(
                     icon: Icons.language_rounded,
-                    label: "Language",
-                    onTap: () =>
-                        _push(context, const LanguageSelectionScreen()),
+                    label: context.l10nCustomer.language,
+                    onTap: () => _push(context, const LanguageSelectionScreen()),
                   ),
                   const SizedBox(height: 8),
-                  _Divider(),
-                  _SectionLabel("Support"),
+                  const _Divider(),
+                  _SectionLabel(context.l10nCustomer.drawerSupport),
                   _DrawerTile(
                     icon: Icons.help_outline_rounded,
-                    label: "Help & FAQ",
+                    label: context.l10nCustomer.helpFaq,
                     onTap: () => _showComingSoon(context),
                   ),
                   _DrawerTile(
                     icon: Icons.chat_bubble_outline_rounded,
-                    label: "Contact Us",
+                    label: context.l10nCustomer.contactUs,
                     onTap: () => _showComingSoon(context),
                   ),
                   const SizedBox(height: 8),
-                  _Divider(),
-                  _SectionLabel("Legal"),
+                  const _Divider(),
+                  _SectionLabel(context.l10nCustomer.drawerLegal),
                   _DrawerTile(
                     icon: Icons.privacy_tip_outlined,
-                    label: "Privacy Policy",
+                    label: context.l10nCustomer.privacyPolicy,
                     onTap: () => _showPolicy(
                       context,
-                      title: "Privacy Policy",
+                      title: context.l10nCustomer.privacyPolicy,
                       icon: Icons.privacy_tip_outlined,
                     ),
                   ),
                   _DrawerTile(
                     icon: Icons.gavel_rounded,
-                    label: "Terms & Conditions",
+                    label: context.l10nCustomer.termsConditions,
                     onTap: () => _showPolicy(
                       context,
-                      title: "Terms & Conditions",
+                      title: context.l10nCustomer.termsConditions,
                       icon: Icons.gavel_rounded,
                     ),
                   ),
@@ -103,12 +100,9 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
           ),
-
-          //  Sign out
           _SignOutButton(
             onTap: () => _signOut(context),
           ),
-
           const SizedBox(height: 16),
         ],
       ),
@@ -123,12 +117,11 @@ class MyDrawer extends StatelessWidget {
   void _showComingSoon(BuildContext context) {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Coming soon!")),
+      SnackBar(content: Text(context.l10nCustomer.comingSoon('🚀'))),
     );
   }
 
-  void _showPolicy(BuildContext context,
-      {required String title, required IconData icon}) {
+  void _showPolicy(BuildContext context, {required String title, required IconData icon}) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -155,12 +148,9 @@ class MyDrawer extends StatelessWidget {
   }
 }
 
-//  Header
-
 class _DrawerHeader extends StatelessWidget {
   final String name, email, photoUrl;
-  const _DrawerHeader(
-      {required this.name, required this.email, required this.photoUrl});
+  const _DrawerHeader({required this.name, required this.email, required this.photoUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +163,10 @@ class _DrawerHeader extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      padding: EdgeInsets.fromLTRB(
-          20, MediaQuery.of(context).padding.top + 20, 20, 24),
+      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar
           Container(
             width: 72,
             height: 72,
@@ -186,10 +174,7 @@ class _DrawerHeader extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 3),
               boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
+                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 12, offset: const Offset(0, 4))
               ],
             ),
             child: ClipOval(
@@ -197,29 +182,20 @@ class _DrawerHeader extends StatelessWidget {
                   ? Image.network(photoUrl, fit: BoxFit.cover)
                   : Container(
                       color: Colors.white.withValues(alpha: 0.3),
-                      child: const Icon(Icons.person_rounded,
-                          size: 40, color: Colors.white),
+                      child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
                     ),
             ),
           ),
           const SizedBox(height: 14),
           Text(
             name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
           ),
           if (email.isNotEmpty) ...[
             const SizedBox(height: 2),
             Text(
               email,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
         ],
@@ -227,8 +203,6 @@ class _DrawerHeader extends StatelessWidget {
     );
   }
 }
-
-//  Section label
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -240,18 +214,11 @@ class _SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
       child: Text(
         label.toUpperCase(),
-        style: TextStyle(
-          fontSize: 10.5,
-          fontWeight: FontWeight.w700,
-          color: Colors.grey.shade400,
-          letterSpacing: 1.2,
-        ),
+        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.grey.shade400, letterSpacing: 1.2),
       ),
     );
   }
 }
-
-//  Drawer tile
 
 class _DrawerTile extends StatelessWidget {
   final IconData icon;
@@ -259,13 +226,8 @@ class _DrawerTile extends StatelessWidget {
   final VoidCallback onTap;
   final Widget? trailing;
 
-  const _DrawerTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    // ignore: unused_element_parameter
-    this.trailing,
-  });
+  // ignore: unused_element_parameter
+  const _DrawerTile({required this.icon, required this.label, required this.onTap, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -275,34 +237,21 @@ class _DrawerTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(9),
-                ),
+                width: 36, height: 36,
+                decoration: BoxDecoration(color: Colors.redAccent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(9)),
                 child: Icon(icon, size: 18, color: Colors.redAccent),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
                 ),
               ),
-              trailing ??
-                  Icon(Icons.chevron_right_rounded,
-                      size: 18, color: Colors.grey.shade300),
+              trailing ?? Icon(Icons.chevron_right_rounded, size: 18, color: Colors.grey.shade300),
             ],
           ),
         ),
@@ -311,11 +260,8 @@ class _DrawerTile extends StatelessWidget {
   }
 }
 
-//  Divider
-
 class _Divider extends StatelessWidget {
   const _Divider();
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -324,8 +270,6 @@ class _Divider extends StatelessWidget {
     );
   }
 }
-
-//  Sign out button
 
 class _SignOutButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -347,16 +291,12 @@ class _SignOutButton extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
+              const SizedBox(width: 8),
               Text(
-                "Sign Out",
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
+                context.l10nCustomer.signOut,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -365,8 +305,6 @@ class _SignOutButton extends StatelessWidget {
     );
   }
 }
-
-//  Policy bottom sheet
 
 class _PolicySheet extends StatelessWidget {
   final String title;
@@ -383,78 +321,39 @@ class _PolicySheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Handle
           Container(
-            width: 40,
-            height: 4,
+            width: 40, height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(2),
-            ),
+            decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(2)),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  decoration: BoxDecoration(color: Colors.redAccent.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
                   child: Icon(icon, color: Colors.redAccent, size: 20),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+                Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                 const Spacer(),
-                IconButton(
-                  icon: Icon(Icons.close_rounded, color: Colors.grey.shade400),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                IconButton(icon: Icon(Icons.close_rounded, color: Colors.grey.shade400), onPressed: () => Navigator.pop(context)),
               ],
             ),
           ),
           const Divider(height: 24),
-          // Placeholder content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _PolicySection(
-                    title: "1. Introduction",
-                    body:
-                        "Welcome to Freequick. By using our app you agree to these terms. Please read them carefully before placing an order or using any of our services.",
-                  ),
-                  _PolicySection(
-                    title: "2. Data We Collect",
-                    body:
-                        "We collect information you provide directly, such as your name, email address, phone number, delivery address, and payment information. We also collect usage data to improve our service.",
-                  ),
-                  _PolicySection(
-                    title: "3. How We Use Your Data",
-                    body:
-                        "Your data is used to process orders, communicate order updates, personalise your experience, and improve our platform. We do not sell your personal data to third parties.",
-                  ),
-                  _PolicySection(
-                    title: "4. Your Rights",
-                    body:
-                        "You have the right to access, correct, or delete your personal data at any time. You can manage your preferences in Profile Settings or contact our support team.",
-                  ),
-                  _PolicySection(
-                    title: "5. Contact",
-                    body:
-                        "If you have questions about this policy, contact us at support@freequick.app.",
-                  ),
+                  _PolicySection(title: context.l10nCustomer.policyIntroTitle, body: context.l10nCustomer.policyIntroBody),
+                  _PolicySection(title: context.l10nCustomer.policyDataTitle, body: context.l10nCustomer.policyDataBody),
+                  _PolicySection(title: context.l10nCustomer.policyUsageTitle, body: context.l10nCustomer.policyUsageBody),
+                  _PolicySection(title: context.l10nCustomer.policyRightsTitle, body: context.l10nCustomer.policyRightsBody),
+                  _PolicySection(title: context.l10nCustomer.policyContactTitle, body: context.l10nCustomer.policyContactBody),
                 ],
               ),
             ),
@@ -476,13 +375,9 @@ class _PolicySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
-          Text(body,
-              style: TextStyle(
-                  fontSize: 13, color: Colors.grey.shade600, height: 1.6)),
+          Text(body, style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.6)),
         ],
       ),
     );

@@ -96,7 +96,6 @@
     "customer": "Клієнт",
     "customers": "Клієнти",
     "restaurants": "Ресторани",
-    "tapToUploadImage": "Натисніть, щоб завантажити зображення.",
     "enterField": "Введіть <x>email address<x>",
     "details": "деталі",
     "loading_default": "Завантаження",
@@ -244,5 +243,11 @@
     "menusTitle": "{name} Меню",
     "favorites": "Улюблені",
     "questionAppExit": "Ви впевнені, що хочете вийти з програми?",
-    "testCloudFunctions": "Тестування хмарних функцій"
+    "testCloudFunctions": "Тестування хмарних функцій",
+    "tapToUploadImage": "Натисніть, щоб завантажити зображення.",
+    "cropPhotoTitle": "Обрізати фото",
+    "imagePickerChooseFromGallery": "Виберіть з галереї",
+    "imagePickerChooseFromGallerySubtitle": "Виберіть існуюче фото",
+    "imagePickerTakePhoto": "Зробіть фотографію",
+    "imagePickerTakePhotoSubtitle": "Використовуйте свою камеру"
 }

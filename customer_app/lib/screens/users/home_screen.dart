@@ -36,7 +36,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //  Home content state
   final PageController _promoPageController =
       PageController(viewportFraction: 0.92);
   int _selectedTabIndex = 0;
@@ -88,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: UnifiedAppBar(
             leading: Builder(
               builder: (context) => IconButton(
-                icon:
-                    const Icon(Icons.menu_open, color: Colors.white, size: 28),
+                icon: const Icon(Icons.menu_open, color: Colors.white, size: 28),
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
@@ -105,47 +103,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //  Header
                     _buildHeader(context),
-
-                    //  Tab bar
                     _buildTabBar(context, tabs),
-
-                    //  Category grid
                     _buildCategoryGrid(
                         context, displayedCategories, hasMore, selectedTab),
-
                     const SizedBox(height: 4),
-
-                    //  Live promotions
                     _PromotionsBanner(
                       pageController: _promoPageController,
                       currentPage: _currentPromoPage,
                       onPageChanged: (i) =>
                           setState(() => _currentPromoPage = i),
                     ),
-
-                    //  Order again
-                    // Order again — only shown if user has past orders
                     const _OrderAgainSection(),
-
-                    //  Top restaurants
                     _buildSectionHeader(
                       context,
-                      'Top Restaurants',
+                      context.l10nCustomer.topRestaurantsTitle,
                       Icons.stars_rounded,
                       color: Colors.amber.shade700,
-                      subtitle: "Highly rated near you",
+                      subtitle: context.l10nCustomer.topRestaurantsSubtitle,
                     ),
                     const SizedBox(
                       height: 170,
                       child: _TopRatedRestaurants(),
                     ),
-
-                    //  What's on your mind
                     _buildSectionHeader(
                       context,
-                      "What's on your mind?",
+                      context.l10nCustomer.whatsOnYourMind,
                       Icons.restaurant_menu_rounded,
                       color: Colors.deepOrange,
                     ),
@@ -157,22 +140,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: HomePageItems(itemsIndex: index),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
-                    //  Spotlight section header
                     _buildSectionHeader(
                       context,
-                      'In the Spotlight',
+                      context.l10nCustomer.inTheSpotlight,
                       Icons.local_fire_department_rounded,
                       color: Colors.redAccent,
-                      subtitle: "All open restaurants",
+                      subtitle: context.l10nCustomer.inTheSpotlightSubtitle,
                     ),
                   ],
                 ),
               ),
 
-              //  Restaurants sliver grid
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("restaurants")
@@ -184,9 +163,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Center(child: circularProgress()));
                   }
                   if (snapshot.hasError) {
-                    return const SliverToBoxAdapter(
-                        child:
-                            Center(child: Text("Error loading restaurants")));
+                    return SliverToBoxAdapter(
+                        child: Center(
+                            child: Text(
+                                context.l10nCustomer.errorLoadingRestaurants)));
                   }
                   if (snapshot.data!.docs.isEmpty) {
                     return SliverToBoxAdapter(
@@ -212,7 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   height: 280,
                                   child: RestaurantCard(
                                     restaurantID: doc.id,
-                                    restaurantName: rModel.name ?? 'Unknown',
+                                    restaurantName: rModel.name ??
+                                        context.l10nCustomer.unknownRestaurant,
                                   ),
                                 ),
                               ),
@@ -258,8 +239,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: FadeTransition(opacity: animation, child: child),
                 ),
               ));
-              if (!mounted) return;
-              FocusScope.of(context).unfocus();
+              if (mounted) {
+                FocusScope.of(context).unfocus();
+              }
             },
             child: Container(
               height: 48,
@@ -296,8 +278,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //  Tab bar
-
   Widget _buildTabBar(BuildContext context, List tabs) {
     return Container(
       decoration: BoxDecoration(
@@ -333,12 +313,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //  Category grid
-
   Widget _buildCategoryGrid(BuildContext context, List displayedCategories,
       bool hasMore, selectedTab) {
     final customer = context.l10nCustomer;
-    
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -371,7 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _showAllCategories ? customer.seeLess(selectedTab.label) : customer.seeMore(selectedTab.label),
+                      _showAllCategories
+                          ? customer.seeLess(selectedTab.label)
+                          : customer.seeMore(selectedTab.label),
                       style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -444,8 +424,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //  Section header
-
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
@@ -490,8 +468,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-//  Promotions banner carousel
-
 class _PromotionsBanner extends StatelessWidget {
   final PageController pageController;
   final int currentPage;
@@ -531,7 +507,7 @@ class _PromotionsBanner extends StatelessWidget {
             .toList();
 
         if (liveDocs.isEmpty) {
-          return _buildEmptyBanner();
+          return _buildEmptyBanner(context);
         }
 
         return Column(
@@ -552,8 +528,8 @@ class _PromotionsBanner extends StatelessWidget {
                         size: 14, color: Colors.redAccent),
                   ),
                   const SizedBox(width: 8),
-                  const Text("Offers & Promotions",
-                      style: TextStyle(
+                  Text(context.l10nCustomer.offersAndPromotions,
+                      style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Colors.black87)),
@@ -574,8 +550,8 @@ class _PromotionsBanner extends StatelessWidget {
                             decoration: const BoxDecoration(
                                 color: Colors.white, shape: BoxShape.circle)),
                         const SizedBox(width: 4),
-                        const Text("Live",
-                            style: TextStyle(
+                        Text(context.l10nCustomer.promotionsLive,
+                            style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white)),
@@ -600,28 +576,16 @@ class _PromotionsBanner extends StatelessWidget {
                   final String title = data['title']?.toString() ?? '';
                   final String description =
                       data['description']?.toString() ?? '';
-                  final String restaurantID =
-                      data['restaurantID']?.toString() ?? '';
+
+                  final restaurant = Restaurants.fromJson(data);
 
                   return GestureDetector(
-                    onTap: () {
-                      if (restaurantID.isEmpty) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MenusScreen(
-                            model: Restaurants(
-                              restaurantID: restaurantID,
-                              name: '',
-                              logoUrl: '',
-                              bannerUrl: '',
-                              email: '',
-                              status: '',
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MenusScreen(model: restaurant),
+                      ),
+                    ),
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 6),
                       decoration: BoxDecoration(
@@ -736,7 +700,6 @@ class _RecentItemsRow extends StatelessWidget {
           return const _SkeletonRow();
         }
 
-        // 1. Extract itemIDs from the orders
         final Set<String> itemIDsToFetch = {};
         String? fallbackRestID;
 
@@ -756,7 +719,6 @@ class _RecentItemsRow extends StatelessWidget {
 
         if (itemIDsToFetch.isEmpty) return const _SkeletonRow();
 
-        // 2. Fetch the actual item data using a Collection Group query
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: fetchItems(itemIDsToFetch.toList(), fallbackRestID ?? ''),
           builder: (context, itemSnap) {
@@ -933,13 +895,13 @@ class _OrderAgainSection extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Order Again",
-                          style: TextStyle(
+                      Text(context.l10nCustomer.orderAgainTitle,
+                          style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: Colors.black87,
                               letterSpacing: 0.1)),
-                      Text("Your recent favourites",
+                      Text(context.l10nCustomer.orderAgainSubtitle,
                           style: TextStyle(
                               fontSize: 11, color: Colors.grey.shade500)),
                     ],
@@ -955,9 +917,7 @@ class _OrderAgainSection extends StatelessWidget {
   }
 }
 
-//  Promotions empty placeholder
-
-Widget _buildEmptyBanner() {
+Widget _buildEmptyBanner(BuildContext context) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -976,8 +936,8 @@ Widget _buildEmptyBanner() {
                   size: 14, color: Colors.redAccent),
             ),
             const SizedBox(width: 8),
-            const Text("Offers & Promotions",
-                style: TextStyle(
+            Text(context.l10nCustomer.offersAndPromotions,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87)),
@@ -1003,14 +963,15 @@ Widget _buildEmptyBanner() {
               Icon(Icons.campaign_outlined,
                   size: 36, color: Colors.grey.shade300),
               const SizedBox(height: 10),
-              Text("Promotion banners are displayed here",
+              Text(context.l10nCustomer.promotionBannerPlaceholder,
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey.shade400)),
               const SizedBox(height: 4),
-              Text("No active promotions right now",
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
+              Text(context.l10nCustomer.noActivePromotions,
+                  style:
+                      TextStyle(fontSize: 11, color: Colors.grey.shade400)),
             ],
           ),
         ),
@@ -1018,8 +979,6 @@ Widget _buildEmptyBanner() {
     ],
   );
 }
-
-//  Restaurant empty placeholder
 
 class _RestaurantPlaceholder extends StatelessWidget {
   @override
@@ -1040,14 +999,15 @@ class _RestaurantPlaceholder extends StatelessWidget {
             Icon(Icons.storefront_outlined,
                 size: 48, color: Colors.grey.shade300),
             const SizedBox(height: 12),
-            Text("Restaurants are displayed here",
+            Text(context.l10nCustomer.restaurantsDisplayedHere,
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade400)),
             const SizedBox(height: 4),
-            Text("No restaurants are open right now",
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade400)),
+            Text(context.l10nCustomer.noRestaurantsOpen,
+                style:
+                    TextStyle(fontSize: 12, color: Colors.grey.shade400)),
           ],
         ),
       ),
@@ -1069,14 +1029,12 @@ class _TopRatedRestaurants extends StatelessWidget {
           .limit(10)
           .snapshots(),
       builder: (context, snapshot) {
-        // Still loading
         if (!snapshot.hasData) {
           return const _TopRatedSkeleton();
         }
 
         final docs = snapshot.data!.docs;
 
-        // No rated restaurants yet — show placeholder
         if (docs.isEmpty) {
           return const _TopRatedSkeleton(isEmpty: true);
         }
@@ -1087,27 +1045,21 @@ class _TopRatedRestaurants extends StatelessWidget {
           itemCount: docs.length,
           itemBuilder: (context, index) {
             final data = docs[index].data() as Map<String, dynamic>;
-            final String restaurantID = docs[index].id;
-            final String name = (data['name'] as String?) ?? 'Restaurant';
+
+            final String name = (data['name'] as String?) ??
+                context.l10nCustomer.unknownRestaurant;
             final String logoUrl = (data['logoUrl'] as String?) ?? '';
             final double avgRating =
                 ((data['avgRating'] as num?) ?? 0).toDouble();
             final int totalRatings = (data['totalRatings'] as int?) ?? 0;
 
+            final restaurant = Restaurants.fromJson(data);
+
             return GestureDetector(
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => MenusScreen(
-                    model: Restaurants(
-                      restaurantID: restaurantID,
-                      name: name,
-                      logoUrl: logoUrl,
-                      bannerUrl: '',
-                      email: '',
-                      status: '',
-                    ),
-                  ),
+                  builder: (_) => MenusScreen(model: restaurant),
                 ),
               ),
               child: Container(
@@ -1121,7 +1073,6 @@ class _TopRatedRestaurants extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Logo
                     Container(
                       margin: const EdgeInsets.only(top: 14),
                       width: 60,
@@ -1138,10 +1089,7 @@ class _TopRatedRestaurants extends StatelessWidget {
                               errorBuilder: (_, __, ___) => _logoFallback())
                           : _logoFallback(),
                     ),
-
                     const SizedBox(height: 8),
-
-                    // Name
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
@@ -1156,10 +1104,7 @@ class _TopRatedRestaurants extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-
                     const Spacer(),
-
-                    // Rating badge
                     Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.symmetric(
@@ -1230,49 +1175,14 @@ class _TopRatedRestaurants extends StatelessWidget {
       );
 }
 
-//  Skeleton / empty state for top rated
-
 class _TopRatedSkeleton extends StatelessWidget {
   final bool isEmpty;
   const _TopRatedSkeleton({this.isEmpty = false});
 
   @override
   Widget build(BuildContext context) {
-    if (isEmpty) {
-      return ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: 4,
-        itemBuilder: (_, __) => Container(
-          width: 130,
-          margin: const EdgeInsets.only(right: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFEEEEEE)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(height: 10, width: 80, color: Colors.grey.shade100),
-              const SizedBox(height: 6),
-              Container(height: 8, width: 50, color: Colors.grey.shade100),
-            ],
-          ),
-        ),
-      );
-    }
+    final color = isEmpty ? Colors.grey.shade100 : Colors.grey.shade200;
 
-    // Loading shimmer-style
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1292,14 +1202,14 @@ class _TopRatedSkeleton extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: color,
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             const SizedBox(height: 10),
-            Container(height: 10, width: 80, color: Colors.grey.shade200),
+            Container(height: 10, width: 80, color: color),
             const SizedBox(height: 6),
-            Container(height: 8, width: 50, color: Colors.grey.shade200),
+            Container(height: 8, width: 50, color: color),
           ],
         ),
       ),

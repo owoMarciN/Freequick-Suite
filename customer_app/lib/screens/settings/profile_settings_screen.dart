@@ -14,6 +14,7 @@ import 'package:phone_form_field/phone_form_field.dart';
 import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
 import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/services/image_picker_service.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
   const ProfileSettingsScreen({super.key});
@@ -31,13 +32,11 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   File? _newPhoto;
   String? _currentPhotoUrl;
 
-  //  Notification prefs
   bool _notifOrderStatus = true;
   bool _notifPromotions = true;
   bool _notifNearby = true;
   bool _notifAppNews = true;
 
-  //  App prefs
   bool _darkMode = false;
 
   @override
@@ -74,8 +73,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     setState(() => _isLoading = false);
   }
 
-  //  Profile save
-
   Future<void> _saveProfile() async {
     final oldName = getUserPref<String>("name") ?? "";
     final oldPhone = getUserPref<String>("phone") ?? "";
@@ -87,7 +84,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     if (!isNameChanged && !isPhoneChanged && !isImageChanged) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No changes detected.")),
+        SnackBar(content: Text(context.l10nCustomer.noChangesDetected)),
       );
       return;
     }
@@ -95,7 +92,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const LoadingDialog(message: "Updating profile..."),
+      builder: (_) =>
+          LoadingDialog(message: context.l10nCustomer.updatingProfile),
     );
 
     try {
@@ -136,16 +134,15 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           .doc(currentUID)
           .update(updateData);
 
-      if (isImageChanged &&
-          oldPhotoUrl != null &&
-          oldPhotoUrl.isNotEmpty) {
+      if (isImageChanged && oldPhotoUrl != null && oldPhotoUrl.isNotEmpty) {
         await deleteOldFile(oldPhotoUrl);
       }
 
       if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully!")),
+        SnackBar(
+            content: Text(context.l10nCustomer.profileUpdatedSuccessfully)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -155,15 +152,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
   }
 
-  //  Notification prefs
-  // Saves to SharedPreferences locally and mirrors to Firestore under
-  // users/{uid}.prefs so the notification bell widget can filter by source.
-  //
-  // In your notification_bell.dart / notifications_screen.dart, filter
-  // documents based on these prefs. Example:
-  //   if source == 'order' && prefs.notif_order_status == false → skip
-  //   if source == 'admin' && prefs.notif_promotions == false → skip
-
   Future<void> _saveNotifPref(String key, bool value) async {
     await saveUserPref<bool>(key, value);
     try {
@@ -171,12 +159,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           .collection("users")
           .doc(currentUID)
           .update({"prefs.$key": value});
-    } catch (_) {
-      // Non-fatal — local pref still saved
-    }
+    } catch (_) {}
   }
-
-  //  Dark mode
 
   Future<void> _toggleDarkMode(bool value) async {
     setState(() => _darkMode = value);
@@ -186,8 +170,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         .setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
   }
 
-  //  Build
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -195,7 +177,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF6F6FB),
         appBar: UnifiedAppBar(
-          title: "Profile Settings",
+          title: context.l10nCustomer.profileSettingsTitle,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new,
                 color: Colors.white, size: 22),
@@ -210,26 +192,24 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //  Avatar
                     _buildAvatar(),
                     const SizedBox(height: 28),
-
-                    //  Personal info
-                    _SectionLabel("Personal Information"),
+                    _SectionLabel(
+                        context.l10nCustomer.personalInformationSection),
                     const SizedBox(height: 12),
                     _Card(
                       child: Column(
                         children: [
                           CustomTextField(
                             controller: _nameController,
-                            hintText: "Full Name",
+                            hintText: context.l10nCustomer.fullName,
                             data: Icons.person_rounded,
                             isObsecure: false,
                             enabled: true,
                           ),
                           CustomPhoneField(
                             controller: _phoneController,
-                            label: "Phone Number",
+                            label: context.l10nCustomer.phoneNumber,
                           ),
                         ],
                       ),
@@ -253,19 +233,16 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white))
-                            : const Text("Save Changes",
-                                style: TextStyle(
+                            : Text(context.l10nCustomer.saveChanges,
+                                style: const TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.w700)),
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
-                    //  Notifications
-                    _SectionLabel("Notifications"),
+                    _SectionLabel(context.l10nCustomer.notificationsSection),
                     const SizedBox(height: 4),
                     Text(
-                      "Choose which notifications you receive",
+                      context.l10nCustomer.notificationsSubtitle,
                       style:
                           TextStyle(fontSize: 12, color: Colors.grey.shade500),
                     ),
@@ -275,8 +252,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         children: [
                           _NotifTile(
                             icon: Icons.local_shipping_rounded,
-                            label: "Order Status Updates",
-                            subtitle: "Notified when your order status changes",
+                            label: context.l10nCustomer.notifOrderStatusLabel,
+                            subtitle:
+                                context.l10nCustomer.notifOrderStatusSubtitle,
                             value: _notifOrderStatus,
                             onChanged: (v) async {
                               setState(() => _notifOrderStatus = v);
@@ -286,8 +264,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                           _Divider(),
                           _NotifTile(
                             icon: Icons.local_offer_rounded,
-                            label: "Promotions & Offers",
-                            subtitle: "Discounts and deals from restaurants",
+                            label: context.l10nCustomer.notifPromotionsLabel,
+                            subtitle:
+                                context.l10nCustomer.notifPromotionsSubtitle,
                             value: _notifPromotions,
                             onChanged: (v) async {
                               setState(() => _notifPromotions = v);
@@ -297,9 +276,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                           _Divider(),
                           _NotifTile(
                             icon: Icons.storefront_rounded,
-                            label: "New Restaurants Nearby",
-                            subtitle:
-                                "When a new restaurant opens in your area",
+                            label: context.l10nCustomer.notifNearbyLabel,
+                            subtitle: context.l10nCustomer.notifNearbySubtitle,
                             value: _notifNearby,
                             onChanged: (v) async {
                               setState(() => _notifNearby = v);
@@ -309,8 +287,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                           _Divider(),
                           _NotifTile(
                             icon: Icons.campaign_rounded,
-                            label: "App News & Updates",
-                            subtitle: "Feature announcements and app news",
+                            label: context.l10nCustomer.notifAppNewsLabel,
+                            subtitle: context.l10nCustomer.notifAppNewsSubtitle,
                             value: _notifAppNews,
                             onChanged: (v) async {
                               setState(() => _notifAppNews = v);
@@ -320,17 +298,14 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
-                    //  Appearance
-                    _SectionLabel("Appearance"),
+                    _SectionLabel(context.l10nCustomer.appearanceSection),
                     const SizedBox(height: 12),
                     _Card(
                       child: _PrefTile(
                         icon: Icons.dark_mode_rounded,
-                        label: "Dark Mode",
-                        subtitle: "Switch to dark theme",
+                        label: context.l10nCustomer.darkModeLabel,
+                        subtitle: context.l10nCustomer.darkModeSubtitle,
                         trailing: Switch(
                           value: _darkMode,
                           onChanged: _toggleDarkMode,
@@ -338,27 +313,26 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
-                    //  Account
-                    _SectionLabel("Account"),
+                    _SectionLabel(context.l10nCustomer.accountSection),
                     const SizedBox(height: 12),
                     _Card(
                       child: Column(
                         children: [
                           _PrefTile(
                             icon: Icons.security_rounded,
-                            label: "Account Security",
-                            subtitle: "Change password, 2FA settings",
-                            onTap: () => _showComingSoon("Account Security"),
+                            label: context.l10nCustomer.accountSecurityLabel,
+                            subtitle:
+                                context.l10nCustomer.accountSecuritySubtitle,
+                            onTap: () => _showComingSoon(
+                                context.l10nCustomer.accountSecurityLabel),
                           ),
                           _Divider(),
                           _PrefTile(
                             icon: Icons.delete_outline_rounded,
-                            label: "Delete Account",
+                            label: context.l10nCustomer.deleteAccountLabel,
                             subtitle:
-                                "Permanently remove your account and data",
+                                context.l10nCustomer.deleteAccountSubtitle,
                             iconColor: Colors.redAccent,
                             labelColor: Colors.redAccent,
                             onTap: _showDeleteDialog,
@@ -372,8 +346,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       ),
     );
   }
-
-  //  Avatar
 
   Widget _buildAvatar() {
     return Center(
@@ -438,11 +410,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     );
   }
 
-  //  Helpers
-
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$feature — coming soon!")),
+      SnackBar(content: Text(context.l10nCustomer.comingSoon(feature))),
     );
   }
 
@@ -451,28 +421,25 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Delete Account",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        content: const Text(
-            "This will permanently delete your account and all your data. This cannot be undone.",
-            style: TextStyle(fontSize: 13)),
+        title: Text(context.l10nCustomer.deleteAccountDialogTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        content: Text(context.l10nCustomer.deleteAccountDialogContent,
+            style: const TextStyle(fontSize: 13)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text(context.l10nCustomer.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text("Delete", style: TextStyle(color: Colors.redAccent)),
+            child: Text(context.l10nCustomer.delete,
+                style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
     );
   }
 }
-
-//  Shared sub-widgets
 
 class _SectionLabel extends StatelessWidget {
   final String label;

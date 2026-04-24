@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 import 'package:user_app/models/menus.dart';
 import 'package:user_app/screens/items/items_screen.dart';
 
@@ -75,7 +76,7 @@ class MenusDesignWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            model?.title ?? 'Untitled Menu',
+                            model?.title ?? context.l10nCustomer.untitledMenu,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -103,11 +104,14 @@ class MenusDesignWidget extends StatelessWidget {
                         color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Text('Browse', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.orange)),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.orange),
+                          Text(
+                            context.l10nCustomer.browse, 
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.orange),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.orange),
                         ],
                       ),
                     ),

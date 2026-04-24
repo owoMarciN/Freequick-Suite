@@ -96,7 +96,6 @@
     "customer": "Klient",
     "customers": "Klienci",
     "restaurants": "Restauracje",
-    "tapToUploadImage": "Kliknij, aby przesłać obraz.",
     "enterField": "Wprowadź <x>email address<x>",
     "details": "bliższe dane",
     "loading_default": "Załadunek",
@@ -244,5 +243,11 @@
     "menusTitle": "{name} Menu",
     "favorites": "Ulubione",
     "questionAppExit": "Czy na pewno chcesz opuścić aplikację?",
-    "testCloudFunctions": "Testowanie funkcji chmury"
+    "testCloudFunctions": "Testowanie funkcji chmury",
+    "tapToUploadImage": "Kliknij, aby przesłać obraz.",
+    "cropPhotoTitle": "Przytnij zdjęcie",
+    "imagePickerChooseFromGallery": "Wybierz z Galerii",
+    "imagePickerChooseFromGallerySubtitle": "Wybierz istniejące zdjęcie",
+    "imagePickerTakePhoto": "Zrób zdjęcie",
+    "imagePickerTakePhotoSubtitle": "Użyj aparatu"
 }

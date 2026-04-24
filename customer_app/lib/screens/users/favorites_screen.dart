@@ -7,6 +7,7 @@ import 'package:user_app/widgets/ui/unified_app_bar.dart';
 import 'package:user_app/widgets/ui/my_drower.dart';
 import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:user_app/methods/favorites_methods.dart';
+import 'package:shared_assets/extensions/extensions.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -16,7 +17,6 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Listener(
@@ -29,7 +29,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       },
       child: Scaffold(
         appBar: UnifiedAppBar(
-          title: "Favorites",
+          title: context.l10nCustomer.favoritesTitle,
           leading: Builder(
             builder: (context) => IconButton(
               icon: Icon(
@@ -64,9 +64,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     const Icon(Icons.error_outline,
                         size: 60, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text("Error loading favorites",
-                        style:
-                            TextStyle(fontSize: 16, color: Colors.grey[700])),
+                    Text(
+                      context.l10nCustomer.errorLoadingFavorites,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
                   ],
                 ),
               );
@@ -95,7 +96,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Icon(Icons.favorite_outline, size: 100, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
-            "No favorites yet",
+            context.l10nCustomer.noFavoritesYet,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -104,7 +105,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Tap the heart icon on any item to save it here",
+            context.l10nCustomer.noFavoritesSubtitle,
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
@@ -227,7 +228,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              item.title ?? 'Unknown Item',
+                              item.title ?? context.l10nCustomer.unknownItem,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
