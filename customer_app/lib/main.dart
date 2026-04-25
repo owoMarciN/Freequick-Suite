@@ -31,7 +31,7 @@ import 'package:shared_assets/l10n/l10n.dart';
 import 'package:shared_assets/extensions/extensions.dart';
 
 import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
-import 'package:user_app/screens/auth/session_init_screen.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,11 +129,7 @@ class MyApp extends StatelessWidget {
             return const MySplashScreen();
           }
           if (snapshot.data == null) {
-            sessionReady = false;
             return const AuthScreen();
-          }
-          if (!sessionReady) {
-            return SessionInitScreen(user: snapshot.data!);
           }
           return const MainScreen();
         },

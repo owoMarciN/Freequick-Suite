@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (status == "Not approved") {
         if (!mounted) return;
-        return _failWith("Account not approved yet");
+        return _failWith(context.l10nMerchant.account_is_pending_approval);
       }
 
       await sharedPreferences!.setString("uid", currentUser.uid);

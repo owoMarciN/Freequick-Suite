@@ -325,7 +325,8 @@ class _CartScreenState extends State<CartScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: Colors.red.shade300),
@@ -333,11 +334,15 @@ class _CartScreenState extends State<CartScreen> {
                 elevation: 2,
               ),
               icon: const Icon(Icons.delete),
-              label: Text(
-                context.l10nCustomer.clearCart,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  context.l10nCustomer.clearCart,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  maxLines: 1,
                 ),
               ),
             ),
@@ -350,18 +355,23 @@ class _CartScreenState extends State<CartScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade600,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 4,
               ),
               icon: const Icon(Icons.shopping_bag),
-              label: Text(
-                context.l10nCustomer.proceedToCheckout,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  context.l10nCustomer.proceedToCheckout,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  maxLines: 1,
                 ),
               ),
             ),

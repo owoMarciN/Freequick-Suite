@@ -19,6 +19,7 @@ class CartIconWidget extends StatelessWidget {
             isLabelVisible: counter.count > 0,
             label: Text(counter.count > 99 ? '99+' : '${counter.count}'),
             backgroundColor: Colors.red,
+            padding: EdgeInsets.zero,
             child: const Icon(
               Icons.shopping_bag,
               color: Colors.white,

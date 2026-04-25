@@ -6,14 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:user_app/providers/address_provider.dart';
 import 'package:user_app/providers/cart_provider.dart';
 import 'package:user_app/global/global.dart';
-import 'package:user_app/screens/users/main_screen.dart';
+import 'package:user_app/screens/splash_screen.dart';
 import 'package:user_app/widgets/ui/auth_button.dart';
 
 import 'package:shared_assets/widgets/dialogs/error_dialog.dart';
 import 'package:shared_assets/widgets/dialogs/loading_dialog.dart';
 import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
 import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
-import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 import 'package:shared_assets/extensions/extensions.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> loginNow() async {
+  Future<void> _loginNow() async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -42,52 +41,35 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
 
-      final currentUser = authResult.user;
-      if (currentUser == null) {
-        if (!mounted) return;
-        throw Exception(context.l10nCommon.errorLoginFailed);
+      final User? currentUser = authResult.user;
+
+      if (currentUser != null) {
+        await _loadAndSaveUserData(currentUser);
       }
 
-      await readDataAndSetDataLocally(currentUser);
-
+    } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       Navigator.pop(context);
-
-      await Future.delayed(const Duration(milliseconds: 150));
-
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
-
-    } on FirebaseAuthException catch (error) {
-      _handleErrorUI(error.message ?? context.l10nCommon.errorLoginFailed);
-    } catch (e) {
-      _handleErrorUI(e.toString());
-    }
-  }
-
-  // Helper method to cleanly close the dialog and show the error
-  void _handleErrorUI(String errorMessage) {
-    if (!mounted) return;
-    Navigator.pop(context); // Always dismiss the loading dialog
-
-    // Custom handling for the blocked account thrown from below
-    if (errorMessage.contains("ACCOUNT_BLOCKED")) {
-      unifiedSnackBar(context.l10nCommon.errorAccountBlocked, error: true);
-    } else {
       showDialog(
         context: context,
-        builder: (_) =>
-            ErrorDialog(message: errorMessage.replaceAll("Exception: ", "")),
+        builder: (_) => ErrorDialog(
+            message: error.message ?? context.l10nMerchant.errorLoginFailed),
       );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (_) => ErrorDialog(
+            message: e.toString()),
+      );
+      ();
     }
   }
 
   Future<void> formValidation() async {
     if (_formKey.currentState!.validate()) {
-      await loginNow();
+      await _loginNow();
     } else {
       showDialog(
         context: context,
@@ -97,47 +79,72 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> readDataAndSetDataLocally(User currentUser) async {
-    // Force token refresh to ensure Firestore rules see the latest auth state
-    await currentUser.getIdToken(true);
+  Future<void> _loadAndSaveUserData(User currentUser) async {
+    try {
+      final userSnap = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(currentUser.uid)
+        .get();
 
-    await sharedPreferences!.setString("uid", currentUser.uid);
+      if (!userSnap.exists) {
+        if (!mounted) return;
+        return _failWith(context.l10nCommon.errorNoRecordFound);
+      }
 
-    final docRef =
-        FirebaseFirestore.instance.collection("users").doc(currentUser.uid);
-    final snapshot =
-        await docRef.get(const GetOptions(source: Source.serverAndCache));
+      final userData = userSnap.data()!;
+      final String role = userData["role"]?.toString().toLowerCase() ?? "";
+      final String status = userData["status"]?.toString().toLowerCase() ?? "";
 
-    if (!snapshot.exists) {
-      await firebaseAuth.signOut();
-      await sharedPreferences!.remove("uid");
-      throw Exception(context.l10nCommon.errorNoRecordFound);
+      if (role != "customer" || status != "approved") {
+        await firebaseAuth.signOut();
+        throw Exception("ACCOUNT_BLOCKED");
+      }
+
+      // Save preferences
+      await sharedPreferences!.setString("uid", currentUser.uid);
+      await saveUserPref<String>("email", userData["email"]);
+      await saveUserPref<String>("name", userData["name"]);
+      await saveUserPref<String>("phone", userData["phone"]);
+      await saveUserPref<String>("photoUrl", userData["photoUrl"]);
+
+      // Init Providers
+      if (!mounted) return;
+      await Provider.of<CartProvider>(context, listen: false).loadCart();
+
+      if (!mounted) return;
+      await Provider.of<AddressProvider>(context, listen: false)
+          .loadSavedAddress();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MySplashScreen()),
+      );
+    } catch (e) {
+      if (firebaseAuth.currentUser != null) {
+        await firebaseAuth.signOut();
+      }
+      if (!mounted) return;
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (_) => ErrorDialog(message: e.toString()),
+      );
     }
+  }
 
-    final data = snapshot.data()!;
-    if (data["role"] != "customer" || data["status"] != "approved") {
-      await firebaseAuth.signOut();
-      await sharedPreferences!.remove("uid");
-      throw Exception("ACCOUNT_BLOCKED"); // Caught by loginNow()
-    }
+  Future<void> _failWith(String message) async {
+    await firebaseAuth.signOut();
 
-    // Save preferences
-    await saveUserPref<String>("email", data["email"]);
-    await saveUserPref<String>("name", data["name"]);
-    await saveUserPref<String>("phone", data["phone"]);
-    await saveUserPref<String>("photoUrl", data["photoUrl"]);
-
-    // Init Providers
     if (!mounted) return;
-    await Provider.of<CartProvider>(context, listen: false).loadCart();
 
-    // CRITICAL: If loadSavedAddress() returns a Future, you MUST await it
-    // to guarantee it finishes before navigating to MainScreen.
-    if (!mounted) return;
-    await Provider.of<AddressProvider>(context, listen: false)
-        .loadSavedAddress();
-
-    sessionReady = true;
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (_) => ErrorDialog(message: message),
+    );
   }
 
   @override

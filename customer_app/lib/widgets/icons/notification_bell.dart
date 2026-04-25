@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:user_app/global/global.dart';
 import 'package:user_app/screens/users/notifications_screen.dart';
 
-/// Drop-in bell icon for the phone app's AppBar.
-///
-/// Shows a red badge with unread count, respecting the user's
-/// notification preferences stored in SharedPreferences.
-///
-/// Usage in UnifiedAppBar actions:
-///   actions: [const NotificationBell()],
 class NotificationBell extends StatefulWidget {
   const NotificationBell({super.key});
 
@@ -71,12 +64,10 @@ class _NotificationBellState extends State<NotificationBell>
       builder: (context, snapshot) {
         final unreadDocs = snapshot.data?.docs ?? [];
 
-        // Filter by notification prefs
         final unreadCount = unreadDocs
             .where((doc) => _shouldCount(doc.data() as Map<String, dynamic>))
             .length;
 
-        // Shake on new notification
         if (unreadCount > _previousUnread) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _shakeController.forward(from: 0);
@@ -84,49 +75,32 @@ class _NotificationBellState extends State<NotificationBell>
         }
         _previousUnread = unreadCount;
 
-        return GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const NotificationsScreen(),
-            ),
+        return AnimatedBuilder(
+          animation: _shakeAnimation,
+          builder: (context, child) => Transform.rotate(
+            angle: _shakeAnimation.value,
+            child: child,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: AnimatedBuilder(
-              animation: _shakeAnimation,
-              builder: (context, child) => Transform.rotate(
-                angle: _shakeAnimation.value,
-                child: child,
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.notifications_rounded,
-                      color: Colors.white, size: 26),
-                  if (unreadCount > 0)
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: const BoxDecoration(
-                          color: Colors.redAccent,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints:
-                            const BoxConstraints(minWidth: 16, minHeight: 16),
-                        child: Text(
-                          unreadCount > 99 ? '99+' : unreadCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
+          child: IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+            ),
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text(unreadCount > 99 ? '99+' : '$unreadCount'),
+              backgroundColor: Colors.red,
+              padding: EdgeInsets.zero,
+              child: const Icon(
+                Icons.notifications_rounded,
+                color: Colors.white,
+                size: 28,
+                shadows: [
+                  Shadow(
+                    color: Color(0x66000000),
+                    offset: Offset(2.0, 2.0),
+                    blurRadius: 4.0,
+                  ),
                 ],
               ),
             ),
