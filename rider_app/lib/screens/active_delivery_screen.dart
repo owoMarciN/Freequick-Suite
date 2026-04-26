@@ -57,13 +57,9 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
           body: Stack(
             children: [
               //  Map
-              _MapSection(
-                order: order,
-                onMapCreated: (c) => mapController = c,
-              ),
+              _MapSection(order: order, onMapCreated: (c) => mapController = c),
 
               //  Bottom panel
-              // Inside ActiveDeliveryScreen build method:
               DraggableScrollableSheet(
                 controller: _sheetController,
                 initialChildSize: 0.25,
@@ -75,13 +71,13 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
                   return Container(
                     decoration: BoxDecoration(
                       color: brand.muted,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
                       boxShadow: [
-                        BoxShadow(blurRadius: 10, color: Colors.black12)
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
-                    // Pass the scrollController directly to your panel
                     child: _BottomPanel(
                       order: order,
                       status: status,
@@ -118,8 +114,6 @@ class _MapSection extends StatefulWidget {
 class _MapSectionState extends State<_MapSection> {
   late GoogleMapController? controller;
 
-  /// Extract lat/lng from the embedded address map.
-  /// Falls back to Kraków centre if coordinates are missing.
   LatLng _addressLatLng(dynamic addressData) {
     if (addressData is Map) {
       final lat = double.tryParse(addressData['lat']?.toString() ?? '');
@@ -134,13 +128,12 @@ class _MapSectionState extends State<_MapSection> {
     final address = widget.order['address'];
     final dropoff = _addressLatLng(address);
 
-    // Restaurant lat/lng — stored on order if available
     final double restLat =
         double.tryParse(widget.order['restaurantLat']?.toString() ?? '') ??
-            dropoff.latitude;
+        dropoff.latitude;
     final double restLng =
         double.tryParse(widget.order['restaurantLng']?.toString() ?? '') ??
-            dropoff.longitude;
+        dropoff.longitude;
     final pickup = LatLng(restLat, restLng);
 
     final midLat = (pickup.latitude + dropoff.latitude) / 2;
@@ -152,17 +145,19 @@ class _MapSectionState extends State<_MapSection> {
         position: pickup,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         infoWindow: InfoWindow(
-          title: '🏪 Restaurant',
-          snippet: widget.order['restaurantName']?.toString() ?? 'Pickup',
+          title: context.l10nRider.mapMarkerRestaurant,
+          snippet:
+              widget.order['restaurantName']?.toString() ??
+              context.l10nRider.mapMarkerPickupSnippet,
         ),
       ),
       Marker(
         markerId: const MarkerId('dropoff'),
         position: dropoff,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        infoWindow: const InfoWindow(
-          title: '🏠 Customer',
-          snippet: 'Drop-off location',
+        infoWindow: InfoWindow(
+          title: context.l10nRider.mapMarkerCustomer,
+          snippet: context.l10nRider.mapMarkerDropoffSnippet,
         ),
       ),
     };
@@ -221,10 +216,13 @@ class _TopBar extends StatelessWidget {
           _GlassButton(
             onTap: () => Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const MainScreen()),
-              (route) => false, // This removes ALL previous routes
+              (route) => false,
             ),
-            child: Icon(Icons.arrow_back_rounded,
-                color: textBrand.color, size: 20),
+            child: Icon(
+              Icons.arrow_back_rounded,
+              color: textBrand.color,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 8),
           _GlassButton(
@@ -254,7 +252,7 @@ class _TopBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  status,
+                  status, // Keep status raw here, as it maps directly to DB
                   style: TextStyle(
                     color: brand.primary,
                     fontWeight: FontWeight.w700,
@@ -324,14 +322,12 @@ class _BottomPanel extends StatelessWidget {
             width: 60,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.3), // Subtle white
+              color: Colors.white.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
-        const SizedBox(
-          height: 16,
-        ),
+        const SizedBox(height: 16),
         // Status stepper
         _StatusStepper(status: status),
 
@@ -341,11 +337,7 @@ class _BottomPanel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              _ActionCard(
-                status: status,
-                orderID: orderID,
-                provider: provider,
-              ),
+              _ActionCard(status: status, orderID: orderID, provider: provider),
               const SizedBox(height: 14),
               _OrderDetailsCard(order: order),
               const SizedBox(height: 14),
@@ -359,17 +351,10 @@ class _BottomPanel extends StatelessWidget {
 }
 
 //  Status stepper
-// Uses customer app status strings: In Progress → Ready → Delivered
 
 class _StatusStepper extends StatelessWidget {
   final String status;
   const _StatusStepper({required this.status});
-
-  static const List<Map<String, String>> _steps = [
-    {'key': 'In Progress', 'label': 'Heading\nto Store'},
-    {'key': 'Ready', 'label': 'Picked\nUp'},
-    {'key': 'Delivered', 'label': 'Delivered'},
-  ];
 
   int _currentIndex(String s) {
     switch (s) {
@@ -387,13 +372,19 @@ class _StatusStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cur = _currentIndex(status);
-
     final brand = Theme.of(context).extension<BrandColors>()!;
+
+    // Moved _steps inside build so it can access context
+    final List<Map<String, String>> steps = [
+      {'key': 'In Progress', 'label': context.l10nRider.stepHeadingToStore},
+      {'key': 'Ready', 'label': context.l10nRider.stepPickedUp},
+      {'key': 'Delivered', 'label': context.l10nRider.stepDelivered},
+    ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: List.generate(_steps.length * 2 - 1, (i) {
+        children: List.generate(steps.length * 2 - 1, (i) {
           if (i.isOdd) {
             return Expanded(
               child: Container(
@@ -421,8 +412,11 @@ class _StatusStepper extends StatelessWidget {
                 ),
                 child: Center(
                   child: done && !active
-                      ? const Icon(Icons.check_rounded,
-                          size: 14, color: Colors.white)
+                      ? const Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: Colors.white,
+                        )
                       : Text(
                           '${si + 1}',
                           style: TextStyle(
@@ -435,7 +429,7 @@ class _StatusStepper extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _steps[si]['label']!,
+                steps[si]['label']!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: done ? brand.primary : brand.primaryDark,
@@ -466,20 +460,29 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cfg = _config(status);
-    final color = cfg['color'] as Color;
+    final cfg = _config(status, context);
+    final color =
+        cfg['color'] as Color? ??
+        Theme.of(
+          context,
+        ).extension<BrandColors>()!.primary!; // added fallback just in case
     final brand = Theme.of(context).extension<BrandColors>()!;
+
+    // Make sure color is assigned safely for different statuses
+    final resolvedColor = status == 'Delivered'
+        ? brand.success!
+        : brand.primary!;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: resolvedColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: resolvedColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(cfg['icon'] as IconData, color: color, size: 24),
+          Icon(cfg['icon'] as IconData, color: resolvedColor, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -488,17 +491,14 @@ class _ActionCard extends StatelessWidget {
                 Text(
                   cfg['title'] as String,
                   style: TextStyle(
-                    color: color,
+                    color: resolvedColor,
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                   ),
                 ),
                 Text(
                   cfg['subtitle'] as String,
-                  style: TextStyle(
-                    color: brand.primaryDark,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: brand.primaryDark, fontSize: 12),
                 ),
               ],
             ),
@@ -510,20 +510,25 @@ class _ActionCard extends StatelessWidget {
                   ? null
                   : () => _onTap(context, cfg['nextStatus'] as String),
               style: ElevatedButton.styleFrom(
-                backgroundColor: color,
+                backgroundColor: resolvedColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: provider.isLoading
                   ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : Text(
                       cfg['btnLabel'] as String,
@@ -536,38 +541,38 @@ class _ActionCard extends StatelessWidget {
     );
   }
 
-  // Maps customer app status strings to UI config
-  Map<String, dynamic> _config(String status) {
+  // Passed context so we can read translations
+  Map<String, dynamic> _config(String status, BuildContext context) {
     switch (status) {
       case 'In Progress':
         return {
           'icon': Icons.directions_bike_rounded,
-          'title': 'Head to Restaurant',
-          'subtitle': 'Navigate to pick up the order',
+          'title': context.l10nRider.actionHeadToRestaurant,
+          'subtitle': context.l10nRider.actionNavToPickup,
           'nextStatus': AppConstants.statusReady,
-          'btnLabel': 'Picked Up',
+          'btnLabel': context.l10nRider.actionBtnPickedUp,
         };
       case 'Ready':
         return {
           'icon': Icons.delivery_dining_rounded,
-          'title': 'Delivering',
-          'subtitle': 'Head to the customer location',
+          'title': context.l10nRider.actionDelivering,
+          'subtitle': context.l10nRider.actionNavToCustomer,
           'nextStatus': AppConstants.statusDelivered,
-          'btnLabel': 'Delivered ✓',
+          'btnLabel': context.l10nRider.actionBtnDelivered,
         };
       case 'Delivered':
         return {
           'icon': Icons.check_circle_rounded,
-          'title': 'Order Delivered',
-          'subtitle': 'Great work!',
+          'title': context.l10nRider.actionOrderDeliveredTitle,
+          'subtitle': context.l10nRider.actionOrderDeliveredSubtitle,
           'nextStatus': null,
           'btnLabel': '',
         };
       default:
         return {
           'icon': Icons.schedule_rounded,
-          'title': 'Processing',
-          'subtitle': 'Please wait...',
+          'title': context.l10nRider.actionProcessing,
+          'subtitle': context.l10nRider.actionPleaseWait,
           'nextStatus': null,
           'btnLabel': '',
         };
@@ -583,25 +588,31 @@ class _ActionCard extends StatelessWidget {
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: scheme.surface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title:
-              Text('Confirm Delivery', style: TextStyle(color: brand.primary)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            context.l10nRider.dialogConfirmDelivery,
+            style: TextStyle(color: brand.primary),
+          ),
           content: Text(
-            'Did you hand the order to the customer?',
+            context.l10nRider.dialogHandedToCustomer,
             style: TextStyle(color: brand.primaryDark),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: brand.primaryDark)),
+              child: Text(
+                context.l10nCommon.cancel,
+                style: TextStyle(color: brand.primaryDark),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 provider.updateOrderStatus(orderID, nextStatus);
               },
-              child: const Text('Yes, Delivered'),
+              child: Text(context.l10nRider.dialogYesDelivered),
             ),
           ],
         ),
@@ -632,7 +643,8 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
 
     final order = widget.order;
     final String restaurantName =
-        order['restaurantName']?.toString() ?? 'Restaurant';
+        order['restaurantName']?.toString() ??
+        context.l10nRider.defaultRestaurantName;
     final String total = '${order['totalAmount'] ?? '0.00'} zł';
     final String orderType = order['orderType']?.toString() ?? 'delivery';
     final String paymentMethod = order['paymentMethod']?.toString() ?? 'cash';
@@ -640,11 +652,12 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
 
     // Delivery address
     final addr = order['address'];
-    String deliveryAddress = 'Address not available';
+    String deliveryAddress = context.l10nRider.addressNotAvailable;
     if (addr is Map) {
-      deliveryAddress = addr['fullAddress']?.toString() ??
+      deliveryAddress =
+          addr['fullAddress']?.toString() ??
           addr['address']?.toString() ??
-          'Address not available';
+          context.l10nRider.addressNotAvailable;
     }
 
     return Container(
@@ -662,19 +675,27 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  Icon(Icons.receipt_long_outlined,
-                      color: brand.primaryDark, size: 18),
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    color: brand.primaryDark,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
-                  Text('Order Details',
-                      style: TextStyle(
-                          color: brand.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14)),
+                  Text(
+                    context.l10nRider.orderDetailsTitle,
+                    style: TextStyle(
+                      color: brand.primary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
                   const Spacer(),
                   // Payment badge
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: (isCash ? brand.warning : brand.primary)!
                           .withValues(alpha: 0.15),
@@ -692,7 +713,9 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isCash ? 'Cash: $total' : 'Card Paid',
+                          isCash
+                              ? context.l10nRider.paymentCash(total)
+                              : context.l10nRider.paymentCard,
                           style: TextStyle(
                             color: isCash ? brand.warning : brand.primary,
                             fontSize: 11,
@@ -727,8 +750,8 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                     iconColor: brand.primarySoft!,
                     label: restaurantName,
                     subtitle: orderType == 'pickup'
-                        ? 'Pickup order'
-                        : 'Delivery order',
+                        ? context.l10nRider.orderTypePickup
+                        : context.l10nRider.orderTypeDelivery,
                   ),
                   const SizedBox(height: 10),
 
@@ -737,7 +760,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                     _InfoRow(
                       icon: Icons.location_on_outlined,
                       iconColor: brand.primary!,
-                      label: 'Delivery Address',
+                      label: context.l10nRider.labelDeliveryAddress,
                       subtitle: deliveryAddress,
                     ),
 
@@ -745,8 +768,8 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                     _InfoRow(
                       icon: Icons.storefront_rounded,
                       iconColor: brand.primary!,
-                      label: 'Pickup',
-                      subtitle: 'Customer collects from store',
+                      label: context.l10nRider.labelPickup,
+                      subtitle: context.l10nRider.subtitleCustomerCollects,
                     ),
 
                   Divider(color: dividerColor, height: 20),
@@ -755,9 +778,13 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Order Total',
-                          style: TextStyle(
-                              color: brand.primaryDark, fontSize: 13)),
+                      Text(
+                        context.l10nRider.orderTotal,
+                        style: TextStyle(
+                          color: brand.primaryDark,
+                          fontSize: 13,
+                        ),
+                      ),
                       Text(
                         total,
                         style: TextStyle(
@@ -804,16 +831,20 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(
-                      color: brand.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13)),
-              Text(subtitle,
-                  style:
-                      TextStyle(color: brand.primaryDark, fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
+              Text(
+                label,
+                style: TextStyle(
+                  color: brand.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(color: brand.primaryDark, fontSize: 12),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
@@ -844,29 +875,31 @@ class _NavigateButton extends StatelessWidget {
     if (toRestaurant) {
       lat = double.tryParse(order['restaurantLat']?.toString() ?? '');
       lng = double.tryParse(order['restaurantLng']?.toString() ?? '');
-      label = 'Navigate to Restaurant';
+      label = context.l10nRider.navToRestaurant;
     } else {
       final addr = order['address'];
       if (addr is Map) {
         lat = double.tryParse(addr['lat']?.toString() ?? '');
         lng = double.tryParse(addr['lng']?.toString() ?? '');
       }
-      label = 'Navigate to Customer';
+      label = context.l10nRider.navToCustomer;
     }
 
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed:
-            (lat != null && lng != null) ? () => _navigate(lat!, lng!) : null,
+        onPressed: (lat != null && lng != null)
+            ? () => _navigate(lat!, lng!)
+            : null,
         icon: const Icon(Icons.navigation_rounded, size: 18),
         label: Text(label),
         style: OutlinedButton.styleFrom(
           foregroundColor: brand.primary,
           side: BorderSide(color: brand.primary!),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
     );
@@ -875,7 +908,8 @@ class _NavigateButton extends StatelessWidget {
   Future<void> _navigate(double lat, double lng) async {
     final gMaps = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final browser = Uri.parse(
-        'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving');
+      'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving',
+    );
     if (await canLaunchUrl(gMaps)) {
       await launchUrl(gMaps);
     } else {

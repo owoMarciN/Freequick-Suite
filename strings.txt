@@ -1,0 +1,626 @@
+rider_app/lib/widgets/sheets/job_request_sheet.dart:1:import 'dart:async';
+rider_app/lib/widgets/sheets/job_request_sheet.dart:2:import 'package:flutter/material.dart';
+rider_app/lib/widgets/sheets/job_request_sheet.dart:3:import 'package:rider_app/models/dispatch_model.dart';
+rider_app/lib/widgets/sheets/job_request_sheet.dart:4:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/widgets/sheets/job_request_sheet.dart:69:      debugPrint('ACCEPT ERROR: $e');
+rider_app/lib/widgets/sheets/job_request_sheet.dart:72:          SnackBar(content: Text('Aplication Error: $e')),
+rider_app/lib/widgets/sheets/job_request_sheet.dart:90:      debugPrint('REJECT ERROR: $e');
+rider_app/lib/widgets/sheets/job_request_sheet.dart:147:                          Text('New Job',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:154:                                ? 'Autorejecting in $_secondsLeft s'
+rider_app/lib/widgets/sheets/job_request_sheet.dart:155:                                : 'Expires in $_secondsLeft s',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:177:                        'zł ${(job.deliveryFee).toStringAsFixed(2)}',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:216:                        label: 'Pickup from',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:224:                        label: 'Ship to',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:225:                        value: job.customerName ?? 'Customer',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:240:                          ? 'Cash · zł${job.finalTotal.toStringAsFixed(2)}'
+rider_app/lib/widgets/sheets/job_request_sheet.dart:241:                          : 'Payed (Stripe)',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:249:                      label: '${job.items.length} products',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:272:                          'Get zł${job.finalTotal.toStringAsFixed(2)} of payment',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:302:                        child: const Text('Reject'),
+rider_app/lib/widgets/sheets/job_request_sheet.dart:315:                        child: const Text('Accept'),
+rider_app/lib/widgets/sheets/job_request_sheet.dart:346:                Text(_showItems ? 'Hide products' : 'Show products',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:374:                            Text('${item.quantity}x',
+rider_app/lib/widgets/sheets/job_request_sheet.dart:379:                            Text('zł ${(item.price).toStringAsFixed(2)}'),
+rider_app/lib/widgets/sheets/job_request_sheet.dart:390:  bool _isCash(String method) => method.toLowerCase() == 'cash';
+rider_app/lib/widgets/ui/progress_bar.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/widgets/ui/language_button.dart:1:import 'package:country_flags/country_flags.dart';
+rider_app/lib/widgets/ui/language_button.dart:2:import 'package:flutter/material.dart';
+rider_app/lib/widgets/ui/language_button.dart:3:import 'package:provider/provider.dart';
+rider_app/lib/widgets/ui/language_button.dart:4:import 'package:rider_app/providers/locale_provider.dart';
+rider_app/lib/widgets/ui/language_button.dart:5:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/widgets/ui/language_button.dart:6:import 'package:shared_assets/models/language.dart';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:2:import 'package:intl/intl.dart';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:3:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:4:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:17:        NumberFormat.simpleCurrency(locale: 'PL', decimalDigits: 2);
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:41:                "Today's Earnings",
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:71:                    '${provider.rider?.totalDeliveries ?? 0}',
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:79:                    'Deliveries',
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:165:    case 'BIKE':
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:167:      label = 'Bike';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:169:    case 'CAR':
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:171:      label = 'Car';
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:173:    case 'SCOOTER':
+rider_app/lib/widgets/stats/rider_stats_widgets.dart:176:      label = 'Scooter';
+rider_app/lib/test/test_function_sheet.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/test/test_function_sheet.dart:2:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/test/test_function_sheet.dart:3:import 'package:cloud_functions/cloud_functions.dart';
+rider_app/lib/test/test_function_sheet.dart:4:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/test/test_function_sheet.dart:15:      FirebaseFunctions.instanceFor(region: 'europe-west1');
+rider_app/lib/test/test_function_sheet.dart:23:    _functions.useFunctionsEmulator('localhost', 5001);
+rider_app/lib/test/test_function_sheet.dart:28:      _log += "$text\n";
+rider_app/lib/test/test_function_sheet.dart:33:    final ref = FirebaseFirestore.instance.collection("quotes").doc();
+rider_app/lib/test/test_function_sheet.dart:36:      "userID": "testUser",
+rider_app/lib/test/test_function_sheet.dart:37:      "restaurantID": "test_restaurant",
+rider_app/lib/test/test_function_sheet.dart:38:      "restaurantName": "Test Restaurant",
+rider_app/lib/test/test_function_sheet.dart:39:      "itemIDs": ["item1"],
+rider_app/lib/test/test_function_sheet.dart:40:      "orderType": "delivery",
+rider_app/lib/test/test_function_sheet.dart:41:      "itemsTotal": 10.0,
+rider_app/lib/test/test_function_sheet.dart:42:      "deliveryFee": 5.0,
+rider_app/lib/test/test_function_sheet.dart:43:      "finalTotal": 15.0,
+rider_app/lib/test/test_function_sheet.dart:44:      "status": "PENDING",
+rider_app/lib/test/test_function_sheet.dart:45:      "addressID": "TEST_ADDRESS",
+rider_app/lib/test/test_function_sheet.dart:46:      "createdAt": FieldValue.serverTimestamp(),
+rider_app/lib/test/test_function_sheet.dart:53:    _appendLog("CASH TEST START");
+rider_app/lib/test/test_function_sheet.dart:58:        await _functions.httpsCallable('placeOrder').call({'quoteID': quoteID});
+rider_app/lib/test/test_function_sheet.dart:60:    _appendLog("CASH RESULT: ${res.data}");
+rider_app/lib/test/test_function_sheet.dart:64:    _appendLog("STRIPE TEST START");
+rider_app/lib/test/test_function_sheet.dart:69:        .httpsCallable('createPaymentIntent')
+rider_app/lib/test/test_function_sheet.dart:70:        .call({'quoteID': quoteID});
+rider_app/lib/test/test_function_sheet.dart:72:    _appendLog("STRIPE RESULT: ${res.data}");
+rider_app/lib/test/test_function_sheet.dart:76:    _appendLog("INVALID TEST START");
+rider_app/lib/test/test_function_sheet.dart:80:          .httpsCallable('placeOrder')
+rider_app/lib/test/test_function_sheet.dart:81:          .call({'quoteID': 'INVALID_ID'});
+rider_app/lib/test/test_function_sheet.dart:83:      _appendLog("ERROR: $e");
+rider_app/lib/test/test_function_sheet.dart:89:      label: "Test Cash Order",
+rider_app/lib/test/test_function_sheet.dart:94:      label: "Test Stripe Intent",
+rider_app/lib/test/test_function_sheet.dart:99:      label: "Test Invalid Quote",
+rider_app/lib/test/test_function_sheet.dart:116:      _appendLog("ERROR: $e");
+rider_app/lib/test/test_function_sheet.dart:137:            "Cloud Functions Tester",
+rider_app/lib/test/test_function_sheet.dart:175:                      ? "Remember to firsly uncomment the database rules to allow anyone to read/write for testing purposes. Logs will appear here..."
+rider_app/lib/test/test_function_sheet.dart:179:                    fontFamily: 'monospace',
+rider_app/lib/screens/home_screen.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/screens/home_screen.dart:2:import 'package:provider/provider.dart';
+rider_app/lib/screens/home_screen.dart:3:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/screens/home_screen.dart:4:import 'package:rider_app/providers/rider_stats_provider.dart';
+rider_app/lib/screens/home_screen.dart:5:import 'package:rider_app/test/test_function_sheet.dart';
+rider_app/lib/screens/home_screen.dart:6:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/home_screen.dart:7:import 'package:rider_app/widgets/sheets/job_request_sheet.dart';
+rider_app/lib/screens/home_screen.dart:8:import 'package:rider_app/widgets/stats/rider_stats_widgets.dart';
+rider_app/lib/screens/home_screen.dart:9:import 'package:rider_app/screens/active_delivery_screen.dart';
+rider_app/lib/screens/home_screen.dart:255:                    ? 'Ready to receive orders'
+rider_app/lib/screens/home_screen.dart:256:                    : 'Go online to receive orders',
+rider_app/lib/screens/home_screen.dart:290:          label: 'Rating',
+rider_app/lib/screens/home_screen.dart:299:                    : '—',
+rider_app/lib/screens/home_screen.dart:309:          label: 'Vehicle',
+rider_app/lib/screens/home_screen.dart:310:          value: buildVehicleWidget(provider.rider?.vehicleType ?? 'SCOOTER'),
+rider_app/lib/screens/home_screen.dart:317:          label: 'Status',
+rider_app/lib/screens/home_screen.dart:338:        Text(isOnline ? 'Online' : 'Offline'),
+rider_app/lib/screens/home_screen.dart:352:        Text('Recent Activity',
+rider_app/lib/screens/home_screen.dart:369:                Text('No recent deliveries',
+rider_app/lib/screens/home_screen.dart:372:                Text('Go online to start receiving jobs',
+rider_app/lib/screens/profile_screen.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/screens/profile_screen.dart:2:import 'package:provider/provider.dart';
+rider_app/lib/screens/profile_screen.dart:3:import 'package:rider_app/models/rider_model.dart';
+rider_app/lib/screens/profile_screen.dart:4:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/screens/profile_screen.dart:5:import 'package:rider_app/providers/rider_stats_provider.dart';
+rider_app/lib/screens/profile_screen.dart:6:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/profile_screen.dart:7:import 'package:shared_assets/providers/theme_provider.dart';
+rider_app/lib/screens/profile_screen.dart:8:import 'package:rider_app/widgets/stats/rider_stats_widgets.dart';
+rider_app/lib/screens/profile_screen.dart:81:              rider.name.isNotEmpty ? rider.name[0].toUpperCase() : 'R',
+rider_app/lib/screens/profile_screen.dart:122:          label: 'Deliveries',
+rider_app/lib/screens/profile_screen.dart:129:              Text('${stats.totalDeliveries}'),
+rider_app/lib/screens/profile_screen.dart:135:          label: 'Rating',
+rider_app/lib/screens/profile_screen.dart:144:                  : '—'),
+rider_app/lib/screens/profile_screen.dart:150:          label: 'Vehicle',
+rider_app/lib/screens/profile_screen.dart:185:          Text('Performance Summary',
+rider_app/lib/screens/profile_screen.dart:192:              label: 'Today',
+rider_app/lib/screens/profile_screen.dart:196:              label: 'This Week',
+rider_app/lib/screens/profile_screen.dart:200:              label: 'This Month',
+rider_app/lib/screens/profile_screen.dart:207:              Text('Avg. per trip',
+rider_app/lib/screens/profile_screen.dart:211:                '${stats.avgEarningsPerDelivery.toStringAsFixed(2)} zł',
+rider_app/lib/screens/profile_screen.dart:242:          Text('$count orders',
+rider_app/lib/screens/profile_screen.dart:265:          child: Text('Settings',
+rider_app/lib/screens/profile_screen.dart:286:                  label: 'Notifications',
+rider_app/lib/screens/profile_screen.dart:291:                  label: 'Privacy & Security',
+rider_app/lib/screens/profile_screen.dart:295:                  label: 'Help Center',
+rider_app/lib/screens/profile_screen.dart:299:                label: 'App Version',
+rider_app/lib/screens/profile_screen.dart:301:                    Text('1.0.0', style: TextStyle(color: brand.primaryDark)),
+rider_app/lib/screens/profile_screen.dart:353:          label: 'Dark Mode',
+rider_app/lib/screens/auth/otp_screen.dart:1:import 'dart:async';
+rider_app/lib/screens/auth/otp_screen.dart:2:import 'package:flutter/material.dart';
+rider_app/lib/screens/auth/otp_screen.dart:3:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/screens/auth/otp_screen.dart:4:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/screens/auth/otp_screen.dart:5:import 'package:rider_app/screens/auth/profile_setup_screen.dart';
+rider_app/lib/screens/auth/otp_screen.dart:6:import 'package:rider_app/screens/main_screen.dart';
+rider_app/lib/screens/auth/otp_screen.dart:7:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/auth/otp_screen.dart:84:          _error = e.message ?? 'Failed to send OTP.';
+rider_app/lib/screens/auth/otp_screen.dart:143:          'invalid-verification-code' =>
+rider_app/lib/screens/auth/otp_screen.dart:144:            'Incorrect code. Check the SMS and try again.',
+rider_app/lib/screens/auth/otp_screen.dart:145:          'session-expired' => 'The code expired. Tap Resend to get a new one.',
+rider_app/lib/screens/auth/otp_screen.dart:146:          _ => e.message ?? 'Verification failed. Try again.',
+rider_app/lib/screens/auth/otp_screen.dart:154:    if (user == null) throw Exception('Email user not signed in');
+rider_app/lib/screens/auth/otp_screen.dart:159:      if (e.code == 'provider-already-linked') {
+rider_app/lib/screens/auth/otp_screen.dart:161:      } else if (e.code == 'credential-already-in-use') {
+rider_app/lib/screens/auth/otp_screen.dart:172:    final riderDoc = await _db.collection('riders').doc(uid).get();
+rider_app/lib/screens/auth/otp_screen.dart:220:                        'Verify\nYour Number',
+rider_app/lib/screens/auth/otp_screen.dart:231:                        'Enter the 6-digit code sent to\n${widget.args.phone}',
+rider_app/lib/screens/auth/otp_screen.dart:282:                                  'Verify',
+rider_app/lib/screens/auth/otp_screen.dart:293:                                'Resend code in $_secondsLeft s',
+rider_app/lib/screens/auth/otp_screen.dart:301:                                  'Resend code',
+rider_app/lib/screens/auth/login_screen.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/screens/auth/login_screen.dart:2:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/screens/auth/login_screen.dart:3:import 'package:rider_app/screens/auth/otp_screen.dart';
+rider_app/lib/screens/auth/login_screen.dart:4:import 'package:phone_form_field/phone_form_field.dart';
+rider_app/lib/screens/auth/login_screen.dart:5:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/auth/login_screen.dart:6:import 'package:shared_assets/widgets/text_fields/custom_password_field.dart';
+rider_app/lib/screens/auth/login_screen.dart:7:import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
+rider_app/lib/screens/auth/login_screen.dart:8:import 'package:shared_assets/widgets/text_fields/custom_text_field.dart';
+rider_app/lib/screens/auth/login_screen.dart:75:          'user-not-found' => 'No account found for this email.',
+rider_app/lib/screens/auth/login_screen.dart:76:          'wrong-password' => 'Incorrect password.',
+rider_app/lib/screens/auth/login_screen.dart:77:          'invalid-email' => 'Please enter a valid email address.',
+rider_app/lib/screens/auth/login_screen.dart:78:          'user-disabled' => 'This account has been disabled.',
+rider_app/lib/screens/auth/login_screen.dart:79:          _ => e.message ?? 'Login failed. Try again.',
+rider_app/lib/screens/auth/login_screen.dart:83:      setState(() => _error = 'Something went wrong. Try again.');
+rider_app/lib/screens/auth/login_screen.dart:108:                    'Welcome Back',
+rider_app/lib/screens/auth/login_screen.dart:117:                    'Sign in to continue delivering',
+rider_app/lib/screens/auth/login_screen.dart:127:                    hintText: 'Email address',
+rider_app/lib/screens/auth/login_screen.dart:130:                        ? 'Email is required'
+rider_app/lib/screens/auth/login_screen.dart:136:                    label: 'Password',
+rider_app/lib/screens/auth/login_screen.dart:143:                    label: 'Phone number for OTP verification',
+rider_app/lib/screens/auth/profile_setup_screen.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:2:import 'package:provider/provider.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:3:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:4:import 'package:rider_app/screens/main_screen.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:5:import 'package:rider_app/services/auth_service.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:6:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/auth/profile_setup_screen.dart:18:  String _vehicleType = 'SCOOTER';
+rider_app/lib/screens/auth/profile_setup_screen.dart:23:    {'type': 'BIKE', 'label': 'Bicycle', 'icon': Icons.pedal_bike},
+rider_app/lib/screens/auth/profile_setup_screen.dart:24:    {'type': 'SCOOTER', 'label': 'Scooter', 'icon': Icons.electric_scooter},
+rider_app/lib/screens/auth/profile_setup_screen.dart:25:    {'type': 'CAR', 'label': 'Car', 'icon': Icons.directions_car},
+rider_app/lib/screens/auth/profile_setup_screen.dart:49:                'Complete\nYour Profile',
+rider_app/lib/screens/auth/profile_setup_screen.dart:57:                'Tell us a bit about yourself',
+rider_app/lib/screens/auth/profile_setup_screen.dart:67:                  labelText: 'Full Name',
+rider_app/lib/screens/auth/profile_setup_screen.dart:76:                'Vehicle Type',
+rider_app/lib/screens/auth/profile_setup_screen.dart:87:                  final bool isSelected = _vehicleType == v['type'];
+rider_app/lib/screens/auth/profile_setup_screen.dart:92:                        onTap: () => setState(() => _vehicleType = v['type']),
+rider_app/lib/screens/auth/profile_setup_screen.dart:111:                                v['icon'] as IconData,
+rider_app/lib/screens/auth/profile_setup_screen.dart:119:                                v['label'] as String,
+rider_app/lib/screens/auth/profile_setup_screen.dart:160:                      : const Text('Start Delivering'),
+rider_app/lib/screens/auth/profile_setup_screen.dart:172:    debugPrint("BUTTON CLICKED");
+rider_app/lib/screens/auth/profile_setup_screen.dart:177:      debugPrint("NAME EMPTY");
+rider_app/lib/screens/auth/profile_setup_screen.dart:178:      setState(() => _error = 'Please enter your name');
+rider_app/lib/screens/auth/profile_setup_screen.dart:189:      debugPrint("Saving profile...");
+rider_app/lib/screens/auth/profile_setup_screen.dart:197:      debugPrint("PROFILE SAVED");
+rider_app/lib/screens/auth/profile_setup_screen.dart:201:      debugPrint("RELOADING PROVIDER...");
+rider_app/lib/screens/auth/profile_setup_screen.dart:206:      debugPrint("DONE");
+rider_app/lib/screens/auth/profile_setup_screen.dart:211:      debugPrint("ERROR OCCURRED: $e");
+rider_app/lib/screens/auth/profile_setup_screen.dart:212:      setState(() => _error = 'Failed to save profile. Try again.');
+rider_app/lib/screens/main_screen.dart:1:import 'package:flutter/material.dart';
+rider_app/lib/screens/main_screen.dart:2:import 'package:provider/provider.dart';
+rider_app/lib/screens/main_screen.dart:3:import 'package:shared_assets/methods/shared_methods.dart';
+rider_app/lib/screens/main_screen.dart:4:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/screens/main_screen.dart:5:import 'package:rider_app/screens/home_screen.dart';
+rider_app/lib/screens/main_screen.dart:6:import 'package:rider_app/screens/profile_screen.dart';
+rider_app/lib/screens/main_screen.dart:7:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/main_screen.dart:107:                    riderProvider.rider?.name ?? 'Rider',
+rider_app/lib/screens/main_screen.dart:136:                        riderProvider.isOnline ? 'Online' : 'Offline',
+rider_app/lib/screens/active_delivery_screen.dart:15:import 'package:flutter/material.dart';
+rider_app/lib/screens/active_delivery_screen.dart:16:import 'package:google_maps_flutter/google_maps_flutter.dart';
+rider_app/lib/screens/active_delivery_screen.dart:17:import 'package:provider/provider.dart';
+rider_app/lib/screens/active_delivery_screen.dart:18:import 'package:rider_app/screens/main_screen.dart';
+rider_app/lib/screens/active_delivery_screen.dart:19:import 'package:rider_app/utils/app_constants.dart';
+rider_app/lib/screens/active_delivery_screen.dart:20:import 'package:url_launcher/url_launcher.dart';
+rider_app/lib/screens/active_delivery_screen.dart:21:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/screens/active_delivery_screen.dart:22:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/screens/active_delivery_screen.dart:52:        final String status = order['status']?.toString() ?? 'In Progress';
+rider_app/lib/screens/active_delivery_screen.dart:53:        final String orderID = order['orderID']?.toString() ?? '';
+rider_app/lib/screens/active_delivery_screen.dart:125:      final lat = double.tryParse(addressData['lat']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:126:      final lng = double.tryParse(addressData['lng']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:134:    final address = widget.order['address'];
+rider_app/lib/screens/active_delivery_screen.dart:139:        double.tryParse(widget.order['restaurantLat']?.toString() ?? '') ??
+rider_app/lib/screens/active_delivery_screen.dart:142:        double.tryParse(widget.order['restaurantLng']?.toString() ?? '') ??
+rider_app/lib/screens/active_delivery_screen.dart:151:        markerId: const MarkerId('pickup'),
+rider_app/lib/screens/active_delivery_screen.dart:155:          title: '🏪 Restaurant',
+rider_app/lib/screens/active_delivery_screen.dart:156:          snippet: widget.order['restaurantName']?.toString() ?? 'Pickup',
+rider_app/lib/screens/active_delivery_screen.dart:160:        markerId: const MarkerId('dropoff'),
+rider_app/lib/screens/active_delivery_screen.dart:164:          title: '🏠 Customer',
+rider_app/lib/screens/active_delivery_screen.dart:165:          snippet: 'Drop-off location',
+rider_app/lib/screens/active_delivery_screen.dart:233:              '#${orderID.length >= 8 ? orderID.substring(0, 8).toUpperCase() : orderID}',
+rider_app/lib/screens/active_delivery_screen.dart:369:    {'key': 'In Progress', 'label': 'Heading\nto Store'},
+rider_app/lib/screens/active_delivery_screen.dart:370:    {'key': 'Ready', 'label': 'Picked\nUp'},
+rider_app/lib/screens/active_delivery_screen.dart:371:    {'key': 'Delivered', 'label': 'Delivered'},
+rider_app/lib/screens/active_delivery_screen.dart:376:      case 'In Progress':
+rider_app/lib/screens/active_delivery_screen.dart:378:      case 'Ready':
+rider_app/lib/screens/active_delivery_screen.dart:380:      case 'Delivered':
+rider_app/lib/screens/active_delivery_screen.dart:427:                          '${si + 1}',
+rider_app/lib/screens/active_delivery_screen.dart:438:                _steps[si]['label']!,
+rider_app/lib/screens/active_delivery_screen.dart:470:    final color = cfg['color'] as Color;
+rider_app/lib/screens/active_delivery_screen.dart:482:          Icon(cfg['icon'] as IconData, color: color, size: 24),
+rider_app/lib/screens/active_delivery_screen.dart:489:                  cfg['title'] as String,
+rider_app/lib/screens/active_delivery_screen.dart:497:                  cfg['subtitle'] as String,
+rider_app/lib/screens/active_delivery_screen.dart:506:          if (cfg['nextStatus'] != null) ...[
+rider_app/lib/screens/active_delivery_screen.dart:511:                  : () => _onTap(context, cfg['nextStatus'] as String),
+rider_app/lib/screens/active_delivery_screen.dart:529:                      cfg['btnLabel'] as String,
+rider_app/lib/screens/active_delivery_screen.dart:542:      case 'In Progress':
+rider_app/lib/screens/active_delivery_screen.dart:544:          'icon': Icons.directions_bike_rounded,
+rider_app/lib/screens/active_delivery_screen.dart:545:          'title': 'Head to Restaurant',
+rider_app/lib/screens/active_delivery_screen.dart:546:          'subtitle': 'Navigate to pick up the order',
+rider_app/lib/screens/active_delivery_screen.dart:547:          'nextStatus': AppConstants.statusReady,
+rider_app/lib/screens/active_delivery_screen.dart:548:          'btnLabel': 'Picked Up',
+rider_app/lib/screens/active_delivery_screen.dart:550:      case 'Ready':
+rider_app/lib/screens/active_delivery_screen.dart:552:          'icon': Icons.delivery_dining_rounded,
+rider_app/lib/screens/active_delivery_screen.dart:553:          'title': 'Delivering',
+rider_app/lib/screens/active_delivery_screen.dart:554:          'subtitle': 'Head to the customer location',
+rider_app/lib/screens/active_delivery_screen.dart:555:          'nextStatus': AppConstants.statusDelivered,
+rider_app/lib/screens/active_delivery_screen.dart:556:          'btnLabel': 'Delivered ✓',
+rider_app/lib/screens/active_delivery_screen.dart:558:      case 'Delivered':
+rider_app/lib/screens/active_delivery_screen.dart:560:          'icon': Icons.check_circle_rounded,
+rider_app/lib/screens/active_delivery_screen.dart:561:          'title': 'Order Delivered',
+rider_app/lib/screens/active_delivery_screen.dart:562:          'subtitle': 'Great work!',
+rider_app/lib/screens/active_delivery_screen.dart:563:          'nextStatus': null,
+rider_app/lib/screens/active_delivery_screen.dart:564:          'btnLabel': '',
+rider_app/lib/screens/active_delivery_screen.dart:568:          'icon': Icons.schedule_rounded,
+rider_app/lib/screens/active_delivery_screen.dart:569:          'title': 'Processing',
+rider_app/lib/screens/active_delivery_screen.dart:570:          'subtitle': 'Please wait...',
+rider_app/lib/screens/active_delivery_screen.dart:571:          'nextStatus': null,
+rider_app/lib/screens/active_delivery_screen.dart:572:          'btnLabel': '',
+rider_app/lib/screens/active_delivery_screen.dart:589:              Text('Confirm Delivery', style: TextStyle(color: brand.primary)),
+rider_app/lib/screens/active_delivery_screen.dart:591:            'Did you hand the order to the customer?',
+rider_app/lib/screens/active_delivery_screen.dart:597:              child: Text('Cancel', style: TextStyle(color: brand.primaryDark)),
+rider_app/lib/screens/active_delivery_screen.dart:604:              child: const Text('Yes, Delivered'),
+rider_app/lib/screens/active_delivery_screen.dart:635:        order['restaurantName']?.toString() ?? 'Restaurant';
+rider_app/lib/screens/active_delivery_screen.dart:636:    final String total = '${order['totalAmount'] ?? '0.00'} zł';
+rider_app/lib/screens/active_delivery_screen.dart:637:    final String orderType = order['orderType']?.toString() ?? 'delivery';
+rider_app/lib/screens/active_delivery_screen.dart:638:    final String paymentMethod = order['paymentMethod']?.toString() ?? 'cash';
+rider_app/lib/screens/active_delivery_screen.dart:639:    final bool isCash = paymentMethod == 'cash' || paymentMethod == 'Cash';
+rider_app/lib/screens/active_delivery_screen.dart:642:    final addr = order['address'];
+rider_app/lib/screens/active_delivery_screen.dart:643:    String deliveryAddress = 'Address not available';
+rider_app/lib/screens/active_delivery_screen.dart:645:      deliveryAddress = addr['fullAddress']?.toString() ??
+rider_app/lib/screens/active_delivery_screen.dart:646:          addr['address']?.toString() ??
+rider_app/lib/screens/active_delivery_screen.dart:647:          'Address not available';
+rider_app/lib/screens/active_delivery_screen.dart:668:                  Text('Order Details',
+rider_app/lib/screens/active_delivery_screen.dart:695:                          isCash ? 'Cash: $total' : 'Card Paid',
+rider_app/lib/screens/active_delivery_screen.dart:729:                    subtitle: orderType == 'pickup'
+rider_app/lib/screens/active_delivery_screen.dart:730:                        ? 'Pickup order'
+rider_app/lib/screens/active_delivery_screen.dart:731:                        : 'Delivery order',
+rider_app/lib/screens/active_delivery_screen.dart:736:                  if (orderType != 'pickup')
+rider_app/lib/screens/active_delivery_screen.dart:740:                      label: 'Delivery Address',
+rider_app/lib/screens/active_delivery_screen.dart:744:                  if (orderType == 'pickup')
+rider_app/lib/screens/active_delivery_screen.dart:748:                      label: 'Pickup',
+rider_app/lib/screens/active_delivery_screen.dart:749:                      subtitle: 'Customer collects from store',
+rider_app/lib/screens/active_delivery_screen.dart:758:                      Text('Order Total',
+rider_app/lib/screens/active_delivery_screen.dart:838:    final bool toRestaurant = status == 'In Progress';
+rider_app/lib/screens/active_delivery_screen.dart:845:      lat = double.tryParse(order['restaurantLat']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:846:      lng = double.tryParse(order['restaurantLng']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:847:      label = 'Navigate to Restaurant';
+rider_app/lib/screens/active_delivery_screen.dart:849:      final addr = order['address'];
+rider_app/lib/screens/active_delivery_screen.dart:851:        lat = double.tryParse(addr['lat']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:852:        lng = double.tryParse(addr['lng']?.toString() ?? '');
+rider_app/lib/screens/active_delivery_screen.dart:854:      label = 'Navigate to Customer';
+rider_app/lib/screens/active_delivery_screen.dart:876:    final gMaps = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
+rider_app/lib/screens/active_delivery_screen.dart:878:        'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving');
+rider_app/lib/screens/active_delivery_screen.dart:890:[{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]},
+rider_app/lib/screens/active_delivery_screen.dart:891:{"elementType":"labels.text.fill","stylers":[{"color":"#8ec3b9"}]},
+rider_app/lib/screens/active_delivery_screen.dart:892:{"elementType":"labels.text.stroke","stylers":[{"color":"#1a3646"}]},
+rider_app/lib/screens/active_delivery_screen.dart:893:{"featureType":"road","elementType":"geometry","stylers":[{"color":"#304a7d"}]},
+rider_app/lib/screens/active_delivery_screen.dart:894:{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#255763"}]},
+rider_app/lib/screens/active_delivery_screen.dart:895:{"featureType":"water","elementType":"geometry","stylers":[{"color":"#0e1626"}]}]
+rider_app/lib/services/location_service.dart:8:import 'dart:async';
+rider_app/lib/services/location_service.dart:9:import 'dart:math';
+rider_app/lib/services/location_service.dart:10:import 'package:flutter/widgets.dart';
+rider_app/lib/services/location_service.dart:11:import 'package:geolocator/geolocator.dart';
+rider_app/lib/services/location_service.dart:12:import 'package:rider_app/models/delivery_model.dart';
+rider_app/lib/services/location_service.dart:13:import 'rider_service.dart';
+rider_app/lib/services/location_service.dart:68:        .listen(_onPosition, onError: (e) => _log('GPS error: $e'));
+rider_app/lib/services/location_service.dart:70:    _log('Tracking started for delivery: $deliveryId');
+rider_app/lib/services/location_service.dart:94:      _log('Failed to update location: $e');
+rider_app/lib/services/location_service.dart:103:    _log('Tracking stopped');
+rider_app/lib/services/location_service.dart:122:      'min': max(1, (est - 2).round()),
+rider_app/lib/services/location_service.dart:123:      'max': (est + 4).round(),
+rider_app/lib/services/location_service.dart:139:  void _log(String msg) => debugPrint('[LocationService] $msg');
+rider_app/lib/services/rider_service.dart:1:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/services/rider_service.dart:2:import 'package:flutter/rendering.dart';
+rider_app/lib/services/rider_service.dart:3:import 'package:rider_app/utils/app_constants.dart';
+rider_app/lib/services/rider_service.dart:14:      'isOnline': isOnline,
+rider_app/lib/services/rider_service.dart:15:      'lastSeenAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:22:        .where('riderUID', isEqualTo: riderUID)
+rider_app/lib/services/rider_service.dart:23:        .where('status', isEqualTo: AppConstants.jobPending)
+rider_app/lib/services/rider_service.dart:24:        .orderBy('createdAt', descending: true)
+rider_app/lib/services/rider_service.dart:36:          throw Exception('Job does not exist');
+rider_app/lib/services/rider_service.dart:41:        if (data['status'] != AppConstants.jobPending) {
+rider_app/lib/services/rider_service.dart:42:          throw Exception('Job already taken');
+rider_app/lib/services/rider_service.dart:45:        final orderID = data['orderID'] as String?;
+rider_app/lib/services/rider_service.dart:48:          'status': AppConstants.jobAccepted,
+rider_app/lib/services/rider_service.dart:49:          'acceptedAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:56:          'hasActiveOrder': true,
+rider_app/lib/services/rider_service.dart:57:          'currentOrderID': orderID,
+rider_app/lib/services/rider_service.dart:60:      debugPrint('LOG: JOB ACCEPT SUCCESS');
+rider_app/lib/services/rider_service.dart:62:      debugPrint('LOG: JOB ACCEPT FAILED: $e');
+rider_app/lib/services/rider_service.dart:73:        'status': AppConstants.jobRejected,
+rider_app/lib/services/rider_service.dart:74:        'rejectedAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:77:      debugPrint('LOG: JOB REJECT SUCCESS');
+rider_app/lib/services/rider_service.dart:79:      debugPrint('LOG: JOB REJECT FAILED: $e');
+rider_app/lib/services/rider_service.dart:86:      'status': newStatus,
+rider_app/lib/services/rider_service.dart:87:      'updatedAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:91:      updates['pickedUpAt'] = FieldValue.serverTimestamp();
+rider_app/lib/services/rider_service.dart:93:      updates['deliveredAt'] = FieldValue.serverTimestamp();
+rider_app/lib/services/rider_service.dart:120:      'status': AppConstants.statusDelivered,
+rider_app/lib/services/rider_service.dart:121:      'deliveredAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:122:      'updatedAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/rider_service.dart:129:      'hasActiveOrder': false,
+rider_app/lib/services/rider_service.dart:130:      'currentOrderID': null,
+rider_app/lib/services/rider_service.dart:131:      'totalDeliveries': FieldValue.increment(1),
+rider_app/lib/services/rider_service.dart:132:      'totalEarnings': FieldValue.increment(earnings),
+rider_app/lib/services/rider_service.dart:144:      'location': {'lat': lat, 'lng': lng},
+rider_app/lib/services/rider_service.dart:145:      'locationUpdatedAt': FieldValue.serverTimestamp(),
+rider_app/lib/services/fcm_service.dart:9:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/services/fcm_service.dart:10:import 'package:firebase_messaging/firebase_messaging.dart';
+rider_app/lib/services/fcm_service.dart:11:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/services/fcm_service.dart:12:import 'package:cloud_functions/cloud_functions.dart';
+rider_app/lib/services/fcm_service.dart:13:import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+rider_app/lib/services/fcm_service.dart:14:import 'package:flutter/material.dart';
+rider_app/lib/services/fcm_service.dart:17:@pragma('vm:entry-point')
+rider_app/lib/services/fcm_service.dart:21:  debugPrint('[FCM Background] ${message.data}');
+rider_app/lib/services/fcm_service.dart:47:        AndroidInitializationSettings('@mipmap/ic_launcher');
+rider_app/lib/services/fcm_service.dart:64:          'dispatch_channel',
+rider_app/lib/services/fcm_service.dart:65:          'Dispatch Requests',
+rider_app/lib/services/fcm_service.dart:66:          description: 'Incoming delivery job requests',
+rider_app/lib/services/fcm_service.dart:108:          .httpsCallable('saveFcmToken')
+rider_app/lib/services/fcm_service.dart:109:          .call({'token': token});
+rider_app/lib/services/fcm_service.dart:113:          .collection('riders')
+rider_app/lib/services/fcm_service.dart:115:          .set({'fcmToken': token}, SetOptions(merge: true));
+rider_app/lib/services/fcm_service.dart:122:    debugPrint('[FCM Foreground] type=${data['type']}');
+rider_app/lib/services/fcm_service.dart:124:    if (data['type'] == 'DISPATCH_JOB') {
+rider_app/lib/services/fcm_service.dart:136:    if (data['type'] == 'DISPATCH_JOB') {
+rider_app/lib/services/fcm_service.dart:143:    if (payload == 'DISPATCH_JOB') {
+rider_app/lib/services/fcm_service.dart:153:      'dispatch_channel',
+rider_app/lib/services/fcm_service.dart:154:      'Dispatch Requests',
+rider_app/lib/services/fcm_service.dart:155:      channelDescription: 'Incoming delivery job requests',
+rider_app/lib/services/fcm_service.dart:169:      payload: message.data['type'],
+rider_app/lib/services/app_storage_bridge.dart:1:import 'package:shared_assets/interfaces/i_storage.dart';
+rider_app/lib/services/app_storage_bridge.dart:2:import 'package:rider_app/global/global.dart';
+rider_app/lib/services/auth_service.dart:3:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/services/auth_service.dart:4:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/services/auth_service.dart:23:    await FirebaseFirestore.instance.collection('riders').doc(uid).set({
+rider_app/lib/services/auth_service.dart:24:      'name': name,
+rider_app/lib/services/auth_service.dart:25:      'phone': phone,
+rider_app/lib/services/auth_service.dart:26:      'vehicleType': vehicleType,
+rider_app/lib/services/auth_service.dart:27:      'isOnline': true,
+rider_app/lib/services/auth_service.dart:28:      'hasActiveOrder': false,
+rider_app/lib/services/auth_service.dart:29:      'currentOrderID': null,
+rider_app/lib/services/auth_service.dart:30:      'totalDeliveries': 0,
+rider_app/lib/services/auth_service.dart:31:      'totalEarnings': 0,
+rider_app/lib/services/auth_service.dart:32:      'createdAt': FieldValue.serverTimestamp(),
+rider_app/lib/utils/app_constants.dart:2:  static const String appName = 'Freequick Rider';
+rider_app/lib/utils/app_constants.dart:5:  static const String colOrders = 'orders';
+rider_app/lib/utils/app_constants.dart:6:  static const String colRiders = 'riders';
+rider_app/lib/utils/app_constants.dart:7:  static const String colUsers = 'users';
+rider_app/lib/utils/app_constants.dart:8:  static const String colRestaurants = 'restaurants';
+rider_app/lib/utils/app_constants.dart:9:  static const String colDispatchJobs = 'dispatch_jobs';
+rider_app/lib/utils/app_constants.dart:12:  static const String statusPending = 'Pending';
+rider_app/lib/utils/app_constants.dart:14:      'In Progress'; // Restauracja zaakceptowała
+rider_app/lib/utils/app_constants.dart:15:  static const String statusReady = 'Ready'; // Kurier odebrał z restauracji
+rider_app/lib/utils/app_constants.dart:16:  static const String statusDelivered = 'Delivered'; // Kurier dostarczył
+rider_app/lib/utils/app_constants.dart:19:  static const String jobPending = 'pending';
+rider_app/lib/utils/app_constants.dart:20:  static const String jobAccepted = 'accepted';
+rider_app/lib/utils/app_constants.dart:21:  static const String jobRejected = 'rejected';
+rider_app/lib/utils/app_constants.dart:22:  static const String jobExpired = 'expired';
+rider_app/lib/utils/app_constants.dart:24:  //  Field Names (Zapobiega literówkom w doc['field'])
+rider_app/lib/utils/app_constants.dart:25:  static const String fieldIsOnline = 'isOnline';
+rider_app/lib/utils/app_constants.dart:26:  static const String fieldHasActiveOrder = 'hasActiveOrder';
+rider_app/lib/utils/app_constants.dart:27:  static const String fieldCurrentOrderID = 'currentOrderID';
+rider_app/lib/utils/app_constants.dart:28:  static const String fieldStatus = 'status';
+rider_app/lib/global/global.dart:11:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/global/global.dart:12:import 'package:shared_preferences/shared_preferences.dart';
+rider_app/lib/global/global.dart:22:// device don't overwrite each other's preferences.
+rider_app/lib/global/global.dart:26:  final String prefixedKey = '${currentRiderUID}_$key';
+rider_app/lib/global/global.dart:43:  final String prefixedKey = '${currentRiderUID}_$key';
+rider_app/lib/global/global.dart:62:  static const String vehicleType = 'vehicleType';
+rider_app/lib/global/global.dart:65:  static const String notifNewJob = 'notif_new_job';
+rider_app/lib/global/global.dart:66:  static const String notifOrderUpdate = 'notif_order_update';
+rider_app/lib/global/global.dart:69:  static const String darkMode = 'dark_mode';
+rider_app/lib/global/global.dart:72:  static const String onboardingDone = 'onboarding_done';
+rider_app/lib/main.dart:1:import 'package:firebase_core/firebase_core.dart';
+rider_app/lib/main.dart:2:import 'package:flutter/material.dart';
+rider_app/lib/main.dart:3:import 'package:provider/provider.dart';
+rider_app/lib/main.dart:6:import 'package:shared_assets/models/language.dart';
+rider_app/lib/main.dart:7:import 'package:rider_app/screens/main_screen.dart';
+rider_app/lib/main.dart:8:import 'package:rider_app/utils/app_constants.dart';
+rider_app/lib/main.dart:9:import 'package:rider_app/providers/locale_provider.dart';
+rider_app/lib/main.dart:10:import 'package:rider_app/services/app_storage_bridge.dart';
+rider_app/lib/main.dart:11:import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
+rider_app/lib/main.dart:12:import 'package:flutter_localizations/flutter_localizations.dart';
+rider_app/lib/main.dart:15:import 'firebase_options.dart';
+rider_app/lib/main.dart:16:import 'package:rider_app/global/global.dart';
+rider_app/lib/main.dart:17:import 'package:rider_app/providers/rider_provider.dart';
+rider_app/lib/main.dart:18:import 'package:rider_app/screens/auth/login_screen.dart';
+rider_app/lib/main.dart:19:import 'package:rider_app/providers/rider_stats_provider.dart';
+rider_app/lib/main.dart:20:import 'package:shared_preferences/shared_preferences.dart';
+rider_app/lib/main.dart:22:import 'package:shared_assets/l10n/l10n.dart';
+rider_app/lib/main.dart:23:import 'package:shared_assets/providers/theme_provider.dart';
+rider_app/lib/main.dart:24:import 'package:shared_assets/extensions/extensions.dart';
+rider_app/lib/main.dart:26:import 'package:flutter_libphonenumber/flutter_libphonenumber.dart';
+rider_app/lib/providers/locale_provider.dart:1:import 'dart:ui';
+rider_app/lib/providers/locale_provider.dart:2:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/providers/locale_provider.dart:3:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/providers/locale_provider.dart:4:import 'package:flutter/material.dart';
+rider_app/lib/providers/locale_provider.dart:5:import 'package:shared_assets/models/language.dart';
+rider_app/lib/providers/locale_provider.dart:6:import 'package:rider_app/global/global.dart';
+rider_app/lib/providers/locale_provider.dart:9:  Locale _locale = const Locale('en');
+rider_app/lib/providers/locale_provider.dart:24:    await saveRiderPref<String>('language_code', locale.languageCode);
+rider_app/lib/providers/locale_provider.dart:29:    String? languageCode = getRiderPref<String>('language_code');
+rider_app/lib/providers/locale_provider.dart:37:      languageCode = isSupported ? deviceCode : 'en';
+rider_app/lib/providers/locale_provider.dart:48:    _locale = const Locale('en');
+rider_app/lib/providers/locale_provider.dart:58:          .collection('rider')
+rider_app/lib/providers/locale_provider.dart:60:          .update({'locale': languageCode});
+rider_app/lib/providers/locale_provider.dart:65:            .collection('rider')
+rider_app/lib/providers/locale_provider.dart:67:            .set({'locale': languageCode}, SetOptions(merge: true));
+rider_app/lib/providers/locale_provider.dart:69:        debugPrint('LocaleProvider: failed to sync locale to Firestore: $e');
+rider_app/lib/providers/rider_stats_provider.dart:4:// where riderUID == riderUID and status == 'Delivered'.
+rider_app/lib/providers/rider_stats_provider.dart:15:import 'dart:async';
+rider_app/lib/providers/rider_stats_provider.dart:16:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/providers/rider_stats_provider.dart:17:import 'package:flutter/foundation.dart';
+rider_app/lib/providers/rider_stats_provider.dart:53:  // Key: 'Mon', 'Tue' … 'Sun'  Value: earnings that day
+rider_app/lib/providers/rider_stats_provider.dart:71:        .collection('orders')
+rider_app/lib/providers/rider_stats_provider.dart:72:        .where('riderUID', isEqualTo: riderUID)
+rider_app/lib/providers/rider_stats_provider.dart:73:        .where('status', isEqualTo: 'Delivered')
+rider_app/lib/providers/rider_stats_provider.dart:74:        .orderBy('deliveredAt', descending: true)
+rider_app/lib/providers/rider_stats_provider.dart:79:      debugPrint('RiderStatsProvider error: $e');
+rider_app/lib/providers/rider_stats_provider.dart:115:          double.tryParse(data['deliveryFee']?.toString() ?? '0') ?? 0.0;
+rider_app/lib/providers/rider_stats_provider.dart:119:      final ts = data['deliveredAt'];
+rider_app/lib/providers/rider_stats_provider.dart:149:      final dr = (data['driverRating'] as num?)?.toDouble();
+rider_app/lib/providers/rider_stats_provider.dart:159:    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+rider_app/lib/providers/rider_stats_provider.dart:193:  /// Formatted earnings string e.g. "42.50 zł"
+rider_app/lib/providers/rider_stats_provider.dart:194:  String get todayEarningsFormatted => '${todayEarnings.toStringAsFixed(2)} zł';
+rider_app/lib/providers/rider_stats_provider.dart:195:  String get weekEarningsFormatted => '${weekEarnings.toStringAsFixed(2)} zł';
+rider_app/lib/providers/rider_stats_provider.dart:196:  String get monthEarningsFormatted => '${monthEarnings.toStringAsFixed(2)} zł';
+rider_app/lib/providers/rider_stats_provider.dart:197:  String get totalEarningsFormatted => '${totalEarnings.toStringAsFixed(2)} zł';
+rider_app/lib/providers/rider_provider.dart:1:import 'dart:async';
+rider_app/lib/providers/rider_provider.dart:2:import 'package:flutter/material.dart';
+rider_app/lib/providers/rider_provider.dart:3:import 'package:firebase_auth/firebase_auth.dart';
+rider_app/lib/providers/rider_provider.dart:4:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/providers/rider_provider.dart:5:import 'package:rider_app/services/auth_service.dart';
+rider_app/lib/providers/rider_provider.dart:6:import 'package:rider_app/services/rider_service.dart';
+rider_app/lib/providers/rider_provider.dart:7:import 'package:rider_app/models/dispatch_model.dart';
+rider_app/lib/providers/rider_provider.dart:8:import 'package:rider_app/models/rider_model.dart';
+rider_app/lib/providers/rider_provider.dart:62:      final doc = await FirebaseFirestore.instance.collection('riders').doc(uid).get();
+rider_app/lib/providers/rider_provider.dart:108:      if (e.code == 'permission-denied') {
+rider_app/lib/providers/rider_provider.dart:109:        _errorMessage = "Syncing security permissions... please wait.";
+rider_app/lib/providers/rider_provider.dart:115:      _errorMessage = "Firestore Error: ${e.message}";
+rider_app/lib/providers/rider_provider.dart:124:        .collection("dispatch_jobs")
+rider_app/lib/providers/rider_provider.dart:125:        .where("status", isEqualTo: "pending")
+rider_app/lib/providers/rider_provider.dart:126:        .where("riderUID", isEqualTo: riderUID)
+rider_app/lib/providers/rider_provider.dart:135:        if (data['riderUID'] == null || data['riderUID'] == riderUID) {
+rider_app/lib/providers/rider_provider.dart:143:      _errorMessage = 'Stream Error: $e';
+rider_app/lib/providers/rider_provider.dart:153:        _activeOrder?['orderID'] = snap.id;
+rider_app/lib/providers/rider_provider.dart:165:      _errorMessage = 'Could not update status';
+rider_app/lib/providers/rider_provider.dart:177:      _errorMessage = 'Failed to accept job: $e';
+rider_app/lib/providers/rider_provider.dart:193:      if (newStatus == 'Delivered') {
+rider_app/lib/providers/rider_provider.dart:198:      _errorMessage = 'Failed to update order: $e';
+rider_app/lib/providers/rider_provider.dart:211:    final doc = await FirebaseFirestore.instance.collection('riders').doc(uid).get();
+rider_app/lib/models/delivery_model.dart:1:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/models/delivery_model.dart:11:        lat: (m['lat'] ?? 0.0).toDouble(),
+rider_app/lib/models/delivery_model.dart:12:        lng: (m['lng'] ?? 0.0).toDouble(),
+rider_app/lib/models/delivery_model.dart:15:  Map<String, dynamic> toMap() => {'lat': lat, 'lng': lng};
+rider_app/lib/models/delivery_model.dart:37:        'lat': lat,
+rider_app/lib/models/delivery_model.dart:38:        'lng': lng,
+rider_app/lib/models/delivery_model.dart:39:        'heading': heading,
+rider_app/lib/models/delivery_model.dart:40:        'speed': speed,
+rider_app/lib/models/delivery_model.dart:41:        'accuracy': accuracy,
+rider_app/lib/models/delivery_model.dart:42:        'updatedAt': FieldValue.serverTimestamp(),
+rider_app/lib/models/delivery_model.dart:50:  final String source; // 'GOOGLE_DIRECTIONS' | 'FALLBACK'
+rider_app/lib/models/delivery_model.dart:56:    this.source = 'FALLBACK',
+rider_app/lib/models/delivery_model.dart:61:        minMinutes: (m['minMinutes'] as num?)?.toInt() ?? 0,
+rider_app/lib/models/delivery_model.dart:62:        maxMinutes: (m['maxMinutes'] as num?)?.toInt() ?? 0,
+rider_app/lib/models/delivery_model.dart:63:        source: m['source'] as String? ?? 'FALLBACK',
+rider_app/lib/models/delivery_model.dart:64:        updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
+rider_app/lib/models/delivery_model.dart:71:  final String phase; // 'TO_PICKUP' | 'TO_DROPOFF'
+rider_app/lib/models/delivery_model.dart:81:        encodedPolyline: m['encodedPolyline'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:82:        phase: m['phase'] as String? ?? 'TO_PICKUP',
+rider_app/lib/models/delivery_model.dart:83:        updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
+rider_app/lib/models/delivery_model.dart:130://     final riderLoc = d['riderLocation'] as Map?;
+rider_app/lib/models/delivery_model.dart:134://       orderId: d['orderId'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:135://       storeId: d['storeId'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:136://       customerId: d['customerId'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:137://       riderUID: d['riderUID'] as String?,
+rider_app/lib/models/delivery_model.dart:138://       status: d['status'] as String? ?? 'ASSIGNING',
+rider_app/lib/models/delivery_model.dart:139://       routePhase: d['routePhase'] as String? ?? 'TO_PICKUP',
+rider_app/lib/models/delivery_model.dart:141://           (d['pickup'] as Map?)?.cast<String, dynamic>() ?? {}),
+rider_app/lib/models/delivery_model.dart:143://           (d['dropoff'] as Map?)?.cast<String, dynamic>() ?? {}),
+rider_app/lib/models/delivery_model.dart:144://       trackingEnabled: d['trackingEnabled'] as bool? ?? true,
+rider_app/lib/models/delivery_model.dart:145://       storeAddress: d['storeAddress'] as String?,
+rider_app/lib/models/delivery_model.dart:146://       customerAddress: d['customerAddress'] as String?,
+rider_app/lib/models/delivery_model.dart:147://       lastUpdateAt: (d['lastUpdateAt'] as Timestamp?)?.toDate(),
+rider_app/lib/models/delivery_model.dart:150://               lat: (riderLoc['lat'] ?? 0.0).toDouble(),
+rider_app/lib/models/delivery_model.dart:151://               lng: (riderLoc['lng'] ?? 0.0).toDouble(),
+rider_app/lib/models/delivery_model.dart:152://               heading: (riderLoc['heading'] as num?)?.toDouble(),
+rider_app/lib/models/delivery_model.dart:153://               speed: (riderLoc['speed'] as num?)?.toDouble(),
+rider_app/lib/models/delivery_model.dart:154://               accuracy: (riderLoc['accuracy'] as num?)?.toDouble(),
+rider_app/lib/models/delivery_model.dart:155://               updatedAt: (riderLoc['updatedAt'] as Timestamp?)?.toDate() ??
+rider_app/lib/models/delivery_model.dart:159://       eta: d['eta'] != null
+rider_app/lib/models/delivery_model.dart:160://           ? EtaData.fromMap((d['eta'] as Map).cast<String, dynamic>())
+rider_app/lib/models/delivery_model.dart:162://       route: d['route'] != null
+rider_app/lib/models/delivery_model.dart:163://           ? RouteData.fromMap((d['route'] as Map).cast<String, dynamic>())
+rider_app/lib/models/delivery_model.dart:223://       storeId: d['storeId'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:224://       storeName: d['storeName'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:225://       storePhone: d['storePhone'] as String?,
+rider_app/lib/models/delivery_model.dart:226://       storeAddress: d['storeAddress'] as String?,
+rider_app/lib/models/delivery_model.dart:227://       customerId: d['customerId'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:228://       customerName: d['customerName'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:229://       customerPhone: d['customerPhone'] as String?,
+rider_app/lib/models/delivery_model.dart:230://       deliveryAddress: d['deliveryAddress'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:231://       status: d['status'] as String? ?? '',
+rider_app/lib/models/delivery_model.dart:232://       deliveryId: d['deliveryId'] as String?,
+rider_app/lib/models/delivery_model.dart:233://       items: (d['items'] as List<dynamic>? ?? [])
+rider_app/lib/models/delivery_model.dart:236://       totalAmount: (d['totalAmount'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/delivery_model.dart:237://       deliveryFee: (d['deliveryFee'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/delivery_model.dart:238://       finalTotal: (d['finalTotal'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/delivery_model.dart:239://       riderEarnings: (d['riderEarnings'] as num?)?.toDouble(),
+rider_app/lib/models/delivery_model.dart:240://       riderNote: d['riderNote'] as String?,
+rider_app/lib/models/delivery_model.dart:241://       storeNote: d['storeNote'] as String?,
+rider_app/lib/models/delivery_model.dart:242://       cutleryRequested: d['cutleryRequested'] as bool?,
+rider_app/lib/models/delivery_model.dart:243://       paymentMethod: d['paymentMethod'] as String? ?? 'CASH',
+rider_app/lib/models/delivery_model.dart:244://       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+rider_app/lib/models/rider_model.dart:1:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/models/rider_model.dart:21:    this.vehicleType = 'SCOOTER',
+rider_app/lib/models/rider_model.dart:34:      name: d['name'] as String? ?? 'Rider',
+rider_app/lib/models/rider_model.dart:35:      phone: d['phone'] as String? ?? '',
+rider_app/lib/models/rider_model.dart:36:      photoUrl: d['photoUrl'] as String? ?? '',
+rider_app/lib/models/rider_model.dart:37:      vehicleType: d['vehicleType'] as String? ?? 'SCOOTER',
+rider_app/lib/models/rider_model.dart:38:      isOnline: d['isOnline'] as bool? ?? false,
+rider_app/lib/models/rider_model.dart:39:      hasActiveOrder: d['hasActiveOrder'] as bool? ?? false,
+rider_app/lib/models/rider_model.dart:40:      currentOrderID: d['currentOrderID'] as String?,
+rider_app/lib/models/rider_model.dart:41:      totalDeliveries: (d['totalDeliveries'] as num?)?.toInt() ?? 0,
+rider_app/lib/models/rider_model.dart:42:      totalEarnings: (d['totalEarnings'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/rider_model.dart:43:      rating: (d['rating'] as num?)?.toDouble() ?? 5.0,
+rider_app/lib/models/order_item_model.dart:20:        name: m['name'] as String? ?? '',
+rider_app/lib/models/order_item_model.dart:21:        quantity: (m['quantity'] as num?)?.toInt() ?? 1,
+rider_app/lib/models/order_item_model.dart:22:        price: (m['price'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/order_item_model.dart:23:        originalPrice: (m['originalPrice'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/order_item_model.dart:24:        discount: (m['discount'] as num?)?.toInt() ?? 0,
+rider_app/lib/models/order_item_model.dart:25:        options: m['options'] as String?,
+rider_app/lib/models/order_item_model.dart:28:  String get discountLabel => discount > 0 ? '$discount% OFF' : '';
+rider_app/lib/models/dispatch_model.dart:1:import 'package:cloud_firestore/cloud_firestore.dart';
+rider_app/lib/models/dispatch_model.dart:2:import 'package:rider_app/models/order_item_model.dart';
+rider_app/lib/models/dispatch_model.dart:35:    this.orderType = 'delivery',
+rider_app/lib/models/dispatch_model.dart:36:    this.paymentMethod = 'cash',
+rider_app/lib/models/dispatch_model.dart:37:    this.status = 'pending',
+rider_app/lib/models/dispatch_model.dart:50:      orderID: d['orderID'] as String? ?? '',
+rider_app/lib/models/dispatch_model.dart:51:      restaurantName: d['restaurantName'] as String? ?? '',
+rider_app/lib/models/dispatch_model.dart:52:      restaurantAddress: d['restaurantAddress'] as String? ?? '',
+rider_app/lib/models/dispatch_model.dart:53:      customerName: d['customerName'] as String?,
+rider_app/lib/models/dispatch_model.dart:54:      customerAddress: d['customerAddress'] as String?,
+rider_app/lib/models/dispatch_model.dart:55:      finalTotal: (d['finalTotal'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/dispatch_model.dart:56:      deliveryFee: (d['deliveryFee'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/dispatch_model.dart:57:      distanceKm: (d['distanceKm'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/dispatch_model.dart:58:      riderEarnings: (d['riderEarnings'] as num?)?.toDouble() ?? 0.0,
+rider_app/lib/models/dispatch_model.dart:59:      orderType: d['orderType'] as String? ?? 'delivery',
+rider_app/lib/models/dispatch_model.dart:60:      paymentMethod: d['paymentMethod'] as String? ?? 'cash',
+rider_app/lib/models/dispatch_model.dart:61:      status: d['status'] as String? ?? 'pending',
+rider_app/lib/models/dispatch_model.dart:62:      riderUID: d['riderUID'] as String?,
+rider_app/lib/models/dispatch_model.dart:63:      createdAt: d['createdAt'] != null ? (d['createdAt'] as Timestamp).toDate() : null,
+rider_app/lib/models/dispatch_model.dart:64:      expiresAt: d['expiresAt'] != null ? (d['expiresAt'] as Timestamp).toDate() : null,
+rider_app/lib/models/dispatch_model.dart:65:      collectPayment: d['collectPayment'] as bool? ?? false,
+rider_app/lib/models/dispatch_model.dart:66:      items: (d['items'] as List<dynamic>? ?? [])
+rider_app/lib/models/dispatch_model.dart:74:    return 'DispatchJob(id: $id, orderID: $orderID, restaurantName: $restaurantName, status: $status, finalTotal: $finalTotal, distance: $distanceKm km)';
+rider_app/lib/models/dispatch_model.dart:79:      'id': id,
+rider_app/lib/models/dispatch_model.dart:80:      'orderID': orderID,
+rider_app/lib/models/dispatch_model.dart:81:      'restaurantName': restaurantName,
+rider_app/lib/models/dispatch_model.dart:82:      'restaurantAddress': restaurantAddress,
+rider_app/lib/models/dispatch_model.dart:83:      'customerName': customerName,
+rider_app/lib/models/dispatch_model.dart:84:      'customerAddress': customerAddress,
+rider_app/lib/models/dispatch_model.dart:85:      'finalTotal': finalTotal,
+rider_app/lib/models/dispatch_model.dart:86:      'deliveryFee': deliveryFee,
+rider_app/lib/models/dispatch_model.dart:87:      'distanceKm': distanceKm,
+rider_app/lib/models/dispatch_model.dart:88:      'riderEarnings': riderEarnings,
+rider_app/lib/models/dispatch_model.dart:89:      'orderType': orderType,
+rider_app/lib/models/dispatch_model.dart:90:      'paymentMethod': paymentMethod,
+rider_app/lib/models/dispatch_model.dart:91:      'status': status,
+rider_app/lib/models/dispatch_model.dart:92:      'items': items,
+rider_app/lib/models/dispatch_model.dart:93:      'riderUID': riderUID,
+rider_app/lib/models/dispatch_model.dart:94:      'createdAt': createdAt?.toIso8601String(),
+rider_app/lib/models/dispatch_model.dart:95:      'expiresAt': expiresAt?.toIso8601String(),
+rider_app/lib/models/dispatch_model.dart:96:      'collectPayment': collectPayment,
+rider_app/lib/models/dispatch_model.dart:97:      // 'items': items.map((e) => e.toMap()).toList(), 

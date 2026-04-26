@@ -7,6 +7,207 @@
   "youAreOffline": "You're Offline",
 
   "online": "Online",
-  "offline": "Offline"
+  "offline": "Offline",
 
+  "welcomeBackTitle": "Welcome Back",
+  "signInToContinueSubtitle": "Sign in to continue delivering",
+  "emailAddressHint": "Email address",
+  "emailRequiredError": "Email is required",
+  "passwordLabel": "Password",
+  "phoneForOtpLabel": "Phone number for OTP verification",
+  "loginErrorUserNotFound": "No account found for this email.",
+  "loginErrorWrongPassword": "Incorrect password.",
+  "loginErrorInvalidEmail": "Please enter a valid email address.",
+  "loginErrorUserDisabled": "This account has been disabled.",
+  "loginErrorDefault": "Login failed. Try again.",
+  "loginErrorGeneric": "Something went wrong. Try again.",
+
+  "defaultRiderName": "Rider",
+
+  "statusReadyToReceive": "Ready to receive orders",
+  "statusGoOnlineToReceive": "Go online to receive orders",
+  "statRating": "Rating",
+  "statVehicle": "Vehicle",
+  "statStatus": "Status",
+  "recentActivityTitle": "Recent Activity",
+  "recentActivityEmptyTitle": "No recent deliveries",
+  "recentActivityEmptySubtitle": "Go online to start receiving jobs", 
+
+  "statDeliveries": "Deliveries",
+  "performanceSummary": "Performance Summary",
+  "timeToday": "Today",
+  "timeThisWeek": "This Week",
+  "timeThisMonth": "This Month",
+  "avgPerTrip": "Avg. per trip",
+  "ordersCount": "{count} orders",
+  "@ordersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "settingsNotifications": "Notifications",
+  "settingsPrivacy": "Privacy & Security",
+  "settingsHelp": "Help Center",
+  "settingsAppVersion": "App Version",
+  "settingsDarkMode": "Dark Mode", 
+
+  "mapMarkerRestaurant": "🏪 Restaurant",
+  "mapMarkerPickupSnippet": "Pickup",
+  "mapMarkerCustomer": "🏠 Customer",
+  "mapMarkerDropoffSnippet": "Drop-off location",
+  "stepHeadingToStore": "Heading\nto Store",
+  "stepPickedUp": "Picked\nUp",
+  "stepDelivered": "Delivered",
+  "actionHeadToRestaurant": "Head to Restaurant",
+  "actionNavToPickup": "Navigate to pick up the order",
+  "actionBtnPickedUp": "Picked Up",
+  "actionDelivering": "Delivering",
+  "actionNavToCustomer": "Head to the customer location",
+  "actionBtnDelivered": "Delivered ✓",
+  "actionOrderDeliveredTitle": "Order Delivered",
+  "actionOrderDeliveredSubtitle": "Great work!",
+  "actionProcessing": "Processing",
+  "actionPleaseWait": "Please wait...",
+  "dialogConfirmDelivery": "Confirm Delivery",
+  "dialogHandedToCustomer": "Did you hand the order to the customer?",
+  "dialogYesDelivered": "Yes, Delivered",
+  "defaultRestaurantName": "Restaurant",
+  "addressNotAvailable": "Address not available",
+  "orderDetailsTitle": "Order Details",
+  "paymentCash": "Cash: {total}",
+  "@paymentCash": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentCard": "Card Paid",
+  "orderTypePickup": "Pickup order",
+  "orderTypeDelivery": "Delivery order",
+  "labelDeliveryAddress": "Delivery Address",
+  "labelPickup": "Pickup",
+  "subtitleCustomerCollects": "Customer collects from store",
+  "orderTotal": "Order Total",
+  "navToRestaurant": "Navigate to Restaurant",
+  "navToCustomer": "Navigate to Customer",
+
+  "errorApplication": "Application Error: {error}",
+  "@errorApplication": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "jobNewJob": "New Job",
+  "jobAutorejecting": "Autorejecting in {seconds} s",
+  "jobExpiresIn": "Expires in {seconds} s",
+  "@jobAutorejecting": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "@jobExpiresIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "jobPickupFrom": "Pickup from",
+  "jobShipTo": "Ship to",
+  "jobDefaultCustomer": "Customer",
+  "jobPaymentCash": "Cash · {total}",
+  "@jobPaymentCash": {
+    "placeholders": { "total": { "type": "String" } }
+  },
+  "jobPaymentStripe": "Paid (Stripe)",
+  "jobProductsCount": "{count} products",
+  "@jobProductsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobGetPayment": "Get {total} of payment",
+  "@jobGetPayment": {
+    "placeholders": { "total": { "type": "String" } }
+  },
+  "jobActionReject": "Reject",
+  "jobActionAccept": "Accept",
+  "jobActionHideProducts": "Hide products",
+  "jobActionShowProducts": "Show products",
+
+  "otpErrorSend": "Failed to send OTP.",
+  "otpErrorIncorrect": "Incorrect code. Check the SMS and try again.",
+  "otpErrorExpired": "The code expired. Tap Resend to get a new one.",
+  "otpErrorDefault": "Verification failed. Try again.",
+  "otpTitle": "Verify\nYour Number",
+  "otpSubtitle": "Enter the 6-digit code sent to\n{phone}",
+  "@otpSubtitle": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "otpBtnVerify": "Verify",
+  "otpResendIn": "Resend code in {seconds} s",
+  "@otpResendIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "otpBtnResend": "Resend code",
+
+  "setupTitle": "Complete\nYour Profile",
+  "setupSubtitle": "Tell us a bit about yourself",
+  "setupNameLabel": "Full Name",
+  "setupVehicleLabel": "Vehicle Type",
+  "setupBtnStart": "Start Delivering",
+  "setupErrorName": "Please enter your name",
+  "setupErrorSave": "Failed to save profile. Try again.",
+
+  "vehicleBicycle": "Bicycle",
+  "vehicleScooter": "Scooter",
+  "vehicleCar": "Car",
+  "statsTodayEarnings": "Today's Earnings",
+
+  "notificationChannelDispatch": "Dispatch Requests",
+  "notificationChannelDispatchDesc": "Incoming delivery job requests",
+  
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
+
+  "discountOff": "{discount}% OFF",
+  "@discountOff": {
+    "placeholders": { "discount": { "type": "int" } }
+  },
+
+  "errorJobNotExist": "Job does not exist",
+  "errorJobTaken": "Job already taken",
+  "errorSyncingPermissions": "Syncing security permissions... please wait.",
+  "errorUpdateStatus": "Could not update status",
+  "errorAcceptJob": "Failed to accept job: {error}",
+  "@errorAcceptJob": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "errorUpdateOrder": "Failed to update order: {error}",
+  "@errorUpdateOrder": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "errorFailedToSendOtp": "Failed to send OTP",
+  "errorInvalidCode": "Invalid code",
+  "errorSessionExpired": "Session expired",
+  "errorVerificationFailed": "Verification failed",
+  "actionVerify": "Verify",
+  "otpResendButton": "Resend",
+  "jobPaymentCard": "Card",
+  "jobHideProducts": "Hide",
+  "jobShowProducts": "Show",
+  "jobItemsCount": "{count} items",
+  "@jobItemsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jobCollectPaymentWarning": "Collect {amount}",
+  "@jobCollectPaymentWarning": {
+    "placeholders": {
+      "amount": {}
+    }
+  }
 }

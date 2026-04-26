@@ -70,17 +70,19 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = switch (e.code) {
-          'user-not-found' => 'No account found for this email.',
-          'wrong-password' => 'Incorrect password.',
-          'invalid-email' => 'Please enter a valid email address.',
-          'user-disabled' => 'This account has been disabled.',
-          _ => e.message ?? 'Login failed. Try again.',
+          'user-not-found' => context.l10nRider.loginErrorUserNotFound,
+          'wrong-password' => context.l10nRider.loginErrorWrongPassword,
+          'invalid-email' => context.l10nRider.loginErrorInvalidEmail,
+          'user-disabled' => context.l10nRider.loginErrorUserDisabled,
+          _ => e.message ?? context.l10nRider.loginErrorDefault,
         };
       });
     } catch (_) {
-      setState(() => _error = 'Something went wrong. Try again.');
+      if (!mounted) return;
+      setState(() => _error = context.l10nRider.loginErrorGeneric);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -105,42 +107,44 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Text(
-                    'Welcome Back',
+                    context.l10nRider.welcomeBackTitle,
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontSize: 36,
-                        height: 1.15,
-                        color: brand.primary,
-                        fontWeight: FontWeight.w600),
+                      fontSize: 36,
+                      height: 1.15,
+                      color: brand.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sign in to continue delivering',
+                    context.l10nRider.signInToContinueSubtitle,
                     style: TextStyle(
-                        fontSize: 14,
-                        color: brand.primary,
-                        fontWeight: FontWeight.w600),
+                      fontSize: 14,
+                      color: brand.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 48),
                   CustomTextField(
                     data: Icons.email_outlined,
                     controller: _emailCtrl,
-                    hintText: 'Email address',
+                    hintText: context.l10nRider.emailAddressHint,
                     isObsecure: false,
                     customValidator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Email is required'
+                        ? context.l10nRider.emailRequiredError
                         : null,
                   ),
                   const SizedBox(height: 12),
                   CustomPasswordField(
                     controller: _passwordCtrl,
-                    label: 'Password',
+                    label: context.l10nRider.passwordLabel,
                     isRequired: true,
                     isConfirmation: true,
                   ),
                   const SizedBox(height: 12),
                   CustomPhoneField(
                     controller: _phoneCtrl,
-                    label: 'Phone number for OTP verification',
+                    label: context.l10nRider.phoneForOtpLabel,
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
@@ -150,18 +154,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: brand.danger!.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: brand.danger!.withValues(alpha: 0.3)),
+                          color: brand.danger!.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error_outline_rounded,
-                              color: brand.danger, size: 16),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            color: brand.danger,
+                            size: 16,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               _error!,
-                              style:
-                                  TextStyle(color: brand.danger, fontSize: 13),
+                              style: TextStyle(
+                                color: brand.danger,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         ],
@@ -176,25 +186,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 2,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shadowColor: Colors.black.withValues(alpha: 0.8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 2,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shadowColor: Colors.black.withValues(alpha: 0.8),
+                        ),
                         child: _isLoading
                             ? const SizedBox(
                                 width: 22,
                                 height: 22,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
                               )
                             : Text(
                                 context.l10nCommon.word_continue,
                                 style: TextStyle(
-                                    fontSize: 18,
-                                    letterSpacing: 1.4,
-                                    fontWeight: FontWeight.w700),
+                                  fontSize: 18,
+                                  letterSpacing: 1.4,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                       ),
                     ),

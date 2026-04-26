@@ -31,8 +31,10 @@ class _OtpScreenState extends State<OtpScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   String? _verificationId;
@@ -81,7 +83,7 @@ class _OtpScreenState extends State<OtpScreen> {
         if (!mounted) return;
         setState(() {
           _isSending = false;
-          _error = e.message ?? 'Failed to send OTP.';
+          _error = e.message ?? context.l10nRider.errorFailedToSendOtp;
         });
       },
       codeSent: (verificationId, resendToken) {
@@ -140,10 +142,9 @@ class _OtpScreenState extends State<OtpScreen> {
       setState(() {
         _isVerifying = false;
         _error = switch (e.code) {
-          'invalid-verification-code' =>
-            'Incorrect code. Check the SMS and try again.',
-          'session-expired' => 'The code expired. Tap Resend to get a new one.',
-          _ => e.message ?? 'Verification failed. Try again.',
+          'invalid-verification-code' => context.l10nRider.errorInvalidCode,
+          'session-expired' => context.l10nRider.errorSessionExpired,
+          _ => e.message ?? context.l10nRider.errorVerificationFailed,
         };
       });
     }
@@ -201,38 +202,38 @@ class _OtpScreenState extends State<OtpScreen> {
           backgroundColor: scheme.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_rounded,
-                color: brand.primary),
+            icon: Icon(Icons.arrow_back_rounded, color: brand.primary),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: _isSending
-            ? Center(
-                child: CircularProgressIndicator(color: brand.primary))
+            ? Center(child: CircularProgressIndicator(color: brand.primary))
             : SafeArea(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Verify\nYour Number',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineLarge
+                        context.l10nRider.otpTitle,
+                        style: Theme.of(context).textTheme.headlineLarge
                             ?.copyWith(
-                                fontSize: 32,
-                                height: 1.15,
-                                color: brand.primary),
+                              fontSize: 32,
+                              height: 1.15,
+                              color: brand.primary,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Enter the 6-digit code sent to\n${widget.args.phone}',
+                        context.l10nRider.otpSubtitle(widget.args.phone),
                         style: TextStyle(
-                            fontSize: 14,
-                            color: brand.primary,
-                            height: 1.5),
+                          fontSize: 14,
+                          color: brand.primary,
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 40),
                       Row(
@@ -247,18 +248,24 @@ class _OtpScreenState extends State<OtpScreen> {
                             color: brand.danger!.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: brand.danger!.withValues(alpha: 0.3)),
+                              color: brand.danger!.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline_rounded,
-                                  color: brand.danger, size: 16),
+                              Icon(
+                                Icons.error_outline_rounded,
+                                color: brand.danger,
+                                size: 16,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _error!,
                                   style: TextStyle(
-                                      color: brand.danger, fontSize: 13),
+                                    color: brand.danger,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             ],
@@ -276,13 +283,16 @@ class _OtpScreenState extends State<OtpScreen> {
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: Colors.white),
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
                                 )
-                              : const Text(
-                                  'Verify',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
+                              : Text(
+                                  context.l10nRider.actionVerify,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                         ),
                       ),
@@ -290,15 +300,16 @@ class _OtpScreenState extends State<OtpScreen> {
                       Center(
                         child: _secondsLeft > 0
                             ? Text(
-                                'Resend code in $_secondsLeft s',
+                                context.l10nRider.otpResendIn(_secondsLeft),
                                 style: TextStyle(
-                                    fontSize: 13,
-                                    color: brand.primary),
+                                  fontSize: 13,
+                                  color: brand.primary,
+                                ),
                               )
                             : TextButton(
                                 onPressed: () => _sendOtp(forceResend: true),
                                 child: Text(
-                                  'Resend code',
+                                  context.l10nRider.otpResendButton,
                                   style: TextStyle(
                                     color: brand.primary,
                                     fontSize: 14,

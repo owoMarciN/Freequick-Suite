@@ -22,7 +22,8 @@ class ProfileScreen extends StatelessWidget {
           final rider = provider.rider;
           if (rider == null || stats.isLoading) {
             return Center(
-                child: CircularProgressIndicator(color: brand.primary));
+              child: CircularProgressIndicator(color: brand.primary),
+            );
           }
 
           return SingleChildScrollView(
@@ -32,7 +33,10 @@ class ProfileScreen extends StatelessWidget {
                 _ProfileHeader(rider: rider),
                 const SizedBox(height: 24),
                 _StatsGrid(
-                    rider: rider, stats: stats, isOnline: provider.isOnline),
+                  rider: rider,
+                  stats: stats,
+                  isOnline: provider.isOnline,
+                ),
                 const SizedBox(height: 24),
                 _EarningsBreakdown(stats: stats),
                 const SizedBox(height: 24),
@@ -73,16 +77,17 @@ class _ProfileHeader extends StatelessWidget {
                 color: brand.primary!.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
-              )
+              ),
             ],
           ),
           child: Center(
             child: Text(
               rider.name.isNotEmpty ? rider.name[0].toUpperCase() : 'R',
               style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900),
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ),
@@ -90,14 +95,18 @@ class _ProfileHeader extends StatelessWidget {
         Text(
           rider.name,
           style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w800, color: brand.primary),
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: brand.primary,
+          ),
         ),
         Text(
           rider.phone,
           style: TextStyle(
-              color: brand.primaryDark,
-              fontSize: 14,
-              fontWeight: FontWeight.w500),
+            color: brand.primaryDark,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -109,8 +118,11 @@ class _StatsGrid extends StatelessWidget {
   final RiderModel rider;
   final RiderStatsProvider stats;
   final bool isOnline;
-  const _StatsGrid(
-      {required this.rider, required this.stats, required this.isOnline});
+  const _StatsGrid({
+    required this.rider,
+    required this.stats,
+    required this.isOnline,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +131,7 @@ class _StatsGrid extends StatelessWidget {
     return Row(
       children: [
         StatCard(
-          label: 'Deliveries',
+          label: context.l10nRider.statDeliveries,
           color: brand.primary!,
           value: Row(
             mainAxisSize: MainAxisSize.min,
@@ -132,22 +144,24 @@ class _StatsGrid extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         StatCard(
-          label: 'Rating',
+          label: context.l10nRider.statRating,
           color: brand.warning!,
           value: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.star_rounded, size: 16),
               const SizedBox(width: 4),
-              Text(stats.totalRatings > 0
-                  ? stats.avgDriverRating.toStringAsFixed(1)
-                  : '—'),
+              Text(
+                stats.totalRatings > 0
+                    ? stats.avgDriverRating.toStringAsFixed(1)
+                    : '—',
+              ),
             ],
           ),
         ),
         const SizedBox(width: 12),
         StatCard(
-          label: 'Vehicle',
+          label: context.l10nRider.statVehicle,
           color: brand.primarySoft!,
           value: buildVehicleWidget(rider.vehicleType),
         ),
@@ -176,43 +190,54 @@ class _EarningsBreakdown extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 6,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Performance Summary',
-              style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: brand.primary)),
+          Text(
+            context.l10nRider.performanceSummary,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+              color: brand.primary,
+            ),
+          ),
           const SizedBox(height: 20),
           _EarningsRow(
-              label: 'Today',
-              earnings: stats.todayEarningsFormatted,
-              count: stats.todayDeliveries),
+            label: context.l10nRider.timeToday,
+            earnings: stats.todayEarningsFormatted,
+            count: stats.todayDeliveries,
+          ),
           _EarningsRow(
-              label: 'This Week',
-              earnings: stats.weekEarningsFormatted,
-              count: stats.weekDeliveries),
+            label: context.l10nRider.timeThisWeek,
+            earnings: stats.weekEarningsFormatted,
+            count: stats.weekDeliveries,
+          ),
           _EarningsRow(
-              label: 'This Month',
-              earnings: stats.monthEarningsFormatted,
-              count: stats.monthDeliveries),
+            label: context.l10nRider.timeThisMonth,
+            earnings: stats.monthEarningsFormatted,
+            count: stats.monthDeliveries,
+          ),
           const Divider(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Avg. per trip',
-                  style: TextStyle(
-                      color: brand.primaryDark, fontWeight: FontWeight.w500)),
+              Text(
+                context.l10nRider.avgPerTrip,
+                style: TextStyle(
+                  color: brand.primaryDark,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Text(
                 '${stats.avgEarningsPerDelivery.toStringAsFixed(2)} zł',
                 style: TextStyle(
-                    color: brand.success,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16),
+                  color: brand.success,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
@@ -225,8 +250,11 @@ class _EarningsBreakdown extends StatelessWidget {
 class _EarningsRow extends StatelessWidget {
   final String label, earnings;
   final int count;
-  const _EarningsRow(
-      {required this.label, required this.earnings, required this.count});
+  const _EarningsRow({
+    required this.label,
+    required this.earnings,
+    required this.count,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -235,16 +263,23 @@ class _EarningsRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Text(label,
-              style: TextStyle(
-                  color: brand.primaryDark, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: TextStyle(
+              color: brand.primaryDark,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const Spacer(),
-          Text('$count orders',
-              style: TextStyle(fontSize: 12, color: brand.primaryDark)),
+          Text(
+            context.l10nRider.ordersCount(count),
+            style: TextStyle(fontSize: 12, color: brand.primaryDark),
+          ),
           const SizedBox(width: 12),
-          Text(earnings,
-              style:
-                  TextStyle(fontWeight: FontWeight.w700, color: brand.primary)),
+          Text(
+            earnings,
+            style: TextStyle(fontWeight: FontWeight.w700, color: brand.primary),
+          ),
         ],
       ),
     );
@@ -260,45 +295,53 @@ class _SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 12),
-          child: Text('Settings',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          child: Text(
+            context.l10nRider.settingsTitle,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          ),
         ),
         Container(
           decoration: BoxDecoration(
             color: brand.cardSurface,
             borderRadius: BorderRadius.circular(18),
-            border:
-                Border.all(color: brand.primaryDark!.withValues(alpha: 0.05)),
+            border: Border.all(
+              color: brand.primaryDark!.withValues(alpha: 0.05),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
-              )
+              ),
             ],
           ),
           child: Column(
             children: [
               _SettingsTile(
-                  icon: Icons.notifications_none_rounded,
-                  label: 'Notifications',
-                  onTap: () {}),
+                icon: Icons.notifications_none_rounded,
+                label: context.l10nRider.settingsNotifications,
+                onTap: () {},
+              ),
               ThemeSwitchTile(),
               _SettingsTile(
-                  icon: Icons.security_rounded,
-                  label: 'Privacy & Security',
-                  onTap: () {}),
+                icon: Icons.security_rounded,
+                label: context.l10nRider.settingsPrivacy,
+                onTap: () {},
+              ),
               _SettingsTile(
-                  icon: Icons.headset_mic_outlined,
-                  label: 'Help Center',
-                  onTap: () {}),
+                icon: Icons.headset_mic_outlined,
+                label: context.l10nRider.settingsHelp,
+                onTap: () {},
+              ),
               _SettingsTile(
                 icon: Icons.info_outline_rounded,
-                label: 'App Version',
-                trailing:
-                    Text('1.0.0', style: TextStyle(color: brand.primaryDark)),
+                label: context.l10nRider.settingsAppVersion,
+                trailing: Text(
+                  '1.0.0',
+                  style: TextStyle(color: brand.primaryDark),
+                ),
               ),
             ],
           ),
@@ -315,8 +358,12 @@ class _SettingsTile extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
-  const _SettingsTile(
-      {required this.icon, required this.label, this.trailing, this.onTap});
+  const _SettingsTile({
+    required this.icon,
+    required this.label,
+    this.trailing,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -325,9 +372,12 @@ class _SettingsTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: Icon(icon, color: brand.primary, size: 22),
-      title: Text(label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-      trailing: trailing ??
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      ),
+      trailing:
+          trailing ??
           Icon(Icons.chevron_right_rounded, color: brand.primaryDark),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
     );
@@ -341,8 +391,8 @@ class ThemeSwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        final bool isCurrentlyDark = themeProvider.themeMode ==
-                ThemeMode.dark ||
+        final bool isCurrentlyDark =
+            themeProvider.themeMode == ThemeMode.dark ||
             (themeProvider.themeMode == ThemeMode.system &&
                 MediaQuery.platformBrightnessOf(context) == Brightness.dark);
 
@@ -350,7 +400,7 @@ class ThemeSwitchTile extends StatelessWidget {
           icon: isCurrentlyDark
               ? Icons.dark_mode_rounded
               : Icons.light_mode_rounded,
-          label: 'Dark Mode',
+          label: context.l10nRider.settingsDarkMode,
           // Use the trailing property to host the switch
           trailing: Switch.adaptive(
             value: isCurrentlyDark,

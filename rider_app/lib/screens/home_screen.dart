@@ -66,8 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    const ActiveDeliveryScreen()),
+                              builder: (context) =>
+                                  const ActiveDeliveryScreen(),
+                            ),
                           );
                         },
                       ),
@@ -91,8 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: Text(context.l10nCommon.testCloudFunctions,
-                            style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          context.l10nCommon.testCloudFunctions,
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
 
@@ -177,8 +180,10 @@ class _ActiveOrderCard extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.directions_bike_rounded,
-                  color: Colors.white),
+              child: const Icon(
+                Icons.directions_bike_rounded,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -195,16 +200,16 @@ class _ActiveOrderCard extends StatelessWidget {
                   ),
                   Text(
                     context.l10nRider.tapToReturnToMap,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                color: Colors.white, size: 18),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
           ],
         ),
       ),
@@ -252,8 +257,8 @@ class _StatusToggle extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 provider.isOnline
-                    ? 'Ready to receive orders'
-                    : 'Go online to receive orders',
+                    ? context.l10nRider.statusReadyToReceive
+                    : context.l10nRider.statusGoOnlineToReceive,
                 style: TextStyle(color: brand.primaryDark, fontSize: 13),
               ),
             ],
@@ -263,8 +268,9 @@ class _StatusToggle extends StatelessWidget {
             scale: 1.2,
             child: Switch.adaptive(
               value: provider.isOnline,
-              onChanged:
-                  provider.isLoading ? null : (_) => provider.toggleOnline(),
+              onChanged: provider.isLoading
+                  ? null
+                  : (_) => provider.toggleOnline(),
               activeThumbColor: Colors.white,
             ),
           ),
@@ -287,7 +293,7 @@ class _StatsRow extends StatelessWidget {
       children: [
         // Rating from Stats Provider
         StatCard(
-          label: 'Rating',
+          label: context.l10nRider.statRating,
           value: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -306,7 +312,7 @@ class _StatsRow extends StatelessWidget {
 
         // Vehicle using helper from shared widgets
         StatCard(
-          label: 'Vehicle',
+          label: context.l10nRider.statVehicle,
           value: buildVehicleWidget(provider.rider?.vehicleType ?? 'SCOOTER'),
           color: brand.primary!,
         ),
@@ -314,15 +320,15 @@ class _StatsRow extends StatelessWidget {
 
         // Status indicator
         StatCard(
-          label: 'Status',
-          value: _buildStatusIndicator(provider.isOnline),
+          label: context.l10nRider.statStatus,
+          value: _buildStatusIndicator(provider.isOnline, context),
           color: provider.isOnline ? brand.success! : brand.danger!,
         ),
       ],
     );
   }
 
-  Widget _buildStatusIndicator(bool isOnline) {
+  Widget _buildStatusIndicator(bool isOnline, BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -335,7 +341,7 @@ class _StatsRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Text(isOnline ? 'Online' : 'Offline'),
+        Text(isOnline ? context.l10nRider.online : context.l10nRider.offline),
       ],
     );
   }
@@ -349,11 +355,12 @@ class _RecentActivity extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Recent Activity',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 16)),
+        Text(
+          context.l10nRider.recentActivityTitle,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontSize: 16),
+        ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(20),
@@ -366,11 +373,15 @@ class _RecentActivity extends StatelessWidget {
               children: [
                 Icon(Icons.history, color: brand.primaryDark, size: 36),
                 SizedBox(height: 8),
-                Text('No recent deliveries',
-                    style: TextStyle(color: brand.primaryDark, fontSize: 14)),
+                Text(
+                  context.l10nRider.recentActivityEmptyTitle,
+                  style: TextStyle(color: brand.primaryDark, fontSize: 14),
+                ),
                 SizedBox(height: 4),
-                Text('Go online to start receiving jobs',
-                    style: TextStyle(color: brand.primaryDark, fontSize: 12)),
+                Text(
+                  context.l10nRider.recentActivityEmptySubtitle,
+                  style: TextStyle(color: brand.primaryDark, fontSize: 12),
+                ),
               ],
             ),
           ),

@@ -16,10 +16,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const ProfileScreen(),
-  ];
+  final List<Widget> _screens = [const HomeScreen(), const ProfileScreen()];
 
   void _confirmSignOut(BuildContext context) {
     final riderProvider = Provider.of<RiderProvider>(context, listen: false);
@@ -33,8 +30,11 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: scheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Center(
-            child: Text(context.l10nCommon.signOut,
-                style: TextStyle(fontWeight: FontWeight.w800))),
+          child: Text(
+            context.l10nCommon.signOut,
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+        ),
         content: Text(context.l10nCommon.questionAppExit),
         actions: [
           Row(
@@ -42,12 +42,12 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(context.l10nCommon.cancel,
-                    style: TextStyle(color: brand.primaryDark)),
+                child: Text(
+                  context.l10nCommon.cancel,
+                  style: TextStyle(color: brand.primaryDark),
+                ),
               ),
-              const SizedBox(
-                width: 16,
-              ),
+              const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -57,13 +57,16 @@ class _MainScreenState extends State<MainScreen> {
                   backgroundColor: brand.danger,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text(context.l10nCommon.confirm,
-                    style: TextStyle(color: Colors.white)),
+                child: Text(
+                  context.l10nCommon.confirm,
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -93,8 +96,11 @@ class _MainScreenState extends State<MainScreen> {
                 color: brand.primary!.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-                  Icon(Icons.delivery_dining, color: brand.primary, size: 22),
+              child: Icon(
+                Icons.delivery_dining,
+                color: brand.primary,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 12),
             // Name, Phone & Status
@@ -104,7 +110,8 @@ class _MainScreenState extends State<MainScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    riderProvider.rider?.name ?? 'Rider',
+                    riderProvider.rider?.name ??
+                        context.l10nRider.defaultRiderName,
                     style: TextStyle(
                       color: brand.primary,
                       fontSize: 15,
@@ -133,7 +140,9 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        riderProvider.isOnline ? 'Online' : 'Offline',
+                        riderProvider.isOnline
+                            ? context.l10nRider.online
+                            : context.l10nRider.offline,
                         style: TextStyle(
                           color: riderProvider.isOnline
                               ? brand.success
@@ -153,17 +162,18 @@ class _MainScreenState extends State<MainScreen> {
           TextButton.icon(
             onPressed: () => _confirmSignOut(context),
             icon: Icon(Icons.logout_rounded, size: 24, color: brand.danger),
-            label: Text(context.l10nCommon.signOut,
-                style: TextStyle(
-                    color: brand.danger, fontWeight: FontWeight.w600)),
+            label: Text(
+              context.l10nCommon.signOut,
+              style: TextStyle(
+                color: brand.danger,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: scheme.surface,
@@ -172,7 +182,9 @@ class _MainScreenState extends State<MainScreen> {
               color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: const Offset(
-                  0, -1), // Negative Y offset pushes the shadow upwards
+                0,
+                -1,
+              ), // Negative Y offset pushes the shadow upwards
             ),
           ],
         ),
@@ -184,10 +196,13 @@ class _MainScreenState extends State<MainScreen> {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded), label: context.l10nCommon.home),
+              icon: Icon(Icons.home_rounded),
+              label: context.l10nCommon.home,
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person_rounded),
-                label: context.l10nCommon.profile),
+              icon: Icon(Icons.person_rounded),
+              label: context.l10nCommon.profile,
+            ),
           ],
         ),
       ),

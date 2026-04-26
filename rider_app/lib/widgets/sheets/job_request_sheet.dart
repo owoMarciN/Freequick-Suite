@@ -69,7 +69,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
       debugPrint('ACCEPT ERROR: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aplication Error: $e')),
+          SnackBar(
+            content: Text(context.l10nRider.errorApplication(e.toString())),
+          ),
         );
       }
     } finally {
@@ -107,7 +109,9 @@ class _JobRequestSheetState extends State<JobRequestSheet>
         color: scheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-            color: brand.primary!.withValues(alpha: 0.4), width: 1.5),
+          color: brand.primary!.withValues(alpha: 0.4),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: brand.primary!.withValues(alpha: 0.15),
@@ -132,11 +136,15 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         height: 48,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: brand.primary!
-                              .withValues(alpha: 0.1 + 0.12 * _pulse.value),
+                          color: brand.primary!.withValues(
+                            alpha: 0.1 + 0.12 * _pulse.value,
+                          ),
                         ),
-                        child: Icon(Icons.delivery_dining_rounded,
-                            color: brand.primary, size: 24),
+                        child: Icon(
+                          Icons.delivery_dining_rounded,
+                          color: brand.primary,
+                          size: 24,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -144,18 +152,24 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('New Job',
-                              style: TextStyle(
-                                  color: brand.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16)),
+                          Text(
+                            context.l10nRider.jobNewJob,
+                            style: TextStyle(
+                              color: brand.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           Text(
                             isLowTime
-                                ? 'Autorejecting in $_secondsLeft s'
-                                : 'Expires in $_secondsLeft s',
+                                ? context.l10nRider.jobAutorejecting(
+                                    _secondsLeft,
+                                  )
+                                : context.l10nRider.jobExpiresIn(_secondsLeft),
                             style: TextStyle(
-                              color:
-                                  isLowTime ? brand.danger : brand.primaryDark,
+                              color: isLowTime
+                                  ? brand.danger
+                                  : brand.primaryDark,
                               fontSize: 12,
                             ),
                           ),
@@ -166,12 +180,15 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                     // Badge with payment
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: brand.primary!.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: brand.primary!.withValues(alpha: 0.4)),
+                          color: brand.primary!.withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Text(
                         'zł ${(job.deliveryFee).toStringAsFixed(2)}',
@@ -213,7 +230,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       _RouteRow(
                         icon: Icons.store_rounded,
                         iconColor: brand.primarySoft!,
-                        label: 'Pickup from',
+                        label: context.l10nRider.jobPickupFrom,
                         value: job.restaurantName,
                         sub: job.restaurantAddress,
                       ),
@@ -221,8 +238,10 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       _RouteRow(
                         icon: Icons.location_on_rounded,
                         iconColor: brand.danger!,
-                        label: 'Ship to',
-                        value: job.customerName ?? 'Customer',
+                        label: context.l10nRider.jobShipTo,
+                        value:
+                            job.customerName ??
+                            context.l10nRider.jobDefaultCustomer,
                         sub: job.customerAddress,
                       ),
                     ],
@@ -237,8 +256,10 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                     _StatChip(
                       icon: Icons.payments_outlined,
                       label: _isCash(job.paymentMethod)
-                          ? 'Cash · zł${job.finalTotal.toStringAsFixed(2)}'
-                          : 'Payed (Stripe)',
+                          ? context.l10nRider.jobPaymentCash(
+                              job.finalTotal.toStringAsFixed(2),
+                            )
+                          : context.l10nRider.jobPaymentCard,
                       color: _isCash(job.paymentMethod)
                           ? brand.warning!
                           : brand.primary!,
@@ -246,7 +267,7 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                     const SizedBox(width: 8),
                     _StatChip(
                       icon: Icons.receipt_long_outlined,
-                      label: '${job.items.length} products',
+                      label: context.l10nRider.jobItemsCount(job.items.length),
                       color: brand.primarySoft!,
                     ),
                   ],
@@ -261,22 +282,31 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                       color: brand.warning!.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: brand.warning!.withValues(alpha: 0.4)),
+                        color: brand.warning!.withValues(alpha: 0.4),
+                      ),
                     ),
-                    child: Row(children: [
-                      Icon(Icons.account_balance_wallet,
-                          color: brand.warning, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Get zł${job.finalTotal.toStringAsFixed(2)} of payment',
-                          style: TextStyle(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet,
+                          color: brand.warning,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            context.l10nRider.jobCollectPaymentWarning(
+                              job.finalTotal.toStringAsFixed(2),
+                            ),
+                            style: TextStyle(
                               color: brand.warning,
                               fontWeight: FontWeight.bold,
-                              fontSize: 12),
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
-                      ),
-                    ]),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -297,9 +327,10 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                           side: BorderSide(color: brand.danger!),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text('Reject'),
+                        child: Text(context.l10nRider.jobActionReject),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -310,9 +341,10 @@ class _JobRequestSheetState extends State<JobRequestSheet>
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text('Accept'),
+                        child: Text(context.l10nRider.jobActionAccept),
                       ),
                     ),
                   ],
@@ -340,19 +372,26 @@ class _JobRequestSheetState extends State<JobRequestSheet>
             ),
             child: Row(
               children: [
-                Icon(Icons.fastfood_outlined,
-                    color: brand.primaryDark, size: 16),
+                Icon(
+                  Icons.fastfood_outlined,
+                  color: brand.primaryDark,
+                  size: 16,
+                ),
                 const SizedBox(width: 8),
-                Text(_showItems ? 'Hide products' : 'Show products',
-                    style: TextStyle(
-                        color: brand.primaryDark, fontSize: 13)),
+                Text(
+                  _showItems
+                      ? context.l10nRider.jobHideProducts
+                      : context.l10nRider.jobShowProducts,
+                  style: TextStyle(color: brand.primaryDark, fontSize: 13),
+                ),
                 const Spacer(),
                 Icon(
-                    _showItems
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    color: brand.primaryDark,
-                    size: 18),
+                  _showItems
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: brand.primaryDark,
+                  size: 18,
+                ),
               ],
             ),
           ),
@@ -367,19 +406,22 @@ class _JobRequestSheetState extends State<JobRequestSheet>
             ),
             child: Column(
               children: job.items
-                  .map((item) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Text('${item.quantity}x',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(item.name)),
-                            Text('zł ${(item.price).toStringAsFixed(2)}'),
-                          ],
-                        ),
-                      ))
+                  .map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${item.quantity}x',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(item.name)),
+                          Text('zł ${(item.price).toStringAsFixed(2)}'),
+                        ],
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -418,16 +460,22 @@ class _RouteRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(
-                      color: brand.primaryDark, fontSize: 10)),
-              Text(value,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                label,
+                style: TextStyle(color: brand.primaryDark, fontSize: 10),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
               if (sub != null)
-                Text(sub!,
-                    style: TextStyle(
-                        color: brand.primaryDark, fontSize: 11)),
+                Text(
+                  sub!,
+                  style: TextStyle(color: brand.primaryDark, fontSize: 11),
+                ),
             ],
           ),
         ),
@@ -441,8 +489,11 @@ class _StatChip extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _StatChip(
-      {required this.icon, required this.label, required this.color});
+  const _StatChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -460,9 +511,12 @@ class _StatChip extends StatelessWidget {
             Icon(icon, color: color, size: 14),
             const SizedBox(width: 4),
             Flexible(
-                child: Text(label,
-                    style: TextStyle(color: color, fontSize: 11),
-                    overflow: TextOverflow.ellipsis)),
+              child: Text(
+                label,
+                style: TextStyle(color: color, fontSize: 11),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),
