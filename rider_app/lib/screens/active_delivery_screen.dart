@@ -461,11 +461,6 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cfg = _config(status, context);
-    final color =
-        cfg['color'] as Color? ??
-        Theme.of(
-          context,
-        ).extension<BrandColors>()!.primary!; // added fallback just in case
     final brand = Theme.of(context).extension<BrandColors>()!;
 
     // Make sure color is assigned safely for different statuses
