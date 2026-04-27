@@ -99,14 +99,12 @@ Each Flutter app needs Firebase config files that are **not committed** to the r
 #### Android — `google-services.json`
 ```
 customer_app/android/app/google-services.json
-merchant_app/android/app/google-services.json
 rider_app/android/app/google-services.json
 ```
 
 #### iOS — `GoogleService-Info.plist`
 ```
 customer_app/ios/Runner/GoogleService-Info.plist
-merchant_app/ios/Runner/GoogleService-Info.plist
 rider_app/ios/Runner/GoogleService-Info.plist
 ```
 

@@ -1,5 +1,6 @@
 # Secrets and Keys
 secrets.json
+Files.zip
 .env
 *.p12
 *.jks
