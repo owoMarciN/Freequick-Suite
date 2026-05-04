@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:shared_assets/models/language.dart';
 import 'package:rider_app/screens/main_screen.dart';
-import 'package:rider_app/utils/app_constants.dart';
+import 'package:shared_assets/utils/app_constants.dart';
 import 'package:rider_app/providers/locale_provider.dart';
 import 'package:rider_app/services/app_storage_bridge.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';

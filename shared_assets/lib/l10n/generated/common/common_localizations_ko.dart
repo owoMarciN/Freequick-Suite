@@ -297,15 +297,15 @@ class CommonLocalizationsKo extends CommonLocalizations {
   String get restaurants => '레스토랑';
 
   @override
-  String enterField(String field) {
-    return '$field을 입력하세요';
+  String enterField(String name) {
+    return '입력하세요: $name';
   }
 
   @override
   String get details => '세부';
 
   @override
-  String get loading_default => '로딩 중';
+  String get loading_default => '로딩 중...';
 
   @override
   String loading_status_message(String message) {
@@ -532,12 +532,12 @@ class CommonLocalizationsKo extends CommonLocalizations {
 
   @override
   String otp_sent_to(String phone) {
-    return '6자리 코드를 다음 주소로 보냈습니다.\n$phone';
+    return '우리는 6자리 코드를 다음 주소로 보냈습니다.\n$phone';
   }
 
   @override
   String otp_enter_digits(int count) {
-    return '$count개의 숫자를 모두 입력하세요.';
+    return '$count자리 숫자를 모두 입력해 주세요.';
   }
 
   @override

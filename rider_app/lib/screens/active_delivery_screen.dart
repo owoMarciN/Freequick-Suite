@@ -1,25 +1,26 @@
 // lib/screens/active_delivery_screen.dart
 //
-// Shows the rider's active order with a Google Map, status stepper,
-// action button, order details, and navigation.
+// Rider app — active order screen with Google Map, polyline route,
+// status stepper, action card, order details, and map FAB buttons.
 //
-// Works with:
-//   provider.activeOrder  — Map<String, dynamic> from orders/{id}
-//   provider.updateOrderStatus(orderID, newStatus)
-//
-// Status strings match customer app exactly:
-//   In Progress → rider heads to restaurant
-//   Ready       → rider picked up, heading to customer
-//   Delivered   → order complete
+// Status flow (AppConstants, synced with Cloud Functions):
+//   statusInProgress → rider heads to restaurant
+//   statusReady      → rider picked up food, heading to customer
+//   statusDelivered  → order complete
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rider_app/screens/main_screen.dart';
-import 'package:rider_app/utils/app_constants.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_assets/utils/app_constants.dart';
 import 'package:rider_app/providers/rider_provider.dart';
 import 'package:shared_assets/extensions/extensions.dart';
+
+const String _mapsApiKey = String.fromEnvironment('MAPS_API_KEY');
+
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 class ActiveDeliveryScreen extends StatefulWidget {
   const ActiveDeliveryScreen({super.key});
@@ -29,7 +30,7 @@ class ActiveDeliveryScreen extends StatefulWidget {
 }
 
 class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
-  late GoogleMapController? mapController;
+  GoogleMapController? _mapController;
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
 
@@ -42,39 +43,42 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
 
         if (order == null) {
           return Scaffold(
-            backgroundColor: brand.muted,
+            backgroundColor: brand.cardSurface,
             body: Center(
               child: CircularProgressIndicator(color: brand.primary),
             ),
           );
         }
 
-        final String status = order['status']?.toString() ?? 'In Progress';
+        final String status =
+            order[AppConstants.fieldStatus]?.toString() ??
+                AppConstants.statusInProgress;
         final String orderID = order['orderID']?.toString() ?? '';
 
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Stack(
             children: [
-              //  Map
-              _MapSection(order: order, onMapCreated: (c) => mapController = c),
+              _MapSection(
+                order: order,
+                status: status,
+                onMapCreated: (c) => _mapController = c,
+              ),
 
-              //  Bottom panel
               DraggableScrollableSheet(
                 controller: _sheetController,
                 initialChildSize: 0.25,
-                minChildSize: 0.12,
-                maxChildSize: 0.6,
+                minChildSize: 0.14,
+                maxChildSize: 0.5,
                 snap: true,
-                snapSizes: const [0.12, 0.25, 0.5, 0.6],
+                snapSizes: const [0.14, 0.25, 0.5],
                 builder: (context, scrollController) {
                   return Container(
                     decoration: BoxDecoration(
-                      color: brand.muted,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      boxShadow: [
+                      color: brand.cardSurface,
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20)),
+                      boxShadow: const [
                         BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
@@ -89,7 +93,6 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
                 },
               ),
 
-              //  Top bar
               _TopBar(orderID: orderID, status: status),
             ],
           ),
@@ -99,55 +102,196 @@ class _ActiveDeliveryScreenState extends State<ActiveDeliveryScreen> {
   }
 }
 
-//  Map section
+// ── Map section ───────────────────────────────────────────────────────────────
 
 class _MapSection extends StatefulWidget {
   final Map<String, dynamic> order;
+  final String status;
   final Function(GoogleMapController) onMapCreated;
 
-  const _MapSection({required this.order, required this.onMapCreated});
+  const _MapSection({
+    required this.order,
+    required this.status,
+    required this.onMapCreated,
+  });
 
   @override
   State<_MapSection> createState() => _MapSectionState();
 }
 
 class _MapSectionState extends State<_MapSection> {
-  late GoogleMapController? controller;
+  GoogleMapController? _controller;
+  Set<Polyline> _polylines = {};
+  bool _loadingRoute = false;
+  String? _lastStatus;
+  LatLng? _currentRiderPosition;
 
-  LatLng _addressLatLng(dynamic addressData) {
-    if (addressData is Map) {
-      final lat = double.tryParse(addressData['lat']?.toString() ?? '');
-      final lng = double.tryParse(addressData['lng']?.toString() ?? '');
+  static const _fallback = LatLng(50.0647, 19.9450);
+
+  LatLng _parseLatLng(dynamic data, String latKey, String lngKey,
+      [LatLng fallback = _fallback]) {
+    if (data is Map) {
+      final lat = double.tryParse(data[latKey]?.toString() ?? '');
+      final lng = double.tryParse(data[lngKey]?.toString() ?? '');
       if (lat != null && lng != null) return LatLng(lat, lng);
     }
-    return const LatLng(50.0647, 19.9450); // Kraków fallback
+    return fallback;
+  }
+
+  LatLng get _pickup {
+    final order = widget.order;
+    final lat =
+        double.tryParse(order['restaurantLat']?.toString() ?? '') ??
+            _fallback.latitude;
+    final lng =
+        double.tryParse(order['restaurantLng']?.toString() ?? '') ??
+            _fallback.longitude;
+    return LatLng(lat, lng);
+  }
+
+  LatLng get _dropoff =>
+      _parseLatLng(widget.order['address'], 'lat', 'lng', _fallback);
+
+  Future<void> _fetchRoute(LatLng origin, LatLng destination) async {
+    _currentRiderPosition = origin;
+    if (_mapsApiKey.isEmpty) return;
+    if (mounted) setState(() => _loadingRoute = true);
+
+    try {
+      final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/directions/json'
+        '?origin=${origin.latitude},${origin.longitude}'
+        '&destination=${destination.latitude},${destination.longitude}'
+        '&mode=driving'
+        '&key=$_mapsApiKey',
+      );
+      final res = await http.get(url);
+      if (res.statusCode != 200) return;
+
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final routes = data['routes'] as List?;
+      if (routes == null || routes.isEmpty) return;
+
+      final decoded =
+          _decodePolyline(routes[0]['overview_polyline']['points'] as String);
+
+      if (!mounted) return;
+      setState(() {
+        _polylines = {
+          Polyline(
+            polylineId: const PolylineId('route'),
+            points: decoded,
+            color: const Color(0xFF4A6CF7),
+            width: 5,
+          ),
+        };
+      });
+      _fitBounds(decoded);
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingRoute = false);
+    }
+  }
+
+  void _fitBounds(List<LatLng> points) {
+    if (_controller == null || points.isEmpty) return;
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+    for (final p in points) {
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+      if (p.longitude < minLng) minLng = p.longitude;
+      if (p.longitude > maxLng) maxLng = p.longitude;
+    }
+    _controller!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat, minLng),
+          northeast: LatLng(maxLat, maxLng),
+        ),
+        72.0,
+      ),
+    );
+  }
+
+  void _centerOnRider() {
+    if (_controller == null) return;
+    _controller!.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: _currentRiderPosition ?? _pickup,
+          zoom: 16,
+        ),
+      ),
+    );
+  }
+
+  void _resetRouteView() {
+    if (_polylines.isEmpty) return;
+    _fitBounds(_polylines.first.points);
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    final List<LatLng> points = [];
+    int index = 0, lat = 0, lng = 0;
+    while (index < encoded.length) {
+      int shift = 0, result = 0, b;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lat += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lng += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      points.add(LatLng(lat / 1e5, lng / 1e5));
+    }
+    return points;
+  }
+
+  void _updateRoute() {
+    // In Progress = rider heading to restaurant (origin and destination are both pickup)
+    // Ready = rider heading to customer
+    final headingToRestaurant =
+        widget.status == AppConstants.statusInProgress;
+    _fetchRoute(_pickup, headingToRestaurant ? _pickup : _dropoff);
+  }
+
+  @override
+  void didUpdateWidget(_MapSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.status != _lastStatus) {
+      _lastStatus = widget.status;
+      _updateRoute();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final address = widget.order['address'];
-    final dropoff = _addressLatLng(address);
-
-    final double restLat =
-        double.tryParse(widget.order['restaurantLat']?.toString() ?? '') ??
-        dropoff.latitude;
-    final double restLng =
-        double.tryParse(widget.order['restaurantLng']?.toString() ?? '') ??
-        dropoff.longitude;
-    final pickup = LatLng(restLat, restLng);
-
-    final midLat = (pickup.latitude + dropoff.latitude) / 2;
-    final midLng = (pickup.longitude + dropoff.longitude) / 2;
+    final pickup = _pickup;
+    final dropoff = _dropoff;
+    final mid = LatLng(
+      (pickup.latitude + dropoff.latitude) / 2,
+      (pickup.longitude + dropoff.longitude) / 2,
+    );
 
     final markers = <Marker>{
       Marker(
         markerId: const MarkerId('pickup'),
         position: pickup,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        icon:
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         infoWindow: InfoWindow(
           title: context.l10nRider.mapMarkerRestaurant,
-          snippet:
-              widget.order['restaurantName']?.toString() ??
+          snippet: widget.order['restaurantName']?.toString() ??
               context.l10nRider.mapMarkerPickupSnippet,
         ),
       ),
@@ -162,29 +306,135 @@ class _MapSectionState extends State<_MapSection> {
       ),
     };
 
-    return SizedBox(
-      child: GoogleMap(
-        onMapCreated: (c) {
-          controller = c;
-          widget.onMapCreated(c);
-        },
-        initialCameraPosition: CameraPosition(
-          target: LatLng(midLat, midLng),
-          zoom: 13.5,
+    // FAB sits just above the sheet at minChildSize (14%)
+    final sheetOffset = MediaQuery.of(context).size.height * 0.14 + 16;
+
+    return Stack(
+      children: [
+        GoogleMap(
+          onMapCreated: (c) {
+            _controller = c;
+            _lastStatus = widget.status;
+            widget.onMapCreated(c);
+            _updateRoute();
+          },
+          initialCameraPosition: CameraPosition(target: mid, zoom: 13.5),
+          markers: markers,
+          polylines: _polylines,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          mapToolbarEnabled: false,
+          mapType: MapType.normal,
+          style: _darkMapStyle,
         ),
-        markers: markers,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: false,
-        zoomControlsEnabled: false,
-        mapToolbarEnabled: false,
-        mapType: MapType.normal,
-        style: _darkMapStyle,
+
+        // Loading pill
+        if (_loadingRoute)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    ),
+                    SizedBox(width: 8),
+                    Text('Loading route…',
+                        style:
+                            TextStyle(color: Colors.white, fontSize: 12)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // FAB buttons
+        Positioned(
+          right: 12,
+          bottom: sheetOffset + 12,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _MapFab(
+                icon: Icons.my_location_rounded,
+                tooltip: 'Center on my location',
+                onTap: _centerOnRider,
+              ),
+              const SizedBox(height: 10),
+              _MapFab(
+                icon: Icons.fit_screen_rounded,
+                tooltip: 'Show full route',
+                onTap: _resetRouteView,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Map FAB ───────────────────────────────────────────────────────────────────
+
+class _MapFab extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _MapFab({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    return Tooltip(
+      message: tooltip,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: brand.cardSurface!.withValues(alpha: 0.92),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: brand.primary, size: 20),
+        ),
       ),
     );
   }
 }
 
-//  Top bar
+// ── Top bar ───────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget {
   final String orderID;
@@ -215,18 +465,14 @@ class _TopBar extends StatelessWidget {
         children: [
           _GlassButton(
             onTap: () => Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainScreen()),
+              MaterialPageRoute(builder: (_) => const MainScreen()),
               (route) => false,
             ),
-            child: Icon(
-              Icons.arrow_back_rounded,
-              color: textBrand.color,
-              size: 20,
-            ),
+            child: Icon(Icons.arrow_back_rounded,
+                color: textBrand.color, size: 20),
           ),
           const SizedBox(width: 8),
           _GlassButton(
-            onTap: null,
             child: Text(
               '#${orderID.length >= 8 ? orderID.substring(0, 8).toUpperCase() : orderID}',
               style: TextStyle(
@@ -238,7 +484,6 @@ class _TopBar extends StatelessWidget {
           ),
           const Spacer(),
           _GlassButton(
-            onTap: null,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -246,13 +491,11 @@ class _TopBar extends StatelessWidget {
                   width: 7,
                   height: 7,
                   decoration: BoxDecoration(
-                    color: brand.primary,
-                    shape: BoxShape.circle,
-                  ),
+                      color: brand.primary, shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  status, // Keep status raw here, as it maps directly to DB
+                  status,
                   style: TextStyle(
                     color: brand.primary,
                     fontWeight: FontWeight.w700,
@@ -276,11 +519,11 @@ class _GlassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandColors>()!;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: brand.cardSurface!.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(10),
@@ -291,7 +534,7 @@ class _GlassButton extends StatelessWidget {
   }
 }
 
-//  Bottom panel
+// ── Bottom panel ──────────────────────────────────────────────────────────────
 
 class _BottomPanel extends StatelessWidget {
   final Map<String, dynamic> order;
@@ -311,7 +554,6 @@ class _BottomPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandColors>()!;
-
     return ListView(
       controller: scrollController,
       padding: EdgeInsets.zero,
@@ -322,26 +564,23 @@ class _BottomPanel extends StatelessWidget {
             width: 60,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.3),
+              color: brand.primary,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
         const SizedBox(height: 16),
-        // Status stepper
         _StatusStepper(status: status),
-
         Divider(color: brand.primaryDark, height: 30),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              _ActionCard(status: status, orderID: orderID, provider: provider),
+              _ActionCard(
+                  status: status, orderID: orderID, provider: provider),
               const SizedBox(height: 14),
               _OrderDetailsCard(order: order),
-              const SizedBox(height: 14),
-              _NavigateButton(order: order, status: status),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -350,41 +589,36 @@ class _BottomPanel extends StatelessWidget {
   }
 }
 
-//  Status stepper
+// ── Status stepper ────────────────────────────────────────────────────────────
 
 class _StatusStepper extends StatelessWidget {
   final String status;
   const _StatusStepper({required this.status});
 
-  int _currentIndex(String s) {
-    switch (s) {
-      case 'In Progress':
-        return 0;
-      case 'Ready':
-        return 1;
-      case 'Delivered':
-        return 2;
-      default:
-        return 0;
-    }
-  }
+  // Pipeline matches AppConstants order
+  static const _pipeline = [
+    AppConstants.statusInProgress,
+    AppConstants.statusReady,
+    AppConstants.statusDelivered,
+  ];
+
+  int _currentIndex() => _pipeline.indexOf(status).clamp(0, _pipeline.length - 1);
 
   @override
   Widget build(BuildContext context) {
-    final cur = _currentIndex(status);
+    final cur = _currentIndex();
     final brand = Theme.of(context).extension<BrandColors>()!;
 
-    // Moved _steps inside build so it can access context
-    final List<Map<String, String>> steps = [
-      {'key': 'In Progress', 'label': context.l10nRider.stepHeadingToStore},
-      {'key': 'Ready', 'label': context.l10nRider.stepPickedUp},
-      {'key': 'Delivered', 'label': context.l10nRider.stepDelivered},
+    final labels = [
+      context.l10nRider.stepHeadingToStore,
+      context.l10nRider.stepPickedUp,
+      context.l10nRider.stepDelivered,
     ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: List.generate(steps.length * 2 - 1, (i) {
+        children: List.generate(_pipeline.length * 2 - 1, (i) {
           if (i.isOdd) {
             return Expanded(
               child: Container(
@@ -412,15 +646,14 @@ class _StatusStepper extends StatelessWidget {
                 ),
                 child: Center(
                   child: done && !active
-                      ? const Icon(
-                          Icons.check_rounded,
-                          size: 14,
-                          color: Colors.white,
-                        )
+                      ? const Icon(Icons.check_rounded,
+                          size: 14, color: Colors.white)
                       : Text(
                           '${si + 1}',
                           style: TextStyle(
-                            color: active ? brand.primary : brand.primaryDark,
+                            color: active
+                                ? brand.primary
+                                : brand.primaryDark,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -429,12 +662,13 @@ class _StatusStepper extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                steps[si]['label']!,
+                labels[si],
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: done ? brand.primary : brand.primaryDark,
                   fontSize: 10,
-                  fontWeight: active ? FontWeight.w700 : FontWeight.normal,
+                  fontWeight:
+                      active ? FontWeight.w700 : FontWeight.normal,
                 ),
               ),
             ],
@@ -445,7 +679,7 @@ class _StatusStepper extends StatelessWidget {
   }
 }
 
-//  Action card
+// ── Action card ───────────────────────────────────────────────────────────────
 
 class _ActionCard extends StatelessWidget {
   final String status;
@@ -458,15 +692,85 @@ class _ActionCard extends StatelessWidget {
     required this.provider,
   });
 
+  Map<String, dynamic> _config(BuildContext context) {
+    if (status == AppConstants.statusInProgress) {
+      return {
+        'icon': Icons.directions_bike_rounded,
+        'title': context.l10nRider.actionHeadToRestaurant,
+        'subtitle': context.l10nRider.actionNavToPickup,
+        'nextStatus': AppConstants.statusReady,
+        'btnLabel': context.l10nRider.actionBtnPickedUp,
+      };
+    }
+    if (status == AppConstants.statusReady) {
+      return {
+        'icon': Icons.delivery_dining_rounded,
+        'title': context.l10nRider.actionDelivering,
+        'subtitle': context.l10nRider.actionNavToCustomer,
+        'nextStatus': AppConstants.statusDelivered,
+        'btnLabel': context.l10nRider.actionBtnDelivered,
+      };
+    }
+    if (status == AppConstants.statusDelivered) {
+      return {
+        'icon': Icons.check_circle_rounded,
+        'title': context.l10nRider.actionOrderDeliveredTitle,
+        'subtitle': context.l10nRider.actionOrderDeliveredSubtitle,
+        'nextStatus': null,
+        'btnLabel': '',
+      };
+    }
+    return {
+      'icon': Icons.schedule_rounded,
+      'title': context.l10nRider.actionProcessing,
+      'subtitle': context.l10nRider.actionPleaseWait,
+      'nextStatus': null,
+      'btnLabel': '',
+    };
+  }
+
+  void _onTap(BuildContext context, String nextStatus) {
+    final brand = Theme.of(context).extension<BrandColors>()!;
+    final scheme = Theme.of(context).colorScheme;
+
+    if (nextStatus == AppConstants.statusDelivered) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: scheme.surface,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
+          title: Text(context.l10nRider.dialogConfirmDelivery,
+              style: TextStyle(color: brand.primary)),
+          content: Text(context.l10nRider.dialogHandedToCustomer,
+              style: TextStyle(color: brand.primaryDark)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10nCommon.cancel,
+                  style: TextStyle(color: brand.primaryDark)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                provider.updateOrderStatus(orderID, nextStatus);
+              },
+              child: Text(context.l10nRider.dialogYesDelivered),
+            ),
+          ],
+        ),
+      );
+    } else {
+      provider.updateOrderStatus(orderID, nextStatus);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final cfg = _config(status, context);
+    final cfg = _config(context);
     final brand = Theme.of(context).extension<BrandColors>()!;
-
-    // Make sure color is assigned safely for different statuses
-    final resolvedColor = status == 'Delivered'
-        ? brand.success!
-        : brand.primary!;
+    final resolvedColor =
+        status == AppConstants.statusDelivered ? brand.success! : brand.primary!;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -483,18 +787,14 @@ class _ActionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  cfg['title'] as String,
-                  style: TextStyle(
-                    color: resolvedColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                  ),
-                ),
-                Text(
-                  cfg['subtitle'] as String,
-                  style: TextStyle(color: brand.primaryDark, fontSize: 12),
-                ),
+                Text(cfg['title'] as String,
+                    style: TextStyle(
+                        color: resolvedColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15)),
+                Text(cfg['subtitle'] as String,
+                    style:
+                        TextStyle(color: brand.primaryDark, fontSize: 12)),
               ],
             ),
           ),
@@ -509,116 +809,27 @@ class _ActionCard extends StatelessWidget {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
+                    horizontal: 14, vertical: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: provider.isLoading
                   ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      cfg['btnLabel'] as String,
-                      style: const TextStyle(fontSize: 13),
-                    ),
+                          strokeWidth: 2, color: Colors.white))
+                  : Text(cfg['btnLabel'] as String,
+                      style: const TextStyle(fontSize: 13)),
             ),
           ],
         ],
       ),
     );
   }
-
-  // Passed context so we can read translations
-  Map<String, dynamic> _config(String status, BuildContext context) {
-    switch (status) {
-      case 'In Progress':
-        return {
-          'icon': Icons.directions_bike_rounded,
-          'title': context.l10nRider.actionHeadToRestaurant,
-          'subtitle': context.l10nRider.actionNavToPickup,
-          'nextStatus': AppConstants.statusReady,
-          'btnLabel': context.l10nRider.actionBtnPickedUp,
-        };
-      case 'Ready':
-        return {
-          'icon': Icons.delivery_dining_rounded,
-          'title': context.l10nRider.actionDelivering,
-          'subtitle': context.l10nRider.actionNavToCustomer,
-          'nextStatus': AppConstants.statusDelivered,
-          'btnLabel': context.l10nRider.actionBtnDelivered,
-        };
-      case 'Delivered':
-        return {
-          'icon': Icons.check_circle_rounded,
-          'title': context.l10nRider.actionOrderDeliveredTitle,
-          'subtitle': context.l10nRider.actionOrderDeliveredSubtitle,
-          'nextStatus': null,
-          'btnLabel': '',
-        };
-      default:
-        return {
-          'icon': Icons.schedule_rounded,
-          'title': context.l10nRider.actionProcessing,
-          'subtitle': context.l10nRider.actionPleaseWait,
-          'nextStatus': null,
-          'btnLabel': '',
-        };
-    }
-  }
-
-  void _onTap(BuildContext context, String nextStatus) {
-    final brand = Theme.of(context).extension<BrandColors>()!;
-    final scheme = Theme.of(context).colorScheme;
-
-    if (nextStatus == AppConstants.statusDelivered) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          backgroundColor: scheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            context.l10nRider.dialogConfirmDelivery,
-            style: TextStyle(color: brand.primary),
-          ),
-          content: Text(
-            context.l10nRider.dialogHandedToCustomer,
-            style: TextStyle(color: brand.primaryDark),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                context.l10nCommon.cancel,
-                style: TextStyle(color: brand.primaryDark),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                provider.updateOrderStatus(orderID, nextStatus);
-              },
-              child: Text(context.l10nRider.dialogYesDelivered),
-            ),
-          ],
-        ),
-      );
-    } else {
-      provider.updateOrderStatus(orderID, nextStatus);
-    }
-  }
 }
 
-//  Order details card
+// ── Order details card ────────────────────────────────────────────────────────
 
 class _OrderDetailsCard extends StatefulWidget {
   final Map<String, dynamic> order;
@@ -635,62 +846,53 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandColors>()!;
     final dividerColor = Theme.of(context).dividerColor;
-
     final order = widget.order;
-    final String restaurantName =
-        order['restaurantName']?.toString() ??
+
+    final String restaurantName = order['restaurantName']?.toString() ??
         context.l10nRider.defaultRestaurantName;
     final String total = '${order['totalAmount'] ?? '0.00'} zł';
     final String orderType = order['orderType']?.toString() ?? 'delivery';
-    final String paymentMethod = order['paymentMethod']?.toString() ?? 'cash';
+    final String paymentMethod =
+        order['paymentMethod']?.toString() ?? 'cash';
     final bool isCash = paymentMethod == 'cash' || paymentMethod == 'Cash';
 
-    // Delivery address
     final addr = order['address'];
     String deliveryAddress = context.l10nRider.addressNotAvailable;
     if (addr is Map) {
-      deliveryAddress =
-          addr['fullAddress']?.toString() ??
+      deliveryAddress = addr['fullAddress']?.toString() ??
           addr['address']?.toString() ??
           context.l10nRider.addressNotAvailable;
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: brand.cardSurface,
+        color: brand.cardBorder,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
-          // Header
           InkWell(
             onTap: () => setState(() => _expanded = !_expanded),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.receipt_long_outlined,
-                    color: brand.primaryDark,
-                    size: 18,
-                  ),
+                  Icon(Icons.receipt_long_outlined,
+                      color: brand.primaryDark, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     context.l10nRider.orderDetailsTitle,
                     style: TextStyle(
-                      color: brand.primary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
+                        color: brand.primary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14),
                   ),
                   const Spacer(),
-                  // Payment badge
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
+                        horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: (isCash ? brand.warning : brand.primary)!
                           .withValues(alpha: 0.15),
@@ -703,7 +905,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                           isCash
                               ? Icons.payments_outlined
                               : Icons.credit_card_rounded,
-                          size: 12,
+                          size: 13,
                           color: isCash ? brand.warning : brand.primary,
                         ),
                         const SizedBox(width: 4),
@@ -713,7 +915,7 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                               : context.l10nRider.paymentCard,
                           style: TextStyle(
                             color: isCash ? brand.warning : brand.primary,
-                            fontSize: 11,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -732,14 +934,12 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
               ),
             ),
           ),
-
           if (_expanded) ...[
             Divider(color: dividerColor, height: 1),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Column(
                 children: [
-                  // Restaurant row
                   _InfoRow(
                     icon: Icons.store_outlined,
                     iconColor: brand.primarySoft!,
@@ -749,8 +949,6 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                         : context.l10nRider.orderTypeDelivery,
                   ),
                   const SizedBox(height: 10),
-
-                  // Delivery address row
                   if (orderType != 'pickup')
                     _InfoRow(
                       icon: Icons.location_on_outlined,
@@ -758,7 +956,6 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                       label: context.l10nRider.labelDeliveryAddress,
                       subtitle: deliveryAddress,
                     ),
-
                   if (orderType == 'pickup')
                     _InfoRow(
                       icon: Icons.storefront_rounded,
@@ -766,30 +963,21 @@ class _OrderDetailsCardState extends State<_OrderDetailsCard> {
                       label: context.l10nRider.labelPickup,
                       subtitle: context.l10nRider.subtitleCustomerCollects,
                     ),
-
                   Divider(color: dividerColor, height: 20),
-
-                  // Total
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        context.l10nRider.orderTotal,
-                        style: TextStyle(
-                          color: brand.primaryDark,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        total,
-                        style: TextStyle(
-                          color: brand.primary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                      Text(context.l10nRider.orderTotal,
+                          style: TextStyle(
+                              color: brand.primaryDark, fontSize: 13)),
+                      Text(total,
+                          style: TextStyle(
+                              color: brand.primary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800)),
                     ],
                   ),
+                  const SizedBox(height: 14),
                 ],
               ),
             ),
@@ -816,7 +1004,6 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandColors>()!;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -826,20 +1013,16 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: brand.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(color: brand.primaryDark, fontSize: 12),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(label,
+                  style: TextStyle(
+                      color: brand.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13)),
+              Text(subtitle,
+                  style:
+                      TextStyle(color: brand.primaryDark, fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
             ],
           ),
         ),
@@ -848,72 +1031,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-//  Navigate button
-
-class _NavigateButton extends StatelessWidget {
-  final Map<String, dynamic> order;
-  final String status;
-
-  const _NavigateButton({required this.order, required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandColors>()!;
-    // Before pickup → navigate to restaurant
-    // After pickup → navigate to customer
-    final bool toRestaurant = status == 'In Progress';
-
-    double? lat;
-    double? lng;
-    String label;
-
-    if (toRestaurant) {
-      lat = double.tryParse(order['restaurantLat']?.toString() ?? '');
-      lng = double.tryParse(order['restaurantLng']?.toString() ?? '');
-      label = context.l10nRider.navToRestaurant;
-    } else {
-      final addr = order['address'];
-      if (addr is Map) {
-        lat = double.tryParse(addr['lat']?.toString() ?? '');
-        lng = double.tryParse(addr['lng']?.toString() ?? '');
-      }
-      label = context.l10nRider.navToCustomer;
-    }
-
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: (lat != null && lng != null)
-            ? () => _navigate(lat!, lng!)
-            : null,
-        icon: const Icon(Icons.navigation_rounded, size: 18),
-        label: Text(label),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: brand.primary,
-          side: BorderSide(color: brand.primary!),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _navigate(double lat, double lng) async {
-    final gMaps = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
-    final browser = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving',
-    );
-    if (await canLaunchUrl(gMaps)) {
-      await launchUrl(gMaps);
-    } else {
-      await launchUrl(browser, mode: LaunchMode.externalApplication);
-    }
-  }
-}
-
-//  Dark map style
+// ── Dark map style ────────────────────────────────────────────────────────────
 
 const String _darkMapStyle = '''
 [{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]},

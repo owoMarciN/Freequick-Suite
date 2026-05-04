@@ -683,8 +683,8 @@ abstract class CommonLocalizations {
   /// Hint text for input fields
   ///
   /// In en, this message translates to:
-  /// **'Enter {field}'**
-  String enterField(String field);
+  /// **'Enter: {name}'**
+  String enterField(String name);
 
   /// No description provided for @details.
   ///

@@ -297,8 +297,8 @@ class CommonLocalizationsEn extends CommonLocalizations {
   String get restaurants => 'Restaurants';
 
   @override
-  String enterField(String field) {
-    return 'Enter $field';
+  String enterField(String name) {
+    return 'Enter: $name';
   }
 
   @override

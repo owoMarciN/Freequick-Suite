@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
-import 'package:rider_app/utils/app_constants.dart';
+import 'package:shared_assets/utils/app_constants.dart';
 
 class RiderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

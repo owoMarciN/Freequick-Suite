@@ -228,7 +228,7 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get status_declined => 'Abgelehnt';
 
   @override
-  String get status_verified => 'Verifiziert';
+  String get status_verified => 'Bestätigt';
 
   @override
   String get status_draft => 'Entwurf';
@@ -297,15 +297,15 @@ class CommonLocalizationsDe extends CommonLocalizations {
   String get restaurants => 'Restaurants';
 
   @override
-  String enterField(String field) {
-    return 'E-Mail-Adresse eingeben<x>';
+  String enterField(String name) {
+    return 'Geben Sie ein: <x>e-mail<x>';
   }
 
   @override
   String get details => 'Details';
 
   @override
-  String get loading_default => 'Laden';
+  String get loading_default => 'Laden...';
 
   @override
   String loading_status_message(String message) {
@@ -517,7 +517,7 @@ class CommonLocalizationsDe extends CommonLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count Minuten zuvor',
+      other: 'vor 5 Minuten',
       one: 'vor 1 Minute',
     );
     return '$_temp0';
@@ -594,12 +594,12 @@ class CommonLocalizationsDe extends CommonLocalizations {
 
   @override
   String notif_time_minutes(int count) {
-    return 'vor 5 Minuten';
+    return '${count}m vor';
   }
 
   @override
   String notif_time_hours(int count) {
-    return 'vor 5 Stunden';
+    return 'vor 6 Stunden';
   }
 
   @override

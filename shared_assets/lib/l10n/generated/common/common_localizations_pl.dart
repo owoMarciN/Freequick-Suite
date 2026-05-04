@@ -297,15 +297,15 @@ class CommonLocalizationsPl extends CommonLocalizations {
   String get restaurants => 'Restauracje';
 
   @override
-  String enterField(String field) {
-    return 'Wprowadź <x>email address<x>';
+  String enterField(String name) {
+    return 'Wpisz: <x>e-mail<x>';
   }
 
   @override
   String get details => 'bliższe dane';
 
   @override
-  String get loading_default => 'Załadunek';
+  String get loading_default => 'Załadunek...';
 
   @override
   String loading_status_message(String message) {
@@ -584,7 +584,7 @@ class CommonLocalizationsPl extends CommonLocalizations {
 
   @override
   String notif_time_minutes(int count) {
-    return '${count}m temu';
+    return '${count}minut temu';
   }
 
   @override
@@ -802,7 +802,7 @@ class CommonLocalizationsPl extends CommonLocalizations {
   String get favorites => 'Ulubione';
 
   @override
-  String get questionAppExit => 'Czy na pewno chcesz opuścić aplikację?';
+  String get questionAppExit => 'Czy na pewno chcesz wyjść z aplikacji?';
 
   @override
   String get testCloudFunctions => 'Testowanie funkcji chmury';

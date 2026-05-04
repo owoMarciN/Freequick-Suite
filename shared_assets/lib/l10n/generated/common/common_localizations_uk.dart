@@ -297,19 +297,19 @@ class CommonLocalizationsUk extends CommonLocalizations {
   String get restaurants => 'Ресторани';
 
   @override
-  String enterField(String field) {
-    return 'Введіть <x>email address<x>';
+  String enterField(String name) {
+    return 'Введіть: <x>e-mail address<x>';
   }
 
   @override
   String get details => 'деталі';
 
   @override
-  String get loading_default => 'Завантаження';
+  String get loading_default => 'Завантаження...';
 
   @override
   String loading_status_message(String message) {
-    return '$message... Зачекайте.';
+    return '$message... Будь ласка, зачекайте.';
   }
 
   @override
@@ -546,12 +546,12 @@ class CommonLocalizationsUk extends CommonLocalizations {
 
   @override
   String otp_sent_to(String phone) {
-    return 'Ми надіслали 6-значний код на$phone';
+    return 'Ми надіслали 6-значний код на номер\n$phone';
   }
 
   @override
   String otp_enter_digits(int count) {
-    return 'Будь ласка, введіть усі цифри $count.';
+    return 'Будь ласка, введіть усі $count цифри.';
   }
 
   @override

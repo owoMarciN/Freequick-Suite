@@ -110,11 +110,11 @@
   "customer": "Customer",
   "customers": "Customers",
   "restaurants": "Restaurants",
-  "enterField": "Enter {field}",
+  "enterField": "Enter: {name}",
   "@enterField": {
     "description": "Hint text for input fields",
     "placeholders": {
-      "field": {
+      "name": {
         "type": "String",
         "example": "email"
       }
