@@ -13,6 +13,7 @@ import 'package:shared_assets/widgets/text_fields/custom_phone_field.dart';
 import 'package:shared_assets/widgets/ui/progress_bar.dart';
 import 'package:shared_assets/widgets/ui/unified_snackbar.dart';
 import 'package:shared_assets/methods/shared_methods.dart';
+import 'package:merchant_app/widgets/cards/store_management_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -91,6 +92,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 16),
                           _BusinessInfoCard(
+                            restaurantID: currentRestaurantUID,
+                            data: restaurantData,
+                            brandColors: brandColors,
+                            colorScheme: colorScheme,
+                          ),
+                          const SizedBox(height: 16),
+                          StoreManagementCard(
                             restaurantID: currentRestaurantUID,
                             data: restaurantData,
                             brandColors: brandColors,

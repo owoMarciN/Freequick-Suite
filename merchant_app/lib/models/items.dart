@@ -14,6 +14,7 @@ class Items {
   double? price;
   double? discount;
   List<String>? tags;
+  bool? isSoldOut;
   int? likes;
 
   Items({
@@ -30,6 +31,7 @@ class Items {
     this.price,
     this.discount,
     this.tags,
+    this.isSoldOut,
     this.likes,
   });
 
@@ -63,6 +65,7 @@ class Items {
     status = json['status'];
     restaurantStatus = json['restaurantStatus'];
     tags = json['tags'] != null ? List<String>.from(json['tags']) : null;
+    isSoldOut = json['isSoldOut'];
     likes = json['likes'] ?? 0;
     discount = double.tryParse(json['discount']?.toString() ?? "0.0") ?? 0.0;
     price = double.tryParse(json['price']?.toString() ?? "0.0") ?? 0.0;
@@ -83,6 +86,7 @@ class Items {
       'price': price,
       'discount': discount,
       'tags': tags,
+      'isSoldOut': isSoldOut,
       'likes': likes,
     };
   }

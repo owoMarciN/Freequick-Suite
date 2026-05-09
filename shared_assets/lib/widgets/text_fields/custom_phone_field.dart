@@ -60,7 +60,7 @@ class _CustomPhoneFieldState extends State<CustomPhoneField> {
             child: PhoneFormField(
               focusNode: _focusNode,
               controller: widget.controller,
-              style: TextStyle(fontSize: 15, color: scheme.onSurface),
+              style: TextStyle(fontSize: 15, color: brand.primaryDark),
               cursorColor: brand.primary,
               countrySelectorNavigator: const CountrySelectorNavigator.dialog(
                 width: 400,

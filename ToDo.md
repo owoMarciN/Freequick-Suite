@@ -71,16 +71,16 @@ Promotions & Benefits
 **Merchant App**
 
 Store Management
-- [ ] Store info editing (hours, description, photos)
-- [ ] Temporary close toggle
-- [ ] Delivery radius and minimum order settings
-- [ ] Delivery/Pickup enable toggle
+- [x] Store info editing (hours, description, photos)
+- [x] Temporary close toggle
+- [x] Delivery radius and minimum order settings
+- [x] Delivery/Pickup enable toggle
 
 Menu & Inventory
 - [ ] Menu category CRUD
 - [x] Menu item CRUD (partial — in progress)
 - [x] Photo upload per item
-- [ ] Sold-out toggle per item
+- [x] Sold-out toggle per item
 
 Options Management
 - [ ] Option group CRUD (required, min/max)
@@ -90,7 +90,7 @@ Orders
 - [x] Order board / table view (in progress)
 - [ ] New order push notification
 - [ ] Accept / Reject order
-- [ ] Status update: Accepted → Preparing → Ready → Handed to rider
+- [x] Status update: Accepted → Preparing → Ready → Handed to rider
 - [ ] Partial refund / cancellation
 
 Promotions

@@ -23,21 +23,46 @@ class ItemsDesignWidget extends StatelessWidget {
     );
   }
 
+  // Quick sold-out toggle — no sheet needed, updates Firestore directly
+  Future<void> _toggleSoldOut(BuildContext context) async {
+    if (model == null) return;
+    final newValue = !(model!.isSoldOut ?? false);
+    try {
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(model!.restaurantID)
+          .collection('menus')
+          .doc(model!.menuID)
+          .collection('items')
+          .doc(model!.itemID)
+          .update({'isSoldOut': newValue});
+    } catch (e) {
+      if (context.mounted) unifiedSnackBar(e.toString(), error: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brandColors = Theme.of(context).extension<BrandColors>()!;
     final colorScheme = Theme.of(context).colorScheme;
     final bool hasImage =
         model?.imageUrl != null && model!.imageUrl!.isNotEmpty;
+    final bool isSoldOut = model?.isSoldOut ?? false;
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () => _openEditSheet(context),
       child: Container(
         decoration: BoxDecoration(
-          color: colorScheme.surface,
+          color: isSoldOut
+              ? colorScheme.surface.withValues(alpha: 0.6)
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colorScheme.outline),
+          border: Border.all(
+            color: isSoldOut
+                ? Colors.redAccent.withValues(alpha: 0.4)
+                : colorScheme.outline,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -45,6 +70,7 @@ class ItemsDesignWidget extends StatelessWidget {
           children: [
             Stack(
               children: [
+                // Item image
                 SizedBox(
                   height: 160,
                   width: double.infinity,
@@ -52,11 +78,16 @@ class ItemsDesignWidget extends StatelessWidget {
                       ? Image.network(
                           model!.imageUrl!,
                           fit: BoxFit.cover,
+                          color: isSoldOut
+                              ? Colors.black.withValues(alpha: 0.35)
+                              : null,
+                          colorBlendMode:
+                              isSoldOut ? BlendMode.darken : null,
                           loadingBuilder: (context, child, progress) {
                             if (progress == null) return child;
                             return Container(
-                              color:
-                                  brandColors.primary?.withValues(alpha: 0.05),
+                              color: brandColors.primary
+                                  ?.withValues(alpha: 0.05),
                               child: Center(
                                 child: CircularProgressIndicator(
                                   value: progress.expectedTotalBytes != null
@@ -74,8 +105,33 @@ class ItemsDesignWidget extends StatelessWidget {
                         )
                       : customImagePlaceholder(context, brandColors),
                 ),
+
+                // Sold-out overlay label
+                if (isSoldOut)
+                  Positioned.fill(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'SOLD OUT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
                 // Discount badge
-                if (model?.hasDiscount == true)
+                if (model?.hasDiscount == true && !isSoldOut)
                   Positioned(
                     top: 10,
                     left: 10,
@@ -95,13 +151,14 @@ class ItemsDesignWidget extends StatelessWidget {
                       ),
                     ),
                   ),
+
                 // Likes badge
                 Positioned(
                   top: 10,
                   right: 10,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(6),
@@ -125,6 +182,7 @@ class ItemsDesignWidget extends StatelessWidget {
                 ),
               ],
             ),
+
             Padding(
               padding: const EdgeInsets.all(14),
               child: Row(
@@ -136,16 +194,19 @@ class ItemsDesignWidget extends StatelessWidget {
                       children: [
                         Text(
                           model?.title ?? 'Untitled Item',
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: isSoldOut ? brandColors.muted : null,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           model?.shortInfo ?? '',
-                          style:
-                              TextStyle(fontSize: 12, color: brandColors.muted),
+                          style: TextStyle(
+                              fontSize: 12, color: brandColors.muted),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -170,9 +231,11 @@ class ItemsDesignWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: model?.hasDiscount == true
-                                    ? brandColors.success
-                                    : null,
+                                color: isSoldOut
+                                    ? brandColors.muted
+                                    : model?.hasDiscount == true
+                                        ? brandColors.success
+                                        : null,
                               ),
                             ),
                           ],
@@ -181,21 +244,78 @@ class ItemsDesignWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      backgroundColor:
-                          brandColors.muted!.withValues(alpha: 0.3),
-                    ),
-                    onPressed: () => _openEditSheet(context),
-                    child: Row(children: [
-                      Text(context.l10nCommon.edit,
-                          style: TextStyle(
-                              color: brandColors.success,
-                              fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 10),
-                      Icon(Icons.change_circle, color: brandColors.success),
-                    ]),
+
+                  // Action buttons column
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12),
+                          backgroundColor:
+                              brandColors.muted!.withValues(alpha: 0.3),
+                        ),
+                        onPressed: () => _openEditSheet(context),
+                        child: Row(children: [
+                          Text(context.l10nCommon.edit,
+                              style: TextStyle(
+                                  color: brandColors.success,
+                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 10),
+                          Icon(Icons.change_circle,
+                              color: brandColors.success),
+                        ]),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Sold-out quick toggle
+                      GestureDetector(
+                        onTap: () => _toggleSoldOut(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSoldOut
+                                ? Colors.redAccent.withValues(alpha: 0.1)
+                                : brandColors.success!
+                                    .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSoldOut
+                                  ? Colors.redAccent.withValues(alpha: 0.4)
+                                  : brandColors.success!
+                                      .withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isSoldOut
+                                    ? Icons.remove_shopping_cart_rounded
+                                    : Icons.shopping_cart_rounded,
+                                size: 13,
+                                color: isSoldOut
+                                    ? Colors.redAccent
+                                    : brandColors.success,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                isSoldOut ? 'Sold Out' : 'In Stock',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSoldOut
+                                      ? Colors.redAccent
+                                      : brandColors.success,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -228,6 +348,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
 
   late List<String> _tags;
   late bool _hasDiscount;
+  late bool _isSoldOut;
   Uint8List? _imageBytes;
   String? _imageFileName;
   bool _isLoading = false;
@@ -248,6 +369,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
     _tagController = TextEditingController();
     _tags = List<String>.from(widget.item.tags ?? []);
     _hasDiscount = widget.item.hasDiscount;
+    _isSoldOut = widget.item.isSoldOut ?? false;
     _priceController.addListener(() => setState(() {}));
     _discountController.addListener(() => setState(() {}));
   }
@@ -340,6 +462,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
         'discount': _hasDiscount
             ? (double.tryParse(_discountController.text.trim()) ?? 0.0)
             : 0.0,
+        'isSoldOut': _isSoldOut,
         'tags': _tags,
         if (imageChanged) 'imageUrl': finalImageUrl,
       });
@@ -374,8 +497,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
             behavior: SnackBarBehavior.floating,
             elevation: 6,
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
             dismissDirection: DismissDirection.horizontal,
           ),
@@ -447,8 +570,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
             behavior: SnackBarBehavior.floating,
             elevation: 6,
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
             dismissDirection: DismissDirection.horizontal,
           ),
@@ -507,8 +630,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                       const SizedBox(width: 10),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon:
-                            Icon(Icons.close_rounded, color: brandColors.muted),
+                        icon: Icon(Icons.close_rounded,
+                            color: brandColors.muted),
                       ),
                     ],
                   ),
@@ -547,14 +670,16 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               const SizedBox(height: 8),
               Center(
                 child: Text(context.l10nCommon.changeImage,
-                    style: TextStyle(fontSize: 11, color: brandColors.muted)),
+                    style:
+                        TextStyle(fontSize: 11, color: brandColors.muted)),
               ),
               const SizedBox(height: 20),
 
               TextFormField(
                 controller: _titleController,
                 decoration: customInputDecoration(
-                    label: context.l10nMerchant.items_design_field_title_label,
+                    label: context
+                        .l10nMerchant.items_design_field_title_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
@@ -566,8 +691,10 @@ class _EditItemSheetState extends State<_EditItemSheet> {
               TextFormField(
                 controller: _shortInfoController,
                 decoration: customInputDecoration(
-                    label: context.l10nMerchant.items_design_field_info_label,
-                    hint: context.l10nMerchant.items_design_field_info_hint,
+                    label: context
+                        .l10nMerchant.items_design_field_info_label,
+                    hint: context
+                        .l10nMerchant.items_design_field_info_hint,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
@@ -580,7 +707,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: customInputDecoration(
-                    label: context.l10nMerchant.items_design_field_desc_label,
+                    label: context
+                        .l10nMerchant.items_design_field_desc_label,
                     colorScheme: colorScheme,
                     brandColors: brandColors),
                 validator: (v) => v == null || v.trim().isEmpty
@@ -594,7 +722,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: customInputDecoration(
-                    label: context.l10nMerchant.items_design_field_price_label,
+                    label: context
+                        .l10nMerchant.items_design_field_price_label,
                     prefixText: 'PLN ',
                     colorScheme: colorScheme,
                     brandColors: brandColors),
@@ -619,15 +748,17 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     child: TextFormField(
                       controller: _tagController,
                       decoration: customInputDecoration(
-                        label:
-                            context.l10nMerchant.items_design_field_tags_label,
-                        hint: context.l10nMerchant.items_design_field_tags_hint,
+                        label: context
+                            .l10nMerchant.items_design_field_tags_label,
+                        hint: context
+                            .l10nMerchant.items_design_field_tags_hint,
                         colorScheme: colorScheme,
                         brandColors: brandColors,
                         errorText: _tagError,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z]')),
                       ],
                       onChanged: (_) {
                         if (_tagError != null) {
@@ -657,22 +788,92 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                   runSpacing: 8,
                   children: _tags
                       .map((tag) => Chip(
-                            label:
-                                Text(tag, style: const TextStyle(fontSize: 12)),
+                            label: Text(tag,
+                                style: const TextStyle(fontSize: 12)),
                             deleteIcon:
                                 const Icon(Icons.close_rounded, size: 14),
                             onDeleted: () => _removeTag(tag),
-                            backgroundColor:
-                                brandColors.primary?.withValues(alpha: 0.1),
+                            backgroundColor: brandColors.primary
+                                ?.withValues(alpha: 0.1),
                             side: BorderSide(
                                 color: brandColors.primary
                                         ?.withValues(alpha: 0.3) ??
                                     Colors.transparent),
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4),
                           ))
                       .toList(),
                 ),
               ],
+              const SizedBox(height: 16),
+
+              // ── Sold-out toggle ───────────────────────────────────────────
+              Container(
+                decoration: BoxDecoration(
+                  color: _isSoldOut
+                      ? Colors.redAccent.withValues(alpha: 0.06)
+                      : colorScheme.surfaceBright,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _isSoldOut
+                        ? Colors.redAccent.withValues(alpha: 0.4)
+                        : colorScheme.outline,
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => setState(() => _isSoldOut = !_isSoldOut),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _isSoldOut
+                              ? Icons.remove_shopping_cart_rounded
+                              : Icons.shopping_cart_rounded,
+                          size: 18,
+                          color: _isSoldOut
+                              ? Colors.redAccent
+                              : brandColors.muted,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Sold Out',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _isSoldOut
+                                      ? Colors.redAccent
+                                      : brandColors.muted,
+                                ),
+                              ),
+                              Text(
+                                _isSoldOut
+                                    ? 'Item is hidden from customers'
+                                    : 'Item is available to order',
+                                style: TextStyle(
+                                    fontSize: 11, color: brandColors.muted),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: _isSoldOut,
+                          activeColor: Colors.redAccent,
+                          onChanged: (v) =>
+                              setState(() => _isSoldOut = v),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 16),
 
               // Discount toggle
@@ -693,7 +894,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                   children: [
                     InkWell(
                       borderRadius: BorderRadius.circular(10),
-                      onTap: () => setState(() => _hasDiscount = !_hasDiscount),
+                      onTap: () =>
+                          setState(() => _hasDiscount = !_hasDiscount),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
@@ -705,7 +907,9 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                                     ? brandColors.success
                                     : brandColors.muted),
                             const SizedBox(width: 10),
-                            Text(context.l10nMerchant.items_discount_toggle,
+                            Text(
+                                context
+                                    .l10nMerchant.items_discount_toggle,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -716,8 +920,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                             const Spacer(),
                             Checkbox(
                               value: _hasDiscount,
-                              onChanged: (v) =>
-                                  setState(() => _hasDiscount = v ?? false),
+                              onChanged: (v) => setState(
+                                  () => _hasDiscount = v ?? false),
                               activeColor: brandColors.success,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4)),
@@ -729,16 +933,19 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     if (_hasDiscount) ...[
                       Divider(
                           height: 1,
-                          color: brandColors.success?.withValues(alpha: 0.2)),
+                          color: brandColors.success
+                              ?.withValues(alpha: 0.2)),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                        padding:
+                            const EdgeInsets.fromLTRB(16, 12, 16, 12),
                         child: TextFormField(
                           controller: _discountController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                                  decimal: true),
                           decoration: InputDecoration(
-                            labelText: context
-                                .l10nMerchant.items_design_discount_label,
+                            labelText: context.l10nMerchant
+                                .items_design_discount_label,
                             suffixText: '%',
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
@@ -748,13 +955,13 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                           validator: (v) {
                             if (!_hasDiscount) return null;
                             if (v == null || v.trim().isEmpty) {
-                              return context
-                                  .l10nMerchant.items_design_discount_required;
+                              return context.l10nMerchant
+                                  .items_design_discount_required;
                             }
                             final val = double.tryParse(v.trim());
                             if (val == null || val <= 0 || val > 100) {
-                              return context
-                                  .l10nMerchant.items_design_discount_invalid;
+                              return context.l10nMerchant
+                                  .items_design_discount_invalid;
                             }
                             return null;
                           },
@@ -762,10 +969,13 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                       ),
                       if (_priceController.text.isNotEmpty &&
                           _discountController.text.isNotEmpty &&
-                          double.tryParse(_priceController.text) != null &&
-                          double.tryParse(_discountController.text) != null)
+                          double.tryParse(_priceController.text) !=
+                              null &&
+                          double.tryParse(_discountController.text) !=
+                              null)
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                          padding:
+                              const EdgeInsets.fromLTRB(16, 0, 16, 12),
                           child: Row(
                             children: [
                               Text(
@@ -781,7 +991,8 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: brandColors.muted,
-                                    decoration: TextDecoration.lineThrough),
+                                    decoration:
+                                        TextDecoration.lineThrough),
                               ),
                             ],
                           ),

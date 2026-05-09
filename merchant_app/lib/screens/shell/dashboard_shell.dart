@@ -206,6 +206,16 @@ class _DashboardShellState extends State<DashboardShell> {
                             width: 32,
                             height: 32,
                             fit: BoxFit.cover,
+                            // ADD THIS:
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 32,
+                                height: 32,
+                                color: brandColors.primary?.withOpacity(0.1),
+                                child: const Icon(Icons.restaurant_rounded,
+                                    size: 20),
+                              );
+                            },
                           ),
                         )
                       : Container(
@@ -224,7 +234,7 @@ class _DashboardShellState extends State<DashboardShell> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      getUserPref<String>('businessName') ?? 'RestaurantOS',
+                      getUserPref<String>('businessName') ?? 'Restaurant',
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w700),
                       maxLines: 1,

@@ -177,6 +177,8 @@ class GlobalStatsProvider extends ChangeNotifier {
     activeRestaurants = byRestaurant.keys.length;
     _ordersLoading = false;
 
+    if (!hasListeners) return;
+
     notifyListeners();
   }
 
@@ -239,6 +241,8 @@ class GlobalStatsProvider extends ChangeNotifier {
     totalMenus = menus;
     totalItems = items;
     _restaurantsLoading = false;
+
+    if (!hasListeners) return;
 
     notifyListeners();
   }

@@ -88,7 +88,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               filled: true,
-              fillColor: scheme.surface,
+              fillColor: brand.primaryDark,
               errorStyle: const TextStyle(fontSize: 0, height: 0),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

@@ -178,7 +178,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           filled: true,
-          fillColor: widget.enabled ? scheme.surface : scheme.surfaceBright,
+          fillColor: widget.enabled ? brand.primaryDark : brand.primarySoft,
           prefixIcon: widget.data != null
               ? Icon(
                   widget.data,
